@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Imaha - Full Stack Developer",
+  title: "Profile - Ilham Maulana Habibie",
   description: "Premium portfolio showcasing projects, skills, and experience in web development",
 };
 
