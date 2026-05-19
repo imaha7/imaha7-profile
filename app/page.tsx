@@ -19,7 +19,7 @@ export default function Home() {
     {
       id: 1,
       title: "Common Process Monitoring Dashboard",
-      client: "PT. Astra Honda Motor",
+      client: "PT. Sazanka Henig Solusi",
       period: "Okt 2025–Mar 2026",
       relation: "Terkait dengan PT. Sazanka Henig Solusi",
       description: "Implement and develop the requirement of DCM Division into visualization data dashboard based.",
@@ -28,7 +28,7 @@ export default function Home() {
     {
       id: 2,
       title: "Budget Preparation and Standard Using Analysis Manufacture Cost Budget",
-      client: "PT. Astra Honda Motor",
+      client: "PT. Sazanka Henig Solusi",
       period: "Mar 2025–Okt 2025",
       relation: "Terkait dengan PT. Sazanka Henig Solusi",
       description: "Implement and develop the requirement of Finance Division into visualization data dashboard based.",
@@ -37,7 +37,7 @@ export default function Home() {
     {
       id: 3,
       title: "Dashboard Visualization",
-      client: "PT. Astra Honda Motor",
+      client: "PT. Sazanka Henig Solusi",
       period: "Okt 2023–Mar 2025",
       relation: "Terkait dengan PT. Sazanka Henig Solusi",
       description:
@@ -96,7 +96,7 @@ export default function Home() {
       period: "Sep 2022–Nov 2022",
       relation: "Terkait dengan Zegen Solusi Mandiri",
       description: "Developing UI Education Apps Web Based using React.js & Next.js.",
-      skills: [],
+      skills: ["TypeScript", "REST APIs"],
     },
     {
       id: 10,
