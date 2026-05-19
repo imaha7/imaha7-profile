@@ -138,10 +138,9 @@ export default function Home() {
       role: "Information Technology Developer",
       company: "PT. Sazanka Henig Solusi",
       period: "Oct 2023 - Present",
-      description: "Support client PT. Astra Honda Motor on development and implementation projects; develop expertise in Business Intelligence products (MotionBoard).",
+      description: "Support client on development and implementation projects; develop expertise in Business Intelligence products (MotionBoard).",
       details: [
-        "LinkedIn membantu saya mendapatkan pekerjaan ini",
-        "Support the Company’s Client PT. Astra Honda Motor development and implementation project.",
+        "Support the Company’s Client development and implementation project.",
         "Develop expertise in Products Business Intelligence like MotionBoard of the Company.",
         "Develop marketing and communication materials together with Sales team (e.g., sales presentation slides, product information).",
         "Conduct product demos and presentations.",
@@ -268,7 +267,7 @@ export default function Home() {
               </div>
               <div className="flex flex-col leading-none">
                 <span className="text-lg font-semibold tracking-tight text-white">IMAHA</span>
-                <span className="text-[0.65rem] uppercase tracking-[0.24em] text-slate-400">Premium Studio</span>
+                <span className="text-[0.65rem] uppercase tracking-[0.24em] text-slate-400">Profile</span>
               </div>
             </a>
             <div className="hidden lg:flex items-center gap-8 ml-6">
@@ -547,7 +546,7 @@ export default function Home() {
               <p className="mt-4 text-sm text-slate-400">Jakarta, Indonesia</p>
             </div>
           </div>
-          <div className="mt-10 border-t border-white/10 pt-6 text-center text-sm text-slate-500">© {currentYear} Imaha. All rights reserved.</div>
+          <div className="mt-10 border-t border-white/10 pt-6 text-center text-sm text-slate-500">© {currentYear} Ilham Maulana Habibie. All rights reserved.</div>
         </div>
       </footer>
     </div>
