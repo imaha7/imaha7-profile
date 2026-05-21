@@ -9,6 +9,7 @@
   --outline-border: rgba(255, 255, 255, 0.12);
   --muted: #94a3b8;
   --accent: #38bdf8;
+  --brand-text: #38bdf8;
 }
 
 html[data-theme="light"] {
@@ -20,6 +21,7 @@ html[data-theme="light"] {
   --outline-border: rgba(15, 23, 42, 0.16);
   --muted: #6b7280;
   --accent: #2c7fb8;
+  --brand-text: #1e3a8a; /* darker blue for better contrast in light mode */
 }
 
 @theme inline {

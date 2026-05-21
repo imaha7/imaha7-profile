@@ -378,7 +378,7 @@ export default function Home() {
               </div>
               <div className="flex flex-col leading-none">
                 <span className="text-lg font-semibold tracking-tight text-[var(--foreground)]">IMAHA</span>
-                <span className="text-[0.65rem] uppercase tracking-[0.24em] text-[var(--muted)]">Premium Studio</span>
+                <span className="text-[0.65rem] uppercase tracking-[0.24em] text-[var(--muted)]">Profile</span>
               </div>
             </a>
             <div className="hidden lg:flex items-center gap-8 ml-6">
@@ -389,7 +389,7 @@ export default function Home() {
                     setActiveSection(item.id);
                     document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                   }}
-                  className={`relative text-sm font-medium transition-all duration-300 py-1 ${activeSection === item.id ? 'text-cyan-300' : 'text-[var(--muted)] hover:text-[var(--foreground)]'}`}
+                  className={`relative text-sm font-medium transition-all duration-300 py-1 ${activeSection === item.id ? 'text-[var(--brand-text)]' : 'text-[var(--muted)] hover:text-[var(--foreground)]'}`}
                 >
                   {item.label}
                   <span className={`absolute left-0 bottom-0 h-0.5 bg-gradient-to-r from-cyan-400 to-indigo-500 transition-all duration-300 ${activeSection === item.id ? 'w-full' : 'w-0 group-hover:w-full'}`} />
@@ -456,7 +456,7 @@ export default function Home() {
                   document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }}
                 className={`w-full rounded-xl px-4 py-3 text-left text-sm font-medium transition ${
-                  activeSection === item.id ? 'bg-cyan-500/10 text-cyan-200' : 'text-[var(--foreground)] hover:bg-[var(--surface)]'
+                  activeSection === item.id ? 'bg-cyan-500/10 text-[var(--brand-text)]' : 'text-[var(--foreground)] hover:bg-[var(--surface)]'
                 }`}
               >
                 {item.label}
@@ -472,7 +472,7 @@ export default function Home() {
             <div className="grid gap-16 lg:grid-cols-2 items-center">
               <div className="space-y-10">
                 <div className="space-y-6">
-                  <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-cyan-500/5 px-4 py-2 text-xs uppercase tracking-[0.24em] text-cyan-300">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-cyan-500/5 px-4 py-2 text-xs uppercase tracking-[0.24em] text-[var(--brand-text)]">
                     <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 animate-pulse" />
                     Full Stack Developer & BI Specialist
                   </div>
@@ -506,7 +506,7 @@ export default function Home() {
                     { num: '5+', label: 'Companies' },
                   ].map((stat) => (
                     <div key={stat.label}>
-                      <div className="text-3xl font-bold text-cyan-400">{stat.num}</div>
+                      <div className="text-3xl font-bold text-[var(--brand-text)]">{stat.num}</div>
                       <div className="text-sm text-[var(--muted)] mt-1">{stat.label}</div>
                     </div>
                   ))}
@@ -539,7 +539,7 @@ export default function Home() {
                       <p className="text-xs text-[var(--muted)] mb-3">Recent Clients</p>
                       <div className="flex flex-wrap gap-2">
                         {['PT. Astra Honda Motor', 'Ogloba Ltd.', 'Zegen Solusi Mandiri'].map((client) => (
-                          <span key={client} className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-cyan-500/10 text-cyan-200 border border-cyan-500/20">
+                          <span key={client} className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-cyan-500/10 text-[var(--brand-text)] border border-cyan-500/20">
                             {client}
                           </span>
                         ))}
@@ -576,7 +576,7 @@ export default function Home() {
                 ].map((stat) => (
                   <div key={stat.label} className="rounded-3xl border border-[var(--surface-border)] bg-[var(--surface)] p-6">
                     <div className="text-sm text-[var(--muted)]">{stat.label}</div>
-                    <div className="mt-2 text-3xl font-semibold text-cyan-300">{stat.value}</div>
+                    <div className="mt-2 text-3xl font-semibold text-[var(--brand-text)]">{stat.value}</div>
                   </div>
                 ))}
               </div>
@@ -590,7 +590,7 @@ export default function Home() {
             <div className="grid gap-8 md:grid-cols-3">
               {skills.map((skillGroup) => (
                 <div key={skillGroup.category} className="rounded-3xl border border-[var(--surface-border)] bg-[var(--surface)] p-6 transition hover:border-cyan-400/50">
-                  <h3 className="mb-4 text-xl font-semibold text-cyan-300">{skillGroup.category}</h3>
+                  <h3 className="mb-4 text-xl font-semibold text-[var(--brand-text)]">{skillGroup.category}</h3>
                   <div className="space-y-3">
                     {skillGroup.items.map((item) => (
                       <div key={item} className="flex items-center gap-3 text-[var(--muted)]">
@@ -628,7 +628,7 @@ export default function Home() {
                     {project.skills && project.skills.length > 0 && (
                       <div className="flex flex-wrap gap-2">
                         {project.skills.map((s) => (
-                          <span key={s} className="rounded-full bg-cyan-500/12 px-3 py-1 text-xs font-medium text-cyan-200">
+                          <span key={s} className="rounded-full bg-cyan-500/12 px-3 py-1 text-xs font-medium text-[var(--brand-text)]">
                             {s}
                           </span>
                         ))}
@@ -649,7 +649,7 @@ export default function Home() {
                 <div key={exp.role} className="relative overflow-hidden rounded-[1.5rem] border border-[var(--surface-border)] bg-[var(--surface)] p-6 shadow-[0_20px_80px_-45px_rgba(14,165,233,0.4)]">
                   <div className="absolute top-6 left-0 h-20 w-1 rounded-tr-full rounded-br-full bg-gradient-to-b from-cyan-400 to-transparent" />
                   <div className="ml-6">
-                    <h3 className="text-xl font-semibold text-cyan-300">{exp.role}</h3>
+                    <h3 className="text-xl font-semibold text-[var(--brand-text)]">{exp.role}</h3>
                     <p className="text-sm text-[var(--muted)] mt-1">{exp.company}</p>
                     <p className="text-xs text-[var(--muted)] mt-2">{exp.period}</p>
                     {exp.details ? (
@@ -683,11 +683,11 @@ export default function Home() {
               >
                 Email Me
               </a>
-              <a
+                <a
                 href="https://www.linkedin.com/in/imaha7"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-full border border-cyan-400/50 px-8 py-3 text-sm font-semibold text-cyan-200 transition hover:bg-cyan-400/10"
+                className="rounded-full border border-cyan-400/50 px-8 py-3 text-sm font-semibold text-[var(--brand-text)] transition hover:bg-cyan-400/10"
               >
                 LinkedIn
               </a>
@@ -695,7 +695,7 @@ export default function Home() {
                 href="https://github.com/imaha7"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-full border border-cyan-400/50 px-8 py-3 text-sm font-semibold text-cyan-200 transition hover:bg-cyan-400/10"
+                className="rounded-full border border-cyan-400/50 px-8 py-3 text-sm font-semibold text-[var(--brand-text)] transition hover:bg-cyan-400/10"
               >
                 GitHub
               </a>
@@ -708,13 +708,13 @@ export default function Home() {
         <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:px-8">
           <div className="grid gap-10 lg:grid-cols-[1.4fr_0.9fr] items-start">
             <div>
-              <p className="text-sm uppercase tracking-[0.32em] text-cyan-400">Let's collaborate</p>
+              <p className="text-sm uppercase tracking-[0.32em] text-[var(--brand-text)]">Let's collaborate</p>
               <h2 className="mt-4 text-3xl font-semibold text-[var(--foreground)]">Powerful solutions with premium delivery.</h2>
               <p className="mt-4 max-w-xl text-[var(--muted)]">Available for BI, dashboard, and web application projects. Send an email to start a clear, fast conversation about your next digital product.</p>
             </div>
             <div className="rounded-3xl border border-[var(--surface-border)] bg-[var(--surface)] p-6">
               <p className="text-xs uppercase tracking-[0.24em] text-[var(--muted)]">Email</p>
-              <a href="mailto:ilham.maulana.07.0698@gmail.com" className="mt-3 block text-lg font-semibold text-[var(--foreground)] hover:text-cyan-300">ilham.maulana.07.0698@gmail.com</a>
+              <a href="mailto:ilham.maulana.07.0698@gmail.com" className="mt-3 block text-lg font-semibold text-[var(--foreground)] hover:text-[var(--brand-text)]">ilham.maulana.07.0698@gmail.com</a>
               <p className="mt-4 text-sm text-[var(--muted)]">Jakarta, Indonesia</p>
             </div>
           </div>
@@ -735,7 +735,7 @@ export default function Home() {
         <div className={`${chatOpen ? "block" : "hidden"} w-[320px] max-w-full rounded-3xl border border-[var(--surface-border)] bg-[var(--surface)] p-4 shadow-[0_25px_60px_-30px_rgba(0,0,0,0.6)] backdrop-blur-xl`}> 
           <div className="flex items-center justify-between border-b border-[var(--surface-border)] pb-3">
             <div>
-              <p className="text-sm uppercase tracking-[0.24em] text-cyan-300">AI Assistant</p>
+              <p className="text-sm uppercase tracking-[0.24em] text-[var(--brand-text)]">AI Assistant</p>
               <h3 className="mt-1 text-lg font-semibold text-[var(--foreground)]">Ask about Ilham</h3>
             </div>
             <button
