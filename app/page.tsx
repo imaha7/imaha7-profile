@@ -5,13 +5,118 @@ import React, { useState } from "react";
 export default function Home() {
   const [activeSection, setActiveSection] = useState("home");
   const [scrolled, setScrolled] = useState(false);
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatInput, setChatInput] = useState("");
+  const [chatMessages, setChatMessages] = useState<{ sender: "user" | "bot"; text: string }[]>([
+    {
+      sender: "bot",
+      text: "Hello! Ask me anything about Ilham Maulana Habibie — education, experience, projects, skills, or contact.",
+    },
+  ]);
   const currentYear = new Date().getFullYear();
 
+  const profileResponses = [
+    {
+      keys: ["name", "who are", "who is"],
+      text: "I am Ilham Maulana Habibie, a Full Stack Developer and BI Specialist based in Jakarta, Indonesia.",
+    },
+    {
+      keys: ["degree", "education", "university", "mikroskil", "computer science"],
+      text: "I hold a Bachelor of Computer Science from Mikroskil University.",
+    },
+    {
+      keys: ["contact", "whatsapp", "phone", "number", "email"],
+      text: "You can contact me by email at ilham.maulana.07.0698@gmail.com or via WhatsApp at +62 831 9431 0725.",
+    },
+    {
+      keys: ["github", "repo", "repository", "code"],
+      text: "Explore my code and project work on GitHub: https://github.com/imaha7.",
+    },
+    {
+      keys: ["linkedin"],
+      text: "Connect with me on LinkedIn: https://www.linkedin.com/in/imaha7.",
+    },
+    {
+      keys: ["experience", "current", "work", "job"],
+      text: "I currently work as an Information Technology Developer at PT. Sazanka Henig Solusi, building BI dashboards, MotionBoard visualizations, and enterprise data solutions.",
+    },
+    {
+      keys: ["projects", "featured", "dashboard", "budget", "egift", "crm", "mobile"] ,
+      text: "My recent projects include Common Process Monitoring Dashboard, Budget Preparation dashboards, and eGift Card web and mobile solutions for clients like Ogloba Ltd. and PT. Astra Honda Motor.",
+    },
+    {
+      keys: ["skills", "tech", "stack", "tools"],
+      text: "My core skills include React, Next.js, TypeScript, Tailwind CSS, Node.js, MotionBoard, Vue.js, Laravel, React Native, REST APIs, and BI visualization.",
+    },
+    {
+      keys: ["location", "jakarta", "indonesia"],
+      text: "I am based in Jakarta, Indonesia.",
+    },
+    {
+      keys: ["help", "assist", "support", "ask"],
+      text: "Just ask me anything about my background, experience, education, projects, GitHub, or contact details.",
+    },
+  ];
+
+  const answerQuestion = (question: string) => {
+    const lower = question.toLowerCase();
+    if (/(hi|hello|hey|good morning|good afternoon|good evening)/.test(lower)) {
+      return "Hi there! I’m ready to answer your questions about Ilham Maulana Habibie.";
+    }
+
+    for (const response of profileResponses) {
+      if (response.keys.some((key) => lower.includes(key))) {
+        return response.text;
+      }
+    }
+
+    return "I’m happy to help! Ask me about Ilham’s experience, education, project work, skills, or contact details.";
+  };
+
+  const sendChatMessage = () => {
+    const trimmed = chatInput.trim();
+    if (!trimmed) return;
+
+    const userMessage = { sender: "user" as const, text: trimmed };
+    const botMessage = { sender: "bot" as const, text: answerQuestion(trimmed) };
+
+    setChatMessages((prev) => [...prev, userMessage, botMessage]);
+    setChatInput("");
+  };
+
+  const sectionIds = ["home", "about", "projects", "experience", "contact"];
+
   React.useEffect(() => {
+    const savedTheme = window.localStorage.getItem("theme") as "dark" | "light" | null;
+    const preferredTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    const initialTheme = savedTheme || preferredTheme;
+    setTheme(initialTheme);
+    document.documentElement.dataset.theme = initialTheme;
+
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
+
+      const scrollPosition = window.scrollY + window.innerHeight * 0.25;
+      let active = sectionIds[0];
+
+      for (const id of sectionIds) {
+        const section = document.getElementById(id);
+        if (!section) continue;
+
+        const { top } = section.getBoundingClientRect();
+        if (top <= window.innerHeight * 0.3) {
+          active = id;
+        }
+      }
+
+      setActiveSection(active);
     };
+
     window.addEventListener("scroll", handleScroll);
+    handleScroll();
+
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -252,33 +357,42 @@ export default function Home() {
     },
   ];
 
-  const navItems = ["home", "about", "projects", "experience", "contact"];
+  const navItems = [
+    { id: "home", label: "Home" },
+    { id: "about", label: "About" },
+    { id: "projects", label: "Projects" },
+    { id: "experience", label: "Experience" },
+    { id: "contact", label: "Contact" },
+  ];
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#020817] text-white">
+    <div className="relative min-h-screen overflow-hidden bg-[var(--background)] text-[var(--foreground)]">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-80 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.16),transparent_30%),radial-gradient(circle_at_80%_10%,_rgba(14,165,233,0.14),transparent_22%)] blur-3xl" />
 
-      <nav className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${scrolled ? 'bg-slate-950/95 backdrop-blur-xl border-b border-white/10 shadow-lg shadow-cyan-500/5' : 'bg-transparent'}`}>
+      <nav className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${scrolled ? 'bg-[var(--surface)] backdrop-blur-xl border-b border-[var(--surface-border)] shadow-lg shadow-cyan-500/5' : 'bg-transparent'}`}>
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-4">
-            <a href="#home" onClick={() => { setActiveSection('home'); document.getElementById('home')?.scrollIntoView({ behavior: 'smooth' }); }} className="inline-flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-sm font-semibold uppercase tracking-[0.24em] text-slate-100 shadow-sm shadow-white/5">
+            <a href="#home" onClick={() => { setActiveSection('home'); setMobileNavOpen(false); document.getElementById('home')?.scrollIntoView({ behavior: 'smooth' }); }} className="inline-flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-full border border-[var(--surface-border)] bg-[var(--surface)] text-sm font-semibold uppercase tracking-[0.24em] text-[var(--foreground)] shadow-sm shadow-white/5">
                 I
               </div>
               <div className="flex flex-col leading-none">
-                <span className="text-lg font-semibold tracking-tight text-white">IMAHA</span>
-                <span className="text-[0.65rem] uppercase tracking-[0.24em] text-slate-400">Profile</span>
+                <span className="text-lg font-semibold tracking-tight text-[var(--foreground)]">IMAHA</span>
+                <span className="text-[0.65rem] uppercase tracking-[0.24em] text-[var(--muted)]">Premium Studio</span>
               </div>
             </a>
             <div className="hidden lg:flex items-center gap-8 ml-6">
               {navItems.map((item) => (
                 <button
-                  key={item}
-                  onClick={() => { setActiveSection(item); document.getElementById(item)?.scrollIntoView({ behavior: 'smooth' }); }}
-                  className={`relative capitalize text-sm font-medium transition-all duration-300 py-1 ${activeSection === item ? 'text-cyan-300' : 'text-slate-300 hover:text-white'}`}
+                  key={item.id}
+                  onClick={() => {
+                    setActiveSection(item.id);
+                    document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }}
+                  className={`relative text-sm font-medium transition-all duration-300 py-1 ${activeSection === item.id ? 'text-cyan-300' : 'text-[var(--muted)] hover:text-[var(--foreground)]'}`}
                 >
-                  {item}
-                  <span className={`absolute left-0 bottom-0 h-0.5 bg-gradient-to-r from-cyan-400 to-indigo-500 transition-all duration-300 ${activeSection === item ? 'w-full' : 'w-0 group-hover:w-full'}`} />
+                  {item.label}
+                  <span className={`absolute left-0 bottom-0 h-0.5 bg-gradient-to-r from-cyan-400 to-indigo-500 transition-all duration-300 ${activeSection === item.id ? 'w-full' : 'w-0 group-hover:w-full'}`} />
                 </button>
               ))}
             </div>
@@ -288,15 +402,68 @@ export default function Home() {
             <a href="#projects" className="hidden md:inline-flex items-center rounded-md bg-gradient-to-r from-cyan-500 to-indigo-500 px-5 py-2 text-sm font-semibold text-slate-900 shadow-lg shadow-cyan-500/20 hover:shadow-lg hover:shadow-cyan-500/40 transition-all duration-300 hover:scale-105">
               View Projects
             </a>
-            <a href="mailto:ilham.maulana.07.0698@gmail.com" className="inline-flex items-center rounded-md border border-white/10 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-white/5 hover:border-white/20 transition-all duration-300">
+            <a
+              href="https://api.whatsapp.com/send?phone=6283194310725&text=Hi%20Ilham%2C%20I%20would%20like%20to%20discuss%20a%20project."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="outlined-btn inline-flex items-center rounded-md border border-[var(--surface-border)] bg-[var(--surface)] px-4 py-2 text-sm font-medium text-[var(--foreground)] hover:bg-[var(--surface)]/90 transition-all duration-300"
+            >
               Contact
             </a>
-            <button className="ml-2 inline-flex items-center rounded-md bg-white/6 p-2 text-slate-200 hover:bg-white/10 hover:scale-110 transition-all duration-300 md:hidden" aria-label="Open email">
+            <button
+              type="button"
+              onClick={() => {
+                const nextTheme = theme === "dark" ? "light" : "dark";
+                setTheme(nextTheme);
+                window.localStorage.setItem("theme", nextTheme);
+                document.documentElement.dataset.theme = nextTheme;
+              }}
+              className="hidden sm:inline-flex h-11 w-11 items-center justify-center rounded-full border border-[var(--surface-border)] bg-[var(--surface)] text-[var(--foreground)] hover:bg-[var(--surface)]/90 transition-all duration-300"
+              aria-label="Toggle theme"
+            >
+              {theme === "dark" ? (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-[var(--foreground)]">
+                  <path d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              ) : (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-[var(--foreground)]">
+                  <path d="M12 3v2M12 19v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  <circle cx="12" cy="12" r="5" stroke="currentColor" strokeWidth="1.5" />
+                </svg>
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={() => setMobileNavOpen((open) => !open)}
+              className="ml-2 inline-flex items-center rounded-md bg-[var(--surface)] p-2 text-[var(--foreground)] hover:bg-[var(--surface)] transition-all duration-300 md:hidden"
+              aria-label="Toggle navigation menu"
+              aria-expanded={mobileNavOpen}
+            >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </button>
           </div>
         </div>
-        <div className={`absolute inset-x-0 top-full h-1 bg-gradient-to-r from-cyan-500 to-indigo-500 transition-opacity duration-500 ${scrolled ? 'opacity-30' : 'opacity-20'}`} />
+        <div className={`absolute inset-x-0 top-full bg-[var(--surface)] border-t border-[var(--surface-border)] overflow-hidden transition-all duration-300 md:hidden ${mobileNavOpen ? 'max-h-60 py-4 opacity-100' : 'max-h-0 py-0 opacity-0'}`}>
+          <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 sm:px-6 lg:px-8">
+            {navItems.map((item) => (
+              <a
+                key={item.id}
+                href={`#${item.id}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setActiveSection(item.id);
+                  setMobileNavOpen(false);
+                  document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }}
+                className={`w-full rounded-xl px-4 py-3 text-left text-sm font-medium transition ${
+                  activeSection === item.id ? 'bg-cyan-500/10 text-cyan-200' : 'text-[var(--foreground)] hover:bg-[var(--surface)]'
+                }`}
+              >
+                {item.label}
+              </a>
+            ))}
+          </div>
+        </div>
       </nav>
 
       <main className="relative pt-32">
@@ -309,14 +476,11 @@ export default function Home() {
                     <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 animate-pulse" />
                     Full Stack Developer & BI Specialist
                   </div>
-                  <h1 className="text-6xl sm:text-7xl font-bold leading-tight text-white">
+                  <h1 className="text-6xl sm:text-7xl font-bold leading-tight text-[var(--foreground)]">
                     Hi, I’m Ilham Maulana Habibie.
                   </h1>
-                  <p className="text-xl text-slate-300 leading-relaxed max-w-lg">
+                  <p className="text-xl text-[var(--muted)] leading-relaxed max-w-lg">
                     Bachelor of Computer Science from Mikroskil University. I create premium web applications, intelligent dashboards, and scalable BI solutions for enterprise clients.
-                  </p>
-                  <p className="text-base text-cyan-200 leading-relaxed max-w-lg">
-                    Contact Number: +62 831 9431 0725
                   </p>
                 </div>
 
@@ -329,13 +493,13 @@ export default function Home() {
                   </a>
                   <a
                     href="mailto:ilham.maulana.07.0698@gmail.com"
-                    className="inline-flex items-center justify-center rounded-lg border border-white/20 bg-white/5 px-8 py-4 text-base font-semibold text-white hover:bg-white/10 hover:border-white/40 transition-all duration-300"
+                    className="outlined-btn inline-flex items-center justify-center rounded-lg border border-[var(--surface-border)] bg-[var(--surface)] px-8 py-4 text-base font-semibold text-[var(--foreground)] hover:bg-[var(--surface)] hover:border-[var(--surface-border)] transition-all duration-300"
                   >
                     Get In Touch
                   </a>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4 pt-6 border-t border-white/10">
+                <div className="grid grid-cols-3 gap-4 pt-6 border-t border-[var(--surface-border)]">
                   {[
                     { num: '12+', label: 'Projects' },
                     { num: '6+', label: 'Years' },
@@ -343,7 +507,7 @@ export default function Home() {
                   ].map((stat) => (
                     <div key={stat.label}>
                       <div className="text-3xl font-bold text-cyan-400">{stat.num}</div>
-                      <div className="text-sm text-slate-400 mt-1">{stat.label}</div>
+                      <div className="text-sm text-[var(--muted)] mt-1">{stat.label}</div>
                     </div>
                   ))}
                 </div>
@@ -351,12 +515,12 @@ export default function Home() {
 
               <div className="relative hidden lg:block">
                 <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/20 to-indigo-500/20 rounded-3xl blur-3xl" />
-                <div className="relative bg-gradient-to-br from-slate-900 to-slate-950 rounded-3xl border border-white/10 p-8 backdrop-blur-xl">
+                <div className="relative rounded-3xl border border-[var(--surface-border)] bg-[var(--surface)] p-8 backdrop-blur-xl">
                   <div className="space-y-8">
                     <div>
-                      <p className="text-xs uppercase tracking-[0.2em] text-slate-400 mb-3">Current Focus</p>
-                      <h3 className="text-2xl font-bold text-white mb-2">Dashboard Visualization</h3>
-                      <p className="text-slate-300">Data-driven insights for enterprise clients using MotionBoard and InfluxQL.</p>
+                      <p className="text-xs uppercase tracking-[0.2em] text-[var(--muted)] mb-3">Current Focus</p>
+                      <h3 className="text-2xl font-bold text-[var(--foreground)] mb-2">Dashboard Visualization</h3>
+                      <p className="text-[var(--muted)]">Data-driven insights for enterprise clients using MotionBoard and InfluxQL.</p>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       {[
@@ -365,14 +529,14 @@ export default function Home() {
                         { label: 'Data', value: 'BI, Dashboards, SQL' },
                         { label: 'Mobile', value: 'React Native, Kotlin' },
                       ].map((item) => (
-                        <div key={item.label} className="rounded-2xl border border-white/10 bg-white/3 p-4">
-                          <p className="text-[0.7rem] uppercase tracking-[0.18em] text-slate-500">{item.label}</p>
-                          <p className="text-sm font-semibold text-slate-100 mt-2">{item.value}</p>
+                        <div key={item.label} className="rounded-2xl border border-[var(--surface-border)] bg-[var(--surface)] p-4">
+                          <p className="text-[0.7rem] uppercase tracking-[0.18em] text-[var(--muted)]">{item.label}</p>
+                          <p className="text-sm font-semibold text-[var(--foreground)] mt-2">{item.value}</p>
                         </div>
                       ))}
                     </div>
-                    <div className="pt-4 border-t border-white/10">
-                      <p className="text-xs text-slate-400 mb-3">Recent Clients</p>
+                    <div className="pt-4 border-t border-[var(--surface-border)]">
+                      <p className="text-xs text-[var(--muted)] mb-3">Recent Clients</p>
                       <div className="flex flex-wrap gap-2">
                         {['PT. Astra Honda Motor', 'Ogloba Ltd.', 'Zegen Solusi Mandiri'].map((client) => (
                           <span key={client} className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-cyan-500/10 text-cyan-200 border border-cyan-500/20">
@@ -389,17 +553,17 @@ export default function Home() {
         </section>
 
         <section id="about" className="py-20 px-4">
-          <div className="mx-auto max-w-6xl rounded-[2rem] border border-white/10 bg-white/5 p-10 shadow-[0_30px_70px_-40px_rgba(15,23,42,0.75)] backdrop-blur-xl">
+          <div className="mx-auto max-w-6xl rounded-[2rem] border border-[var(--surface-border)] bg-[var(--surface)] p-10 shadow-[0_30px_70px_-40px_rgba(15,23,42,0.75)] backdrop-blur-xl">
             <div className="grid gap-10 lg:grid-cols-[0.95fr_0.9fr] items-center">
               <div>
-                <h2 className="text-4xl font-bold mb-8 text-white">About Me</h2>
-                <p className="text-slate-300 mb-6 leading-relaxed">
+                <h2 className="text-4xl font-bold mb-8 text-[var(--foreground)]">About Me</h2>
+                <p className="text-[var(--muted)] mb-6 leading-relaxed">
                   I'm a passionate full-stack developer with 6+ years of experience building web applications that solve real-world problems. I love combining clean code with intuitive user experiences.
                 </p>
-                <p className="text-slate-300 mb-6 leading-relaxed">
+                <p className="text-[var(--muted)] mb-6 leading-relaxed">
                   My journey in tech started with curiosity about how things work. Today, I specialize in building scalable, performant applications using modern technologies like React, Next.js, and Node.js.
                 </p>
-                <p className="text-slate-300 leading-relaxed">
+                <p className="text-[var(--muted)] leading-relaxed">
                   When I'm not coding, you can find me contributing to open source, writing technical blogs, or exploring new technologies.
                 </p>
               </div>
@@ -410,8 +574,8 @@ export default function Home() {
                   { label: 'Happy Clients', value: '30+' },
                   { label: 'Tech Stack', value: '15+' },
                 ].map((stat) => (
-                  <div key={stat.label} className="rounded-3xl border border-white/10 bg-slate-950/70 p-6">
-                    <div className="text-sm text-slate-400">{stat.label}</div>
+                  <div key={stat.label} className="rounded-3xl border border-[var(--surface-border)] bg-[var(--surface)] p-6">
+                    <div className="text-sm text-[var(--muted)]">{stat.label}</div>
                     <div className="mt-2 text-3xl font-semibold text-cyan-300">{stat.value}</div>
                   </div>
                 ))}
@@ -422,14 +586,14 @@ export default function Home() {
 
         <section id="skills" className="py-20 px-4">
           <div className="mx-auto max-w-4xl">
-            <h2 className="text-4xl font-bold mb-12 text-center text-white">Skills & Expertise</h2>
+            <h2 className="text-4xl font-bold mb-12 text-center text-[var(--foreground)]">Skills & Expertise</h2>
             <div className="grid gap-8 md:grid-cols-3">
               {skills.map((skillGroup) => (
-                <div key={skillGroup.category} className="rounded-3xl border border-white/10 bg-slate-950/70 p-6 transition hover:border-cyan-400/50">
+                <div key={skillGroup.category} className="rounded-3xl border border-[var(--surface-border)] bg-[var(--surface)] p-6 transition hover:border-cyan-400/50">
                   <h3 className="mb-4 text-xl font-semibold text-cyan-300">{skillGroup.category}</h3>
                   <div className="space-y-3">
                     {skillGroup.items.map((item) => (
-                      <div key={item} className="flex items-center gap-3 text-slate-300">
+                      <div key={item} className="flex items-center gap-3 text-[var(--muted)]">
                         <span className="inline-flex h-2.5 w-2.5 rounded-full bg-cyan-400" />
                         {item}
                       </div>
@@ -441,26 +605,26 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="projects" className="py-20 px-4 bg-slate-900/50">
+        <section id="projects" className="py-20 px-4 bg-[var(--surface)]">
           <div className="mx-auto max-w-5xl">
-            <h2 className="text-4xl font-bold mb-12 text-center text-white">Featured Projects</h2>
+            <h2 className="text-4xl font-bold mb-12 text-center text-[var(--foreground)]">Featured Projects</h2>
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
               {projects.map((project) => (
                 <div
                   key={project.id}
-                  className="group overflow-hidden rounded-[1.5rem] border border-white/10 bg-slate-950/80 shadow-[0_20px_80px_-45px_rgba(14,165,233,0.5)] transition hover:-translate-y-1 hover:border-cyan-400/30"
+                  className="group overflow-hidden rounded-[1.5rem] border border-[var(--surface-border)] bg-[var(--surface)] shadow-[0_20px_80px_-45px_rgba(14,165,233,0.5)] transition hover:-translate-y-1 hover:border-cyan-400/30"
                 >
                   <div className="flex h-36 items-center justify-center bg-gradient-to-br from-blue-500/10 to-cyan-500/8 transition group-hover:from-blue-500/20 group-hover:to-cyan-500/16">
                     <div className="text-center">
-                      <div className="text-sm font-medium text-slate-300">{project.client}</div>
-                      <div className="mt-2 text-4xl font-semibold text-slate-500 opacity-20 group-hover:opacity-30">→</div>
+                      <div className="text-sm font-medium text-[var(--muted)]">{project.client}</div>
+                      <div className="mt-2 text-4xl font-semibold text-[var(--muted)] opacity-20 group-hover:opacity-30">→</div>
                     </div>
                   </div>
                   <div className="p-6">
-                    <h3 className="text-xl font-semibold text-white">{project.title}</h3>
-                    <div className="mt-2 text-xs text-slate-400">{project.period}</div>
-                    <div className="text-xs text-slate-400 mb-3">{project.relation}</div>
-                    <p className="text-slate-300 text-sm mb-3">{project.description}</p>
+                    <h3 className="text-xl font-semibold text-[var(--foreground)]">{project.title}</h3>
+                    <div className="mt-2 text-xs text-[var(--muted)]">{project.period}</div>
+                    <div className="text-xs text-[var(--muted)] mb-3">{project.relation}</div>
+                    <p className="text-[var(--muted)] text-sm mb-3">{project.description}</p>
                     {project.skills && project.skills.length > 0 && (
                       <div className="flex flex-wrap gap-2">
                         {project.skills.map((s) => (
@@ -479,17 +643,17 @@ export default function Home() {
 
         <section id="experience" className="py-20 px-4">
           <div className="mx-auto max-w-3xl">
-            <h2 className="text-4xl font-bold mb-12 text-center text-white">Experience</h2>
+            <h2 className="text-4xl font-bold mb-12 text-center text-[var(--foreground)]">Experience</h2>
             <div className="space-y-8">
               {experience.map((exp) => (
-                <div key={exp.role} className="relative overflow-hidden rounded-[1.5rem] border border-white/10 bg-slate-950/80 p-6 shadow-[0_20px_80px_-45px_rgba(14,165,233,0.4)]">
+                <div key={exp.role} className="relative overflow-hidden rounded-[1.5rem] border border-[var(--surface-border)] bg-[var(--surface)] p-6 shadow-[0_20px_80px_-45px_rgba(14,165,233,0.4)]">
                   <div className="absolute top-6 left-0 h-20 w-1 rounded-tr-full rounded-br-full bg-gradient-to-b from-cyan-400 to-transparent" />
                   <div className="ml-6">
                     <h3 className="text-xl font-semibold text-cyan-300">{exp.role}</h3>
-                    <p className="text-sm text-slate-400 mt-1">{exp.company}</p>
-                    <p className="text-xs text-slate-500 mt-2">{exp.period}</p>
+                    <p className="text-sm text-[var(--muted)] mt-1">{exp.company}</p>
+                    <p className="text-xs text-[var(--muted)] mt-2">{exp.period}</p>
                     {exp.details ? (
-                      <ul className="mt-4 list-disc list-inside text-slate-300 space-y-2">
+                      <ul className="mt-4 list-disc list-inside text-[var(--muted)] space-y-2">
                         {exp.details.map((d, i) => (
                           <li key={i} className="text-sm">
                             {d}
@@ -497,7 +661,7 @@ export default function Home() {
                         ))}
                       </ul>
                     ) : (
-                      <p className="text-slate-300 mt-4">{exp.description}</p>
+                      <p className="text-[var(--muted)] mt-4">{exp.description}</p>
                     )}
                   </div>
                 </div>
@@ -506,10 +670,10 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="contact" className="py-20 px-4 bg-slate-900/50">
+        <section id="contact" className="py-20 px-4 bg-[var(--surface)]">
           <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-4xl font-bold mb-6 text-white">Get In Touch</h2>
-            <p className="text-xl text-slate-300 mb-12">
+            <h2 className="text-4xl font-bold mb-6 text-[var(--foreground)]">Get In Touch</h2>
+            <p className="text-xl text-[var(--muted)] mb-12">
               I'm always open to discussing new projects, creative ideas, or opportunities to be part of your vision.
             </p>
             <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
@@ -527,28 +691,93 @@ export default function Home() {
               >
                 LinkedIn
               </a>
+              <a
+                href="https://github.com/imaha7"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-full border border-cyan-400/50 px-8 py-3 text-sm font-semibold text-cyan-200 transition hover:bg-cyan-400/10"
+              >
+                GitHub
+              </a>
             </div>
           </div>
         </section>
       </main>
 
-      <footer className="border-t border-white/8 mt-12 bg-slate-950/90">
+      <footer className="border-t border-[var(--surface-border)] mt-12 bg-[var(--surface)]/90">
         <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:px-8">
           <div className="grid gap-10 lg:grid-cols-[1.4fr_0.9fr] items-start">
             <div>
               <p className="text-sm uppercase tracking-[0.32em] text-cyan-400">Let's collaborate</p>
-              <h2 className="mt-4 text-3xl font-semibold text-white">Powerful solutions with premium delivery.</h2>
-              <p className="mt-4 max-w-xl text-slate-400">Available for BI, dashboard, and web application projects. Send an email to start a clear, fast conversation about your next digital product.</p>
+              <h2 className="mt-4 text-3xl font-semibold text-[var(--foreground)]">Powerful solutions with premium delivery.</h2>
+              <p className="mt-4 max-w-xl text-[var(--muted)]">Available for BI, dashboard, and web application projects. Send an email to start a clear, fast conversation about your next digital product.</p>
             </div>
-            <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
-              <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Email</p>
-              <a href="mailto:ilham.maulana.07.0698@gmail.com" className="mt-3 block text-lg font-semibold text-white hover:text-cyan-300">ilham.maulana.07.0698@gmail.com</a>
-              <p className="mt-4 text-sm text-slate-400">Jakarta, Indonesia</p>
+            <div className="rounded-3xl border border-[var(--surface-border)] bg-[var(--surface)] p-6">
+              <p className="text-xs uppercase tracking-[0.24em] text-[var(--muted)]">Email</p>
+              <a href="mailto:ilham.maulana.07.0698@gmail.com" className="mt-3 block text-lg font-semibold text-[var(--foreground)] hover:text-cyan-300">ilham.maulana.07.0698@gmail.com</a>
+              <p className="mt-4 text-sm text-[var(--muted)]">Jakarta, Indonesia</p>
             </div>
           </div>
-          <div className="mt-10 border-t border-white/10 pt-6 text-center text-sm text-slate-500">© {currentYear} Ilham Maulana Habibie. All rights reserved.</div>
+          <div className="mt-10 border-t border-[var(--surface-border)] pt-6 text-center text-sm text-[var(--muted)]">© {currentYear} Ilham Maulana Habibie. All rights reserved.</div>
         </div>
       </footer>
+
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+        <button
+          type="button"
+          onClick={() => setChatOpen((open) => !open)}
+          className="inline-flex items-center gap-2 rounded-full bg-cyan-500 px-4 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-500/30 transition hover:bg-cyan-400"
+        >
+          <span>{chatOpen ? "Close" : "Ask"}</span>
+          <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-slate-950 text-white">?</span>
+        </button>
+
+        <div className={`${chatOpen ? "block" : "hidden"} w-[320px] max-w-full rounded-3xl border border-[var(--surface-border)] bg-[var(--surface)] p-4 shadow-[0_25px_60px_-30px_rgba(0,0,0,0.6)] backdrop-blur-xl`}> 
+          <div className="flex items-center justify-between border-b border-[var(--surface-border)] pb-3">
+            <div>
+              <p className="text-sm uppercase tracking-[0.24em] text-cyan-300">AI Assistant</p>
+              <h3 className="mt-1 text-lg font-semibold text-[var(--foreground)]">Ask about Ilham</h3>
+            </div>
+            <button
+              type="button"
+              onClick={() => setChatOpen(false)}
+              className="text-[var(--muted)] hover:text-[var(--foreground)]"
+              aria-label="Close chat"
+            >
+              ✕
+            </button>
+          </div>
+
+          <div className="mt-4 max-h-72 space-y-3 overflow-y-auto pr-2">
+            {chatMessages.map((message, index) => (
+              <div
+                key={index}
+                className={`rounded-2xl px-3 py-2 ${message.sender === "bot" ? "bg-slate-900/80 text-slate-100" : "ml-auto bg-cyan-500/15 text-[var(--foreground)]"}`}
+              >
+                {message.text}
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-4 flex gap-2">
+            <input
+              type="text"
+              value={chatInput}
+              onChange={(e) => setChatInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && sendChatMessage()}
+              placeholder="Type your question..."
+              className="flex-1 rounded-2xl border border-[var(--surface-border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground)] outline-none transition focus:border-cyan-400/80 focus:ring-2 focus:ring-cyan-500/20"
+            />
+            <button
+              type="button"
+              onClick={sendChatMessage}
+              className="inline-flex items-center rounded-2xl bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400"
+            >
+              Send
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
