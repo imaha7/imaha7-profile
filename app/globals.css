@@ -53,6 +53,15 @@ html[data-theme="light"] body {
   box-sizing: border-box;
 }
 
+/* hide scrollbar but keep scrolling/touch support */
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
+}
+
 ::selection {
   background: rgba(56, 189, 248, 0.35);
   color: white;

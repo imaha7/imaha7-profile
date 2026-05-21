@@ -86,6 +86,175 @@ export default function Home() {
     setChatInput("");
   };
 
+  const [news, setNews] = useState<{ id: number; title: string; url: string; by?: string; time?: number }[]>([]);
+  const [loadingNews, setLoadingNews] = useState(false);
+  const [newsError, setNewsError] = useState<string | null>(null);
+
+  const fetchNews = async () => {
+    setLoadingNews(true);
+    setNewsError(null);
+    try {
+      const res = await fetch("https://hacker-news.firebaseio.com/v0/topstories.json");
+      const ids: number[] = await res.json();
+      const top = ids.slice(0, 12);
+      const items = await Promise.all(
+        top.map(async (id) => {
+          const r = await fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`);
+          return await r.json();
+        })
+      );
+      const parsed = items
+        .filter(Boolean)
+        .map((i: any) => ({
+          id: i.id,
+          title: i.title,
+          url: i.url ? i.url : `https://news.ycombinator.com/item?id=${i.id}`,
+          by: i.by,
+          time: i.time,
+        }));
+      setNews(parsed);
+    } catch (e) {
+      setNewsError("Failed to load news");
+    } finally {
+      setLoadingNews(false);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchNews();
+  }, []);
+
+  const carouselRef = React.useRef<HTMLDivElement | null>(null);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [cardsPerPage, setCardsPerPage] = useState(1);
+  const cardWidth = 320; // px
+  const cardGap = 16; // px
+  const programmaticScrollRef = React.useRef(false);
+  const programmaticTimerRef = React.useRef<number | null>(null);
+  const animationFrameRef = React.useRef<number | null>(null);
+
+  const easeInOutCubic = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+
+  const smoothScrollTo = (el: HTMLElement, targetLeft: number, duration = 500) => {
+    if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+    const startLeft = el.scrollLeft;
+    const start = performance.now();
+    const step = (now: number) => {
+      const elapsed = now - start;
+      const t = Math.min(1, elapsed / duration);
+      const eased = easeInOutCubic(t);
+      el.scrollLeft = Math.round(startLeft + (targetLeft - startLeft) * eased);
+      if (t < 1) {
+        animationFrameRef.current = requestAnimationFrame(step);
+      } else {
+        animationFrameRef.current = null;
+        // ensure programmatic flag is cleared after animation
+        if (programmaticTimerRef.current) {
+          window.clearTimeout(programmaticTimerRef.current);
+          programmaticTimerRef.current = null;
+        }
+        programmaticScrollRef.current = false;
+      }
+    };
+    animationFrameRef.current = requestAnimationFrame(step);
+  };
+
+  React.useEffect(() => {
+    const update = () => {
+      const el = carouselRef.current;
+      if (!el) return;
+      const per = Math.max(1, Math.floor((el.clientWidth + cardGap) / (cardWidth + cardGap)));
+      setCardsPerPage(per);
+    };
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
+
+  React.useEffect(() => {
+    if (carouselRef.current) carouselRef.current.scrollTo({ left: 0 });
+    setCurrentPage(0);
+  }, [news]);
+
+  const pageCount = Math.max(1, Math.ceil(news.length / cardsPerPage));
+  const maxDots = 5; // maximum visible pagination dots
+  const dotCount = Math.min(pageCount, maxDots);
+  const pagesPerDot = Math.max(1, Math.ceil(pageCount / dotCount));
+  const activeDot = Math.floor(currentPage / pagesPerDot);
+
+  const computePageOffsets = () => {
+    const el = carouselRef.current;
+    if (!el) return [] as number[];
+    const cards = Array.from(el.querySelectorAll<HTMLElement>("[data-card-index]"));
+    const offsets: number[] = [];
+    for (let p = 0; p < pageCount; p++) {
+      const firstIndex = p * cardsPerPage;
+      const card = cards[firstIndex];
+      if (card) offsets.push(card.offsetLeft);
+      else offsets.push(p * el.clientWidth);
+    }
+    return offsets;
+  };
+
+  const goToPage = (p: number) => {
+    const el = carouselRef.current;
+    if (!el) return;
+    const page = ((p % pageCount) + pageCount) % pageCount; // wrap
+    const offsets = computePageOffsets();
+    const left = offsets[page] ?? page * el.clientWidth;
+    // mark programmatic scroll so onScroll doesn't overwrite our optimistic state
+    programmaticScrollRef.current = true;
+    if (programmaticTimerRef.current) window.clearTimeout(programmaticTimerRef.current);
+    programmaticTimerRef.current = window.setTimeout(() => {
+      programmaticScrollRef.current = false;
+      programmaticTimerRef.current = null;
+    }, 700);
+
+    // update UI immediately so active page (and any UI) responds without waiting for scroll end
+    setCurrentPage(page);
+    smoothScrollTo(el, left, 520);
+  };
+
+  const prevPage = () => goToPage(currentPage - 1);
+  const nextPage = () => goToPage(currentPage + 1);
+
+  React.useEffect(() => {
+    const el = carouselRef.current;
+    if (!el) return;
+    let raf = 0;
+    const onScroll = () => {
+      if (programmaticScrollRef.current) return; // ignore programmatic smooth-scrolling
+      if (raf) cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        // compute current page by finding closest page offset to viewport center
+        const center = el.scrollLeft + el.clientWidth / 2;
+        const offsets = computePageOffsets();
+        if (offsets.length === 0) return;
+        let closest = 0;
+        let bestDist = Infinity;
+        offsets.forEach((off, idx) => {
+          const pageCenter = off + el.clientWidth / 2;
+          const d = Math.abs(center - pageCenter);
+          if (d < bestDist) {
+            bestDist = d;
+            closest = idx;
+          }
+        });
+        const next = Math.max(0, Math.min(pageCount - 1, closest));
+        setCurrentPage(next);
+      });
+    };
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      el.removeEventListener('scroll', onScroll);
+      if (raf) cancelAnimationFrame(raf);
+      if (programmaticTimerRef.current) {
+        window.clearTimeout(programmaticTimerRef.current);
+        programmaticTimerRef.current = null;
+      }
+    };
+  }, [news.length, pageCount]);
+
   const sectionIds = ["home", "about", "projects", "experience", "contact"];
 
   React.useEffect(() => {
@@ -699,6 +868,100 @@ export default function Home() {
               >
                 GitHub
               </a>
+            </div>
+          </div>
+        </section>
+        <section id="news" className="py-20 px-4 bg-[var(--surface)]">
+          <div className="mx-auto max-w-4xl">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold mb-6 text-[var(--foreground)]">Latest Tech News</h2>
+              <button
+                type="button"
+                onClick={() => fetchNews()}
+                className="rounded-md border border-[var(--surface-border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground)] hover:bg-[var(--surface)]/90 transition"
+              >
+                Refresh
+              </button>
+            </div>
+
+            <div className="rounded-2xl border border-[var(--surface-border)] bg-[var(--surface)] p-4">
+              {loadingNews ? (
+                <div className="text-[var(--muted)]">Loading news...</div>
+              ) : newsError ? (
+                <div className="text-sm text-red-400">{newsError}</div>
+              ) : news.length === 0 ? (
+                <div className="text-[var(--muted)]">No news available.</div>
+              ) : (
+                <div className="relative">
+                  <div className="absolute left-2 top-1/2 z-20 -translate-y-1/2">
+                    <button
+                      type="button"
+                      onClick={() => prevPage()}
+                      className="rounded-full bg-[var(--surface)]/80 p-2 text-[var(--foreground)] shadow-sm hover:bg-[var(--surface)]"
+                      aria-label="Previous"
+                    >
+                      ‹
+                    </button>
+                  </div>
+                  <div className="absolute right-2 top-1/2 z-20 -translate-y-1/2">
+                    <button
+                      type="button"
+                      onClick={() => nextPage()}
+                      className="rounded-full bg-[var(--surface)]/80 p-2 text-[var(--foreground)] shadow-sm hover:bg-[var(--surface)]"
+                      aria-label="Next"
+                    >
+                      ›
+                    </button>
+                  </div>
+
+                  <div
+                    ref={carouselRef}
+                    className="no-scrollbar flex gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory py-2 px-2"
+                    style={{ WebkitOverflowScrolling: 'touch' }}
+                  >
+                    {news.map((item, index) => {
+                      let domain = '';
+                      try {
+                        domain = item.url ? new URL(item.url).hostname.replace('www.', '') : '';
+                      } catch (e) {
+                        domain = '';
+                      }
+                      const iconUrl = domain ? `https://icons.duckduckgo.com/ip3/${domain}.ico` : undefined;
+
+                      return (
+                        <div key={item.id} data-card-index={index} className="shrink-0 w-[320px] snap-start">
+                          <article className="flex h-full flex-col justify-between gap-3 rounded-xl border border-[var(--surface-border)] bg-[var(--background)] p-0 overflow-hidden shadow-sm">
+                            <div className="h-36 bg-gradient-to-br from-blue-500/8 to-cyan-500/6 flex items-end p-3">
+                              {iconUrl ? (
+                                <img
+                                  src={iconUrl}
+                                  alt={domain}
+                                  className="h-10 w-10 rounded-md border border-[var(--surface-border)] bg-white/5"
+                                  onError={(e: any) => (e.currentTarget.style.display = 'none')}
+                                />
+                              ) : null}
+                              <div className="ml-3 text-xs text-[var(--muted)]">{domain}</div>
+                            </div>
+
+                            <div className="p-4">
+                              <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-[var(--brand-text)] font-semibold hover:underline">
+                                {item.title}
+                              </a>
+                              <div className="mt-2 flex items-center gap-3 text-xs text-[var(--muted)]">
+                                <span>by {item.by ?? 'unknown'}</span>
+                                <span className="text-[var(--muted)]">•</span>
+                                <span>{item.time ? new Date(item.time * 1000).toLocaleString() : ''}</span>
+                              </div>
+                            </div>
+                          </article>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* pagination dots removed per user request */}
+                </div>
+              )}
             </div>
           </div>
         </section>
