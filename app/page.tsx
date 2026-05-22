@@ -742,6 +742,13 @@ export default function Home() {
       </nav>
 
       <main className="relative pt-32">
+        {/* SEO-only keywords block (kept visually hidden, still crawlable) */}
+        <div className="sr-only" aria-hidden="false">
+          imaha7 profile. Ilham Maulana Habibie. Ilham Software Engineer. Full Stack Developer.
+          BI Specialist. React Next.js TypeScript Tailwind Node.js MotionBoard dashboards.
+          GitHub: https://github.com/imaha7. LinkedIn: https://www.linkedin.com/in/imaha7.
+        </div>
+
         <section id="home" className="pb-32 px-4 pt-20">
           <div className="mx-auto max-w-7xl">
             <div className="grid gap-16 lg:grid-cols-2 items-center">
