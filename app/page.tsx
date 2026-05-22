@@ -146,7 +146,7 @@ export default function Home() {
       text: "I currently work as an Information Technology Developer at PT. Sazanka Henig Solusi, building BI dashboards, MotionBoard visualizations, and enterprise data solutions.",
     },
     {
-      keys: ["projects", "featured", "dashboard", "budget", "egift", "crm", "mobile"] ,
+      keys: ["projects", "featured", "dashboard", "budget", "egift", "crm", "mobile"],
       text: "My recent projects include Common Process Monitoring Dashboard, Budget Preparation dashboards, and eGift Card web and mobile solutions for clients like Ogloba Ltd. and PT. Astra Honda Motor.",
     },
     {
@@ -679,7 +679,7 @@ export default function Home() {
               href="https://api.whatsapp.com/send?phone=6283194310725&text=Hi%20Ilham%2C%20I%20would%20like%20to%20discuss%20a%20project."
               target="_blank"
               rel="noopener noreferrer"
-              className="outlined-btn inline-flex items-center rounded-md border border-[var(--surface-border)] bg-[var(--surface)] px-4 py-2 text-sm font-medium text-[var(--foreground)] hover:bg-[var(--surface)]/90 transition-all duration-300"
+              className="border inline-flex items-center rounded-md border border-[var(--surface-border)] bg-[var(--surface)] px-4 py-2 text-sm font-medium text-[var(--foreground)] hover:bg-[var(--surface)]/90 transition-all duration-300"
             >
               Contact
             </a>
@@ -712,7 +712,7 @@ export default function Home() {
               aria-label="Toggle navigation menu"
               aria-expanded={mobileNavOpen}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
             </button>
           </div>
         </div>
@@ -728,9 +728,8 @@ export default function Home() {
                   setMobileNavOpen(false);
                   document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }}
-                className={`w-full rounded-xl px-4 py-3 text-left text-sm font-medium transition ${
-                  activeSection === item.id ? 'bg-cyan-500/10 text-[var(--brand-text)]' : 'text-[var(--foreground)] hover:bg-[var(--surface)]'
-                }`}
+                className={`w-full rounded-xl px-4 py-3 text-left text-sm font-medium transition ${activeSection === item.id ? 'bg-cyan-500/10 text-[var(--brand-text)]' : 'text-[var(--foreground)] hover:bg-[var(--surface)]'
+                  }`}
               >
                 {item.label}
               </a>
@@ -764,13 +763,16 @@ export default function Home() {
                   >
                     Explore Projects
                   </a>
+
                   <a
                     href="mailto:ilham.maulana.07.0698@gmail.com"
-                    className="outlined-btn inline-flex items-center justify-center rounded-lg border border-[var(--surface-border)] bg-[var(--surface)] px-8 py-4 text-base font-semibold text-[var(--foreground)] hover:bg-[var(--surface)] hover:border-[var(--surface-border)] transition-all duration-300"
+                    className="border inline-flex items-center justify-center rounded-lg px-8 py-4 text-base font-semibold text-[var(--foreground)] hover:bg-[var(--surface)]/90 hover:border-cyan-400/50 hover:shadow-[0_0_0_1px_rgba(34,211,238,0.35)] transition-all duration-300"
                   >
                     Get In Touch
                   </a>
                 </div>
+
+
 
                 <div className="grid grid-cols-3 gap-4 pt-6 border-t border-[var(--surface-border)]">
                   {[
@@ -822,10 +824,75 @@ export default function Home() {
                 </div>
               </div>
             </div>
+            <div className="mt-10 rounded-[2rem] border border-[var(--surface-border)] bg-[var(--surface)] p-6 shadow-[0_30px_70px_-40px_rgba(15,23,42,0.75)] backdrop-blur-xl">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                <div className="space-y-2">
+                  <p className="text-xs uppercase tracking-[0.24em] text-[var(--muted)]">Resume</p>
+                  <h3 className="text-2xl font-bold text-[var(--foreground)]">Download & Preview</h3>
+                  <p className="text-[var(--muted)] max-w-xl">
+                    Download the latest resume PDF now. Live preview will be enabled after you upload the PDF.
+                  </p>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <a
+                    href="/Ilham_Resume.pdf"
+                    download="Ilham_Resume.pdf"
+                    className="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-cyan-500/30 transition-all duration-300 hover:from-cyan-400 hover:to-indigo-400 hover:shadow-cyan-400/40 hover:scale-105"
+                  >
+                    Download PDF
+                  </a>
+
+                  <button
+                    type="button"
+                    className="inline-flex items-center justify-center rounded-xl border border-[var(--surface-border)] bg-[var(--surface)] px-6 py-3 text-sm font-semibold text-[var(--foreground)] hover:bg-[var(--surface)]/90 transition-all duration-300"
+                    onClick={() => {
+                      const el = document.getElementById('resume-preview');
+                      el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }}
+                  >
+                    Live Preview
+                  </button>
+                </div>
+              </div>
+
+              <div id="resume-preview" className="mt-6 overflow-hidden rounded-2xl border border-[var(--surface-border)] bg-[var(--background)]/30">
+                <div className="flex flex-col gap-3 border-b border-[var(--surface-border)] p-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-[var(--brand-text)]">Live preview</p>
+                    <p className="mt-1 text-xs text-[var(--muted)]">You can scroll the PDF inside this page.</p>
+                  </div>
+
+                  <a
+                    href="/Ilham_Resume.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center rounded-lg border border-[var(--surface-border)] bg-[var(--surface)] px-3 py-2 text-xs font-semibold text-[var(--foreground)] hover:bg-[var(--surface)]/90 transition-all duration-300"
+                  >
+                    Open in new tab
+                  </a>
+                </div>
+
+                <div className="h-[70vh] min-h-[520px] max-h-[760px]">
+                  <iframe
+                    src="/Ilham_Resume.pdf"
+                    title="Ilham_Resume.pdf live preview"
+                    className="h-full w-full"
+                    loading="lazy"
+                  />
+                </div>
+
+                <div className="p-4">
+                  <p className="text-xs text-[var(--muted)]">
+                    If the preview doesn’t load in your browser, use the download button above.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
-        <section id="about" className="py-20 px-4">
+        <section id="about" className="pt-10 pb-20 px-4">
           <div className="mx-auto max-w-6xl rounded-[2rem] border border-[var(--surface-border)] bg-[var(--surface)] p-10 shadow-[0_30px_70px_-40px_rgba(15,23,42,0.75)] backdrop-blur-xl">
             <div className="grid gap-10 lg:grid-cols-[0.95fr_0.9fr] items-center">
               <div>
@@ -961,11 +1028,11 @@ export default function Home() {
             <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
               <a
                 href="mailto:ilham.maulana.07.0698@gmail.com"
-                className="rounded-full bg-cyan-500 px-8 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400"
+                className="rounded-full bg-cyan-500 px-8 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400 hover:shadow-cyan-400/40"
               >
                 Email Me
               </a>
-                <a
+              <a
                 href="https://www.linkedin.com/in/imaha7"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -1108,7 +1175,7 @@ export default function Home() {
           <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-slate-950 text-white">?</span>
         </button>
 
-        <div className={`${chatOpen ? "block" : "hidden"} w-[320px] max-w-full rounded-3xl border border-[var(--surface-border)] bg-[var(--surface)] p-4 shadow-[0_25px_60px_-30px_rgba(0,0,0,0.6)] backdrop-blur-xl`}> 
+        <div className={`${chatOpen ? "block" : "hidden"} w-[320px] max-w-full rounded-3xl border border-[var(--surface-border)] bg-[var(--surface)] p-4 shadow-[0_25px_60px_-30px_rgba(0,0,0,0.6)] backdrop-blur-xl`}>
           <div className="flex items-center justify-between border-b border-[var(--surface-border)] pb-3">
             <div>
               <p className="text-sm uppercase tracking-[0.24em] text-[var(--brand-text)]">AI Assistant</p>
