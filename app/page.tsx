@@ -1,6 +1,109 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+
+function ClientLogoMarquee() {
+  const prefersReducedMotion =
+    typeof window !== "undefined" &&
+    window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
+  const clients = useMemo(
+    () =>
+      [
+        { name: "PT. Astra Honda Motor", url: "https://ik.imagekit.io/zlt25mb52fx/ahmcdn/assets/images/logo/ahm.svg" },
+        { name: "Ogloba Ltd.", url: "https://i2.wp.com/www.ogloba.com/wp-content/uploads/2013/12/Logo-header.png?fit=188%2C75&ssl=1" },
+        { name: "Sinotif", url: "https://campaign.sinotif.com/wp-content/uploads/2023/09/Logo-Sinotif.png" },
+        { name: "CRM Track", url: "https://crmtrack.id/wp-content/uploads/2021/08/logo.png" },
+        { name: "PT. Medan Jaya Pangan Mutu", url: "https://medanjayafood.com/wp-content/uploads/2024/10/79logo-biru.png" },
+      ],
+    []
+  );
+
+  const items = useMemo(() => [...clients, ...clients], [clients]);
+
+  const scrollerRef = useRef<HTMLDivElement | null>(null);
+  const rafRef = useRef<number | null>(null);
+  const lastTsRef = useRef<number | null>(null);
+  const offsetRef = useRef(0);
+  const [paused, setPaused] = useState(false);
+
+  useEffect(() => {
+    if (prefersReducedMotion) return;
+    const el = scrollerRef.current;
+    if (!el) return;
+
+    const speedPxPerSec = 42;
+
+    const tick = (ts: number) => {
+      if (lastTsRef.current == null) lastTsRef.current = ts;
+      const dt = (ts - lastTsRef.current) / 1000;
+      lastTsRef.current = ts;
+
+      if (!paused) {
+        offsetRef.current += speedPxPerSec * dt;
+        const width = el.scrollWidth / 2;
+        // wrap around for seamless loop
+        if (offsetRef.current >= width) offsetRef.current -= width;
+        el.scrollLeft = offsetRef.current;
+      }
+
+      rafRef.current = requestAnimationFrame(tick);
+    };
+
+    rafRef.current = requestAnimationFrame(tick);
+
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+      lastTsRef.current = null;
+    };
+  }, [paused, prefersReducedMotion]);
+
+
+  const onPause = () => setPaused(true);
+  const onResume = () => setPaused(false);
+
+  const gradientMask =
+    "[mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]";
+
+  return (
+    <div
+      className="relative rounded-[2rem] border border-[var(--surface-border)] bg-[var(--surface)] p-6 shadow-[0_20px_80px_-45px_rgba(14,165,233,0.35)]"
+      onMouseEnter={onPause}
+      onMouseLeave={onResume}
+      onFocusCapture={onPause}
+      onBlurCapture={onResume}
+    >
+      <div className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-[var(--surface)] to-transparent" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-[var(--surface)] to-transparent" />
+
+      <div className={`relative ${gradientMask} `}>
+        <div
+          ref={scrollerRef}
+          className="no-scrollbar flex gap-5 overflow-x-auto scroll-smooth px-2 py-3"
+          style={{ scrollSnapType: "none" }}
+          aria-label="Client logos auto-scrolling"
+        >
+          {items.map((c, idx) => (
+            <div
+              key={`${c.name}-${idx}`}
+              className="shrink-0 w-[240px] rounded-2xl border border-[var(--surface-border)] bg-[var(--background)]/40 px-5 py-4 flex items-center justify-center"
+            >
+              {/* image-only: use DuckDuckGo icon from client name */}
+              <img
+                src={`${c.url}`}
+                alt={c.name}
+                className="h-18 w-48 rounded-xl border border-[var(--surface-border)] bg-white/5"
+                onError={(e: any) => (e.currentTarget.style.display = "none")}
+                loading="lazy"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function Home() {
   const [activeSection, setActiveSection] = useState("home");
@@ -529,6 +632,7 @@ export default function Home() {
   const navItems = [
     { id: "home", label: "Home" },
     { id: "about", label: "About" },
+    // { id: "clients", label: "Clients" },
     { id: "projects", label: "Projects" },
     { id: "experience", label: "Experience" },
     { id: "contact", label: "Contact" },
@@ -774,11 +878,20 @@ export default function Home() {
           </div>
         </section>
 
+        <section id="clients" className="py-20 px-4">
+          <div className="mx-auto max-w-6xl">
+            <h2 className="text-4xl font-bold mb-10 text-center text-[var(--foreground)]">Clients</h2>
+            {/* Auto-scrolling client logos */}
+            <ClientLogoMarquee />
+          </div>
+        </section>
+
         <section id="projects" className="py-20 px-4 bg-[var(--surface)]">
           <div className="mx-auto max-w-5xl">
             <h2 className="text-4xl font-bold mb-12 text-center text-[var(--foreground)]">Featured Projects</h2>
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
               {projects.map((project) => (
+
                 <div
                   key={project.id}
                   className="group overflow-hidden rounded-[1.5rem] border border-[var(--surface-border)] bg-[var(--surface)] shadow-[0_20px_80px_-45px_rgba(14,165,233,0.5)] transition hover:-translate-y-1 hover:border-cyan-400/30"
