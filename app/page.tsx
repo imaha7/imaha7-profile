@@ -214,7 +214,10 @@ export default function Home() {
           url: i.url ? i.url : `https://news.ycombinator.com/item?id=${i.id}`,
           by: i.by,
           time: i.time,
-        }));
+        }))
+        // Sort newest -> oldest
+        .sort((a, b) => (b.time ?? 0) - (a.time ?? 0));
+
       setNews(parsed);
     } catch (e) {
       setNewsError("Failed to load news");
