@@ -151,7 +151,7 @@ export default function Home() {
     },
     {
       keys: ["skills", "tech", "stack", "tools"],
-      text: "My core skills include React, Next.js, TypeScript, Tailwind CSS, Node.js, MotionBoard, Vue.js, Laravel, React Native, REST APIs, and BI visualization.",
+      text: "My core skills include React, Next.js, TypeScript, Tailwind CSS, Node.js, MotionBoard, Vue.js, Laravel, React Native, Kotlin, REST APIs, SQL / InfluxQL / OracleQL, mobile development, and BI visualization.",
     },
     {
       keys: ["location", "jakarta", "indonesia"],
@@ -508,9 +508,59 @@ export default function Home() {
   ];
 
   const skills = [
-    { category: "Frontend", items: ["React", "Next.js", "TypeScript", "Tailwind CSS", "Vue.js"] },
-    { category: "Backend", items: ["Node.js", "Express", "PostgreSQL", "MongoDB", "Firebase"] },
-    { category: "Tools", items: ["Git", "Docker", "AWS", "Vercel", "CI/CD"] },
+    {
+      category: "Frontend",
+      items: [
+        "React",
+        "Next.js",
+        "TypeScript",
+        "Tailwind CSS",
+        "Vue.js",
+        "HTML",
+        "CSS",
+        "Material UI",
+      ],
+    },
+    {
+      category: "Backend & Data",
+      items: [
+        "Node.js",
+        "Express",
+        "Laravel",
+        "REST APIs",
+        "PostgreSQL",
+        "MongoDB",
+        "Firebase",
+        "SQL / InfluxQL / OracleQL",
+        "MotionBoard",
+      ],
+    },
+    {
+      category: "Mobile & Cloud",
+      items: [
+        "React Native",
+        "Kotlin",
+        "Android",
+        "Docker",
+        "AWS",
+        "Vercel",
+        "npm",
+        "CI/CD",
+      ],
+    },
+    {
+      category: "Certifications & Growth",
+      items: [
+        "MotionBoard Expert Certified",
+        "MotionBoard Professional Certified",
+        "JavaScript Intermediate",
+        "REST API Intermediate",
+        "Problem Solving",
+        "Network Security",
+        "Project Management",
+        "English Proficiency",
+      ],
+    },
   ];
 
   const experience = [
@@ -746,6 +796,9 @@ export default function Home() {
         <div className="sr-only" aria-hidden="false">
           imaha7 profile. Ilham Maulana Habibie. Ilham Software Engineer. Full Stack Developer.
           BI Specialist. React Next.js TypeScript Tailwind Node.js MotionBoard dashboards.
+          Laravel Vue.js React Native Kotlin Android REST APIs SQL InfluxQL OracleQL.
+          MotionBoard Expert Certified. JavaScript Intermediate. REST API Intermediate.
+          Network Security. Project Management. English proficiency. Jakarta developer.
           GitHub: https://github.com/imaha7. LinkedIn: https://www.linkedin.com/in/imaha7.
         </div>
 
@@ -908,13 +961,13 @@ export default function Home() {
               <div>
                 <h2 className="text-4xl font-bold mb-8 text-[var(--foreground)]">About Me</h2>
                 <p className="text-[var(--muted)] mb-6 leading-relaxed">
-                  I'm a passionate full-stack developer with 6+ years of experience building web applications that solve real-world problems. I love combining clean code with intuitive user experiences.
+                  I'm a passionate software engineer with 6+ years of experience building web and mobile applications, enterprise dashboards, and data visualization solutions that solve real business challenges.
                 </p>
                 <p className="text-[var(--muted)] mb-6 leading-relaxed">
-                  My journey in tech started with curiosity about how things work. Today, I specialize in building scalable, performant applications using modern technologies like React, Next.js, and Node.js.
+                  I hold a Bachelor of Computer Science from Mikroskil University with Magna Cum Laude honors, and I am certified in MotionBoard, JavaScript, REST API, problem solving, and network security.
                 </p>
                 <p className="text-[var(--muted)] leading-relaxed">
-                  When I'm not coding, you can find me contributing to open source, writing technical blogs, or exploring new technologies.
+                  My work combines frontend design, backend architecture, mobile development, and BI visualization to deliver polished products for clients in manufacturing, finance, and enterprise operations.
                 </p>
               </div>
               <div className="space-y-4">

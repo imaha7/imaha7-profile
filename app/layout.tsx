@@ -23,14 +23,32 @@ export const metadata: Metadata = {
     template: "%s | Ilham Maulana Habibie",
   },
   description:
-    "Ilham Maulana Habibie aka imaha7 — Ilham Software Engineer. Full Stack Developer & BI Specialist building premium web apps, dashboards, and enterprise MotionBoard solutions. Projects, skills, and contact.",
+    "Ilham Maulana Habibie aka imaha7 — Jakarta-based Full Stack Developer and BI Specialist building web apps, dashboards, MotionBoard solutions, and enterprise data products.",
+  keywords: [
+    "Ilham Maulana Habibie",
+    "Imaha7",
+    "Full Stack Developer",
+    "BI Specialist",
+    "React",
+    "Next.js",
+    "TypeScript",
+    "MotionBoard",
+    "Dashboard Development",
+    "Jakarta Web Developer",
+    "Enterprise Software",
+    "Portfolio",
+  ],
+  applicationName: "Imaha7 Portfolio",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#eff8ff" },
+    { media: "(prefers-color-scheme: dark)", color: "#020617" },
+  ],
   robots: {
     index: true,
     follow: true,
     googleBot: {
       index: true,
       follow: true,
-      // Keep default crawling behavior.
     },
   },
   openGraph: {
@@ -68,6 +86,22 @@ export default function RootLayout({
       "Ilham Maulana Habibie (imaha7) — Ilham Software Engineer. Builds premium web applications, intelligent dashboards, and scalable BI solutions.",
   };
 
+  const websiteJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "url": "https://imaha7-profile.vercel.app/",
+    "name": "Ilham Maulana Habibie | Full Stack Developer & BI Specialist",
+    "description": "Portfolio of Ilham Maulana Habibie, Jakarta-based Full Stack Developer and BI Specialist delivering web apps, dashboards, and enterprise BI solutions.",
+    "publisher": {
+      "@type": "Organization",
+      "name": "Imaha7 Portfolio",
+    },
+    "sameAs": [
+      "https://github.com/imaha7",
+      "https://www.linkedin.com/in/imaha7"
+    ]
+  };
+
   return (
     <html
       lang="en"
@@ -77,7 +111,7 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           // JSON-LD is static; safe to inline.
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify([personJsonLd, websiteJsonLd]) }}
         />
       </head>
       <body className="min-h-full flex flex-col">{children}</body>
