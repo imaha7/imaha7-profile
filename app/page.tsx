@@ -1008,6 +1008,50 @@ export default function Home() {
           </div>
         </section>
 
+        <section id="credentials" className="py-20 px-4 bg-[var(--surface)]">
+          <div className="mx-auto max-w-6xl">
+            <div className="grid gap-6 lg:grid-cols-2">
+              <div className="rounded-[2rem] border border-[var(--surface-border)] bg-[var(--background)] p-8 shadow-[0_30px_70px_-40px_rgba(15,23,42,0.75)]">
+                <h2 className="text-3xl font-bold mb-6 text-[var(--foreground)]">Verified Credentials</h2>
+                <ul className="space-y-4 text-[var(--muted)]">
+                  <li className="rounded-2xl bg-[var(--surface)] p-4 border border-[var(--surface-border)]">
+                    <p className="font-semibold text-[var(--foreground)]">MotionBoard Expert Certified</p>
+                    <p className="text-sm">Certified by WingArc1st for advanced BI visualization and dashboard delivery.</p>
+                  </li>
+                  <li className="rounded-2xl bg-[var(--surface)] p-4 border border-[var(--surface-border)]">
+                    <p className="font-semibold text-[var(--foreground)]">MotionBoard Professional Certified</p>
+                    <p className="text-sm">Validated expertise in enterprise MotionBoard dashboard creation and analytics solutions.</p>
+                  </li>
+                  <li className="rounded-2xl bg-[var(--surface)] p-4 border border-[var(--surface-border)]">
+                    <p className="font-semibold text-[var(--foreground)]">Web & Mobile Development Certifications</p>
+                    <p className="text-sm">JavaScript, CSS, REST API and Android technology certifications that support production-ready delivery.</p>
+                  </li>
+                </ul>
+              </div>
+              <div className="rounded-[2rem] border border-[var(--surface-border)] bg-[var(--background)] p-8 shadow-[0_30px_70px_-40px_rgba(15,23,42,0.75)]">
+                <h2 className="text-3xl font-bold mb-6 text-[var(--foreground)]">Profiles & References</h2>
+                <p className="text-[var(--muted)] mb-6">
+                  Verified professional profile and portfolio links for Ilham Maulana Habibie. These references support the public record of experience, projects, and certifications.
+                </p>
+                <div className="space-y-4">
+                  <a href="https://www.linkedin.com/in/imaha7" target="_blank" rel="noopener noreferrer" className="block rounded-2xl border border-cyan-500/20 bg-cyan-500/5 p-5 text-[var(--foreground)] hover:border-cyan-400/40 hover:bg-cyan-500/10 transition">
+                    <p className="font-semibold">LinkedIn Profile</p>
+                    <p className="text-sm text-[var(--muted)]">linkedin.com/in/imaha7</p>
+                  </a>
+                  <a href="https://github.com/imaha7" target="_blank" rel="noopener noreferrer" className="block rounded-2xl border border-slate-500/10 bg-[var(--surface)] p-5 text-[var(--foreground)] hover:border-cyan-400/40 hover:bg-[var(--surface)]/90 transition">
+                    <p className="font-semibold">GitHub Portfolio</p>
+                    <p className="text-sm text-[var(--muted)]">github.com/imaha7</p>
+                  </a>
+                  <a href="/Ilham_Resume.pdf" target="_blank" rel="noopener noreferrer" className="block rounded-2xl border border-slate-500/10 bg-[var(--surface)] p-5 text-[var(--foreground)] hover:border-cyan-400/40 hover:bg-[var(--surface)]/90 transition">
+                    <p className="font-semibold">Resume / CV</p>
+                    <p className="text-sm text-[var(--muted)]">Download or preview the latest resume.</p>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section id="clients" className="py-20 px-4">
           <div className="mx-auto max-w-6xl">
             <h2 className="text-4xl font-bold mb-10 text-center text-[var(--foreground)]">Clients</h2>

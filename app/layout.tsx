@@ -43,6 +43,13 @@ export const metadata: Metadata = {
     { media: "(prefers-color-scheme: light)", color: "#eff8ff" },
     { media: "(prefers-color-scheme: dark)", color: "#020617" },
   ],
+  authors: [
+    {
+      name: "Ilham Maulana Habibie",
+      url: "https://imaha7-profile.vercel.app",
+    },
+  ],
+  creator: "Ilham Maulana Habibie",
   robots: {
     index: true,
     follow: true,
@@ -58,12 +65,33 @@ export const metadata: Metadata = {
     description:
       "Portfolio of Ilham Software Engineer: projects, skills, experience, and contact.",
     siteName: "imaha7",
+    images: [
+      {
+        url: "https://imaha7-profile.vercel.app/og-image.svg",
+        width: 1200,
+        height: 630,
+        alt: "Ilham Maulana Habibie — Full Stack Developer and BI Specialist",
+      },
+    ],
+  },
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/favicon.ico",
+    other: [
+      {
+        rel: "manifest",
+        url: "/site.webmanifest",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Ilham Maulana Habibie (imaha7) — Full Stack Developer & BI Specialist",
     description:
       "Projects, skills, and experience. Connect with Ilham: GitHub & LinkedIn.",
+    creator: "@imaha7",
+    images: ["https://imaha7-profile.vercel.app/og-image.svg"],
   },
 };
 
