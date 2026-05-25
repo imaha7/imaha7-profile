@@ -37,15 +37,15 @@ function ClientLogoMarquee() {
       if (!paused) {
         offsetRef.current += speed;
         const maxScroll = el.scrollWidth / 2;
-        
+
         // Seamless loop: reset when reaches halfway
         if (offsetRef.current >= maxScroll) {
           offsetRef.current = 0;
         }
-        
+
         el.scrollLeft = offsetRef.current;
       }
-      
+
       rafRef.current = requestAnimationFrame(animate);
     };
 
@@ -118,6 +118,154 @@ export default function Home() {
     },
   ]);
   const currentYear = new Date().getFullYear();
+
+  const certifications = useMemo(
+    () => [
+      { title: "Angular (Intermediate)", issuer: "HackerRank", date: "May 2026 - Present", url: "https://www.hackerrank.com/certificates/34732e6e6536" },
+      { title: "Angular (Basic)", issuer: "HackerRank", date: "May 2026 - Present", url: "https://www.hackerrank.com/certificates/b25c52d459ec" },
+      { title: "SQL (Advanced)", issuer: "HackerRank", date: "May 2026 - Present", url: "https://www.hackerrank.com/certificates/f655401e5792" },
+      { title: "Node (Basic)", issuer: "HackerRank", date: "May 2026 - Present", url: "https://www.hackerrank.com/certificates/225a4c691fd0" },
+      { title: "Node.js (Intermediate)", issuer: "HackerRank", date: "May 2026 - Present", url: "https://www.hackerrank.com/certificates/27505b0c54c5" },
+      { title: "Software Engineer", issuer: "HackerRank", date: "May 2026 - Present", url: "https://www.hackerrank.com/certificates/da7fffd83916" },
+      { title: "Frontend Developer (React)", issuer: "HackerRank", date: "May 2026 - Present", url: "https://www.hackerrank.com/certificates/3ed8b622b518" },
+      { title: "Level 200: Building a Planning Solution in Board", issuer: "Board", date: "Apr 2025 - Present", url: "http://verify.skilljar.com/c/r4nnzmvz7i3k" },
+      { title: "Level 100: Foundations of Building in Board", issuer: "Board", date: "Mar 2025 - Present", url: "http://verify.skilljar.com/c/u9rxb2czmur3" },
+      { title: "MotionBoard Expert", issuer: "MotionBoard", date: "Aug 2024 - Aug 2027", url: "https://mycourse.app/LCpMq2f98M8cvxzp9" },
+      { title: "MotionBoard Professional", issuer: "MotionBoard", date: "Nov 2023 - Nov 2026", url: "https://mycourse.app/4wQA5Df2Q6pVw9m2A" },
+      { title: "CSS", issuer: "HackerRank", date: "Dec 2022 - Present", url: "https://www.hackerrank.com/certificates/571ab7ed3393" },
+      { title: "Javascript (Intermediate)", issuer: "HackerRank", date: "Dec 2022 - Present", url: "https://www.hackerrank.com/certificates/2e24d95c62e0" },
+      { title: "Javascript (Basic)", issuer: "HackerRank", date: "Dec 2022 - Present", url: "https://www.hackerrank.com/certificates/9f62694ff66a" },
+      { title: "Problem Solving (Intermediate)", issuer: "HackerRank", date: "Oct 2022 - Present", url: "https://www.hackerrank.com/certificates/954b4c15ecaf" },
+      { title: "Problem Solving (Basic)", issuer: "HackerRank", date: "Oct 2022 - Present", url: "https://www.hackerrank.com/certificates/6fae76fe8e78" },
+      { title: "Rest API (Intermediate)", issuer: "HackerRank", date: "Oct 2022 - Present", url: "https://www.hackerrank.com/certificates/38d3ecdf88dd" },
+      { title: "Teknologi Baru Android di Google I/O 2021 Certificate", issuer: "Dicoding Indonesia", date: "Jun 2021 - Present", url: "" },
+      { title: "Sertifikasi Kompetensi Bahasa Inggris", issuer: "LSK-BIG", date: "Mar 2014 - Present", url: "" },
+      { title: "Foresec Certified in Network Security", issuer: "ForeSec", date: "Jan 2019 - Present", url: "" },
+    ],
+    []
+  );
+
+  const certCarouselRef = React.useRef<HTMLDivElement | null>(null);
+  const [certCurrentPage, setCertCurrentPage] = useState(0);
+  const [certCardsPerPage, setCertCardsPerPage] = useState(1);
+  const certCardWidth = 320;
+  const certCardGap = 16;
+  const certProgrammaticScrollRef = React.useRef(false);
+  const certProgrammaticTimerRef = React.useRef<number | null>(null);
+  const certAnimationFrameRef = React.useRef<number | null>(null);
+
+  const computeCertPageOffsets = () => {
+    const el = certCarouselRef.current;
+    if (!el) return [] as number[];
+    const cards = Array.from(el.querySelectorAll<HTMLElement>("[data-cert-card-index]"));
+    const offsets: number[] = [];
+    const pageCount = Math.max(1, Math.ceil(certifications.length / certCardsPerPage));
+    for (let p = 0; p < pageCount; p++) {
+      const firstIndex = p * certCardsPerPage;
+      const card = cards[firstIndex];
+      if (card) offsets.push(card.offsetLeft);
+      else offsets.push(p * el.clientWidth);
+    }
+    return offsets;
+  };
+
+  const certSmoothScrollTo = (el: HTMLElement, targetLeft: number, duration = 500) => {
+    if (certAnimationFrameRef.current) cancelAnimationFrame(certAnimationFrameRef.current);
+    const startLeft = el.scrollLeft;
+    const start = performance.now();
+    const step = (now: number) => {
+      const elapsed = now - start;
+      const t = Math.min(1, elapsed / duration);
+      const eased = easeInOutCubic(t);
+      el.scrollLeft = Math.round(startLeft + (targetLeft - startLeft) * eased);
+      if (t < 1) {
+        certAnimationFrameRef.current = requestAnimationFrame(step);
+      } else {
+        certAnimationFrameRef.current = null;
+        if (certProgrammaticTimerRef.current) {
+          window.clearTimeout(certProgrammaticTimerRef.current);
+          certProgrammaticTimerRef.current = null;
+        }
+        certProgrammaticScrollRef.current = false;
+      }
+    };
+    certAnimationFrameRef.current = requestAnimationFrame(step);
+  };
+
+  React.useEffect(() => {
+    const update = () => {
+      const el = certCarouselRef.current;
+      if (!el) return;
+      const per = Math.max(1, Math.floor((el.clientWidth + certCardGap) / (certCardWidth + certCardGap)));
+      setCertCardsPerPage(per);
+    };
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
+
+  React.useEffect(() => {
+    if (certCarouselRef.current) certCarouselRef.current.scrollTo({ left: 0 });
+    setCertCurrentPage(0);
+  }, [certifications.length]);
+
+  const certPageCount = Math.max(1, Math.ceil(certifications.length / certCardsPerPage));
+
+  const goToCertPage = (p: number) => {
+    const el = certCarouselRef.current;
+    if (!el) return;
+    const page = ((p % certPageCount) + certPageCount) % certPageCount;
+    const offsets = computeCertPageOffsets();
+    const left = offsets[page] ?? page * el.clientWidth;
+    certProgrammaticScrollRef.current = true;
+    if (certProgrammaticTimerRef.current) window.clearTimeout(certProgrammaticTimerRef.current);
+    certProgrammaticTimerRef.current = window.setTimeout(() => {
+      certProgrammaticScrollRef.current = false;
+      certProgrammaticTimerRef.current = null;
+    }, 700);
+
+    setCertCurrentPage(page);
+    certSmoothScrollTo(el, left, 520);
+  };
+
+  const prevCertPage = () => goToCertPage(certCurrentPage - 1);
+  const nextCertPage = () => goToCertPage(certCurrentPage + 1);
+
+  React.useEffect(() => {
+    const el = certCarouselRef.current;
+    if (!el) return;
+    let raf = 0;
+    const onScroll = () => {
+      if (certProgrammaticScrollRef.current) return;
+      if (raf) cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const center = el.scrollLeft + el.clientWidth / 2;
+        const offsets = computeCertPageOffsets();
+        if (offsets.length === 0) return;
+        let closest = 0;
+        let bestDist = Infinity;
+        offsets.forEach((off, idx) => {
+          const pageCenter = off + el.clientWidth / 2;
+          const d = Math.abs(center - pageCenter);
+          if (d < bestDist) {
+            bestDist = d;
+            closest = idx;
+          }
+        });
+        const next = Math.max(0, Math.min(certPageCount - 1, closest));
+        setCertCurrentPage(next);
+      });
+    };
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      el.removeEventListener('scroll', onScroll);
+      if (raf) cancelAnimationFrame(raf);
+      if (certProgrammaticTimerRef.current) {
+        window.clearTimeout(certProgrammaticTimerRef.current);
+        certProgrammaticTimerRef.current = null;
+      }
+    };
+  }, [certifications.length, certPageCount]);
 
   const profileResponses = [
     {
@@ -360,7 +508,7 @@ export default function Home() {
     };
   }, [news.length, pageCount]);
 
-  const sectionIds = ["home", "about", "projects", "experience", "contact"];
+  const sectionIds = ["home", "about", "certifications", "clients", "projects", "experience", "contact"];
 
   React.useEffect(() => {
     const savedTheme = window.localStorage.getItem("theme") as "dark" | "light" | null;
@@ -547,19 +695,6 @@ export default function Home() {
         "CI/CD",
       ],
     },
-    {
-      category: "Certifications & Growth",
-      items: [
-        "MotionBoard Expert Certified",
-        "MotionBoard Professional Certified",
-        "JavaScript Intermediate",
-        "REST API Intermediate",
-        "Problem Solving",
-        "Network Security",
-        "Project Management",
-        "English Proficiency",
-      ],
-    },
   ];
 
   const experience = [
@@ -684,7 +819,8 @@ export default function Home() {
   const navItems = [
     { id: "home", label: "Home" },
     { id: "about", label: "About" },
-    // { id: "clients", label: "Clients" },
+    { id: "certifications", label: "Certifications" },
+    { id: "clients", label: "Clients" },
     { id: "projects", label: "Projects" },
     { id: "experience", label: "Experience" },
     { id: "contact", label: "Contact" },
@@ -768,7 +904,7 @@ export default function Home() {
             </button>
           </div>
         </div>
-        <div className={`absolute inset-x-0 top-full bg-[var(--surface)] border-t border-[var(--surface-border)] overflow-hidden transition-all duration-300 md:hidden ${mobileNavOpen ? 'max-h-60 py-4 opacity-100' : 'max-h-0 py-0 opacity-0'}`}>
+        <div className={`absolute inset-x-0 top-full bg-[var(--surface)] border-t border-[var(--surface-border)] overflow-hidden transition-all duration-300 md:hidden ${mobileNavOpen ? 'max-h-120 py-4 opacity-100' : 'max-h-0 py-0 opacity-0'}`}>
           <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 sm:px-6 lg:px-8">
             {navItems.map((item) => (
               <a
@@ -1003,6 +1139,71 @@ export default function Home() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="certifications" className="py-20 px-4">
+          <div className="mx-auto max-w-6xl">
+            <h2 className="text-4xl font-bold mb-10 text-center text-[var(--foreground)]">Certifications</h2>
+
+            <div className="rounded-[2rem] border border-[var(--surface-border)] bg-[var(--surface)] p-6 shadow-[0_20px_80px_-45px_rgba(14,165,233,0.35)]">
+              <div className="relative">
+                <div className="absolute left-2 top-1/2 z-20 -translate-y-1/2">
+                  <button
+                    type="button"
+                    onClick={prevCertPage}
+                    className="rounded-full bg-[var(--surface)]/90 p-2 text-[var(--foreground)] shadow-sm hover:bg-[var(--surface)]"
+                    aria-label="Previous certifications"
+                  >
+                    ‹
+                  </button>
+                </div>
+                <div className="absolute right-2 top-1/2 z-20 -translate-y-1/2">
+                  <button
+                    type="button"
+                    onClick={nextCertPage}
+                    className="rounded-full bg-[var(--surface)]/90 p-2 text-[var(--foreground)] shadow-sm hover:bg-[var(--surface)]"
+                    aria-label="Next certifications"
+                  >
+                    ›
+                  </button>
+                </div>
+
+                <div
+                  ref={certCarouselRef}
+                  className="no-scrollbar flex gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory py-2 px-2"
+                  style={{ WebkitOverflowScrolling: "touch" }}
+                >
+                  {certifications.map((cert, index) => (
+                    <div key={`${cert.title}-${index}`} data-cert-card-index={index} className="shrink-0 w-[320px] snap-start">
+                      <article className="flex h-full flex-col justify-between gap-3 rounded-xl border border-[var(--surface-border)] bg-[var(--background)] p-5 shadow-sm">
+                        <div>
+                          <h3 className="text-sm font-semibold text-[var(--foreground)]">{cert.title}</h3>
+                          <div className="mt-2 flex items-center gap-5">
+                            <p className="text-xs text-[var(--muted)]">{cert.issuer}</p>
+                            <div className="rounded-full border border-cyan-500/20 bg-cyan-500/10 px-3 py-1 text-[0.6rem] font-semibold text-[var(--brand-text)]">
+                              {cert.date}
+                            </div>
+                          </div>
+                        </div>
+                        {cert.url ? (
+                          <a
+                            href={cert.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-2 inline-flex items-center text-xs font-semibold text-[var(--brand-text)] hover:underline"
+                          >
+                            View certificate →
+                          </a>
+                        ) : (
+                          <div className="mt-2 text-xs text-[var(--muted)]">Preview Not Available</div>
+                        )}
+                      </article>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </section>
