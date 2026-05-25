@@ -22,40 +22,39 @@ function ClientLogoMarquee() {
   const items = useMemo(() => [...clients, ...clients], [clients]);
 
   const scrollerRef = useRef<HTMLDivElement | null>(null);
-  const rafRef = useRef<number | null>(null);
-  const lastTsRef = useRef<number | null>(null);
-  const offsetRef = useRef(0);
   const [paused, setPaused] = useState(false);
+  const offsetRef = useRef(0);
+  const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (prefersReducedMotion) return;
     const el = scrollerRef.current;
     if (!el) return;
 
-    const speedPxPerSec = 42;
+    const speed = 0.5; // pixels per frame (60fps = smooth)
 
-    const tick = (ts: number) => {
-      if (lastTsRef.current == null) lastTsRef.current = ts;
-      const dt = (ts - lastTsRef.current) / 1000;
-      lastTsRef.current = ts;
-
+    const animate = () => {
       if (!paused) {
-        offsetRef.current += speedPxPerSec * dt;
-        const width = el.scrollWidth / 2;
-        // wrap around for seamless loop
-        if (offsetRef.current >= width) offsetRef.current -= width;
+        offsetRef.current += speed;
+        const maxScroll = el.scrollWidth / 2;
+        
+        // Seamless loop: reset when reaches halfway
+        if (offsetRef.current >= maxScroll) {
+          offsetRef.current = 0;
+        }
+        
         el.scrollLeft = offsetRef.current;
       }
-
-      rafRef.current = requestAnimationFrame(tick);
+      
+      rafRef.current = requestAnimationFrame(animate);
     };
 
-    rafRef.current = requestAnimationFrame(tick);
+    rafRef.current = requestAnimationFrame(animate);
 
     return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      rafRef.current = null;
-      lastTsRef.current = null;
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+      }
     };
   }, [paused, prefersReducedMotion]);
 
@@ -73,8 +72,6 @@ function ClientLogoMarquee() {
       onMouseLeave={onResume}
       onFocusCapture={onPause}
       onBlurCapture={onResume}
-      onTouchStart={onPause}
-      onTouchEnd={onResume}
     >
       <div className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-[var(--surface)] to-transparent" />
       <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-[var(--surface)] to-transparent" />
@@ -921,7 +918,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <div id="resume-preview" className="mt-6 overflow-hidden rounded-2xl border border-[var(--surface-border)] bg-[var(--background)]/30">
+              <div id="resume-preview" className="mt-6 overflow-hidden rounded-2xl border border-[var(--surface-border)] bg-[var(--background)]/30 hidden lg:block">
                 <div className="flex flex-col gap-3 border-b border-[var(--surface-border)] p-4 sm:flex-row sm:items-center sm:justify-between">
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-[var(--brand-text)]">Live preview</p>
