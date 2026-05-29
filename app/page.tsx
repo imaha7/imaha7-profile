@@ -860,8 +860,8 @@ export default function Home() {
           </div>
 
           <div className="flex items-center gap-4">
-            <a href="#projects" className="hidden md:inline-flex items-center rounded-md bg-gradient-to-r from-cyan-500 to-indigo-500 px-5 py-2 text-sm font-semibold text-slate-900 shadow-lg shadow-cyan-500/20 hover:shadow-lg hover:shadow-cyan-500/40 transition-all duration-300 hover:scale-105">
-              View Projects
+            <a href="/analyze" className="hidden md:inline-flex items-center rounded-md bg-gradient-to-r from-cyan-500 to-indigo-500 px-5 py-2 text-sm font-semibold text-slate-900 shadow-lg shadow-cyan-500/20 hover:shadow-lg hover:shadow-cyan-500/40 transition-all duration-300 hover:scale-105">
+              Analyze Stocks Tools
             </a>
             <a
               href="https://api.whatsapp.com/send?phone=6283194310725&text=Hi%20Ilham%2C%20I%20would%20like%20to%20discuss%20a%20project."
