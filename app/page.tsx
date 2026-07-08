@@ -340,6 +340,274 @@ export default function Home() {
   const [loadingNews, setLoadingNews] = useState(false);
   const [newsError, setNewsError] = useState<string | null>(null);
 
+  type Song = {
+    id: number;
+    title: string;
+    artist: string;
+    duration: string;
+    spotifyId?: string;
+    previewUrl?: string;
+    jamendoUrl?: string;
+  };
+
+  const initialSongs: Song[] = [
+    {
+      id: 1,
+      title: "Blinding Lights",
+      artist: "The Weeknd",
+      spotifyId: "0VjIjW4GlUZAMYd2vXMi3b",
+      previewUrl: "https://p.scdn.co/mp3-preview/7f2da33e18f84ed6b5a02e783e57b3df65f09fbc",
+      duration: "3:20",
+    },
+    {
+      id: 2,
+      title: "Watermelon Sugar",
+      artist: "Harry Styles",
+      spotifyId: "6UelLqGlWMcVH1E5c4H7lY",
+      previewUrl: "https://p.scdn.co/mp3-preview/5e0e3a3e4d8e5a8e8e1c5f2c5e1a5c5e5a8e5c1a",
+      duration: "2:54",
+    },
+    {
+      id: 3,
+      title: "Bad Guy",
+      artist: "Billie Eilish",
+      spotifyId: "2Fxmhks0bxGSBdJ92vM42m",
+      previewUrl: "https://p.scdn.co/mp3-preview/1ad8fcd9f0f0e7d0d5e5c5a5b5e5d5e5c5a5b5e5",
+      duration: "3:14",
+    },
+    {
+      id: 4,
+      title: "As It Was",
+      artist: "Harry Styles",
+      spotifyId: "3jjujdWJ72nww5eGnfs2E7",
+      previewUrl: "https://p.scdn.co/mp3-preview/f1f5b5e5d5c5a5b5e5d5c5a5b5e5d5c5a5b5e5d5",
+      duration: "2:47",
+    },
+    {
+      id: 5,
+      title: "Shape of You",
+      artist: "Ed Sheeran",
+      spotifyId: "7qiZfU4dY1lWllzX7mPBI3",
+      previewUrl: "https://p.scdn.co/mp3-preview/a5e5d5c5a5b5e5d5c5a5b5e5d5c5a5b5e5d5c5a5",
+      duration: "3:53",
+    },
+    {
+      id: 6,
+      title: "Levitating",
+      artist: "Dua Lipa",
+      spotifyId: "39LLxExYz6ewLAcYrzQQyP",
+      previewUrl: "https://p.scdn.co/mp3-preview/c5a5b5e5d5c5a5b5e5d5c5a5b5e5d5c5a5b5e5d5",
+      duration: "3:23",
+    },
+    {
+      id: 7,
+      title: "Flowers",
+      artist: "Miley Cyrus",
+      spotifyId: "0yLdNVWF3Srea0uzk55zFn",
+      previewUrl: "https://p.scdn.co/mp3-preview/5d5c5a5b5e5d5c5a5b5e5d5c5a5b5e5d5c5a5b5e",
+      duration: "3:20",
+    },
+    {
+      id: 8,
+      title: "Stay",
+      artist: "The Kid LAROI & Justin Bieber",
+      spotifyId: "5HCyWlXZPP0y6Gqq8TgA20",
+      previewUrl: "https://p.scdn.co/mp3-preview/d5c5a5b5e5d5c5a5b5e5d5c5a5b5e5d5c5a5b5e5d",
+      duration: "2:21",
+    },
+    {
+      id: 9,
+      title: "Someone You Loved",
+      artist: "Lewis Capaldi",
+      spotifyId: "7qEHsqek33rTcFNT9PFqLf",
+      previewUrl: "https://p.scdn.co/mp3-preview/e5d5c5a5b5e5d5c5a5b5e5d5c5a5b5e5d5c5a5b5e",
+      duration: "3:02",
+    },
+    {
+      id: 10,
+      title: "Señorita",
+      artist: "Shawn Mendes & Camila Cabello",
+      spotifyId: "6v3KW9xbzN5yKLt9YKDYA2",
+      previewUrl: "https://p.scdn.co/mp3-preview/5a5b5e5d5c5a5b5e5d5c5a5b5e5d5c5a5b5e5d5c5",
+      duration: "3:10",
+    },
+    {
+      id: 11,
+      title: "Perfect",
+      artist: "Ed Sheeran",
+      spotifyId: "0tgVpDi06FyKpA1z0VMD4v",
+      previewUrl: "https://p.scdn.co/mp3-preview/b5e5d5c5a5b5e5d5c5a5b5e5d5c5a5b5e5d5c5a5b",
+      duration: "4:23",
+    },
+    {
+      id: 12,
+      title: "Happier",
+      artist: "Marshmello & Bastille",
+      spotifyId: "2dpaYNEQHiRxtZbfNsse99",
+      previewUrl: "https://p.scdn.co/mp3-preview/c5a5b5e5d5c5a5b5e5d5c5a5b5e5d5c5a5b5e5d5c",
+      duration: "3:34",
+    },
+  ];
+
+  const [songs, setSongs] = useState<Song[]>(initialSongs);
+  const [spotifyStatus, setSpotifyStatus] = useState("Loading Spotify tracks...");
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [localPlaying, setLocalPlaying] = useState(false);
+  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
+
+  const [activeSongId, setActiveSongId] = useState<number | null>(null);
+  const [playerMinimized, setPlayerMinimized] = useState(false);
+  const [playerVisible, setPlayerVisible] = useState(false);
+  const [embedTrackId, setEmbedTrackId] = useState<string | null>(null);
+  const [embedVersion, setEmbedVersion] = useState(0);
+  const musicSectionRef = useRef<HTMLElement | null>(null);
+  const [spotifyToken, setSpotifyToken] = useState("");
+  const playerRef = useRef<any>(null);
+  const [deviceId, setDeviceId] = useState<string | null>(null);
+  const [isConnected, setIsConnected] = useState(false);
+  const [isPaused, setIsPaused] = useState(true);
+
+  const activeSong = songs.find((song) => song.id === activeSongId) ?? null;
+  const playerTitle = activeSong ? `${activeSong.title} · ${activeSong.artist}` : "Select a song to play";
+
+  // Initialize audio element on mount
+  useEffect(() => {
+    if (!audioElement) {
+      const audio = new Audio();
+      audio.crossOrigin = "anonymous";
+      audio.onended = () => setLocalPlaying(false);
+      setAudioElement(audio);
+      audioRef.current = audio;
+    }
+  }, [audioElement]);
+
+  const handleSelectSong = async (songId: number) => {
+    setActiveSongId(songId);
+    setPlayerMinimized(false);
+    const song = songs.find((s) => s.id === songId);
+    if (!song) return;
+    
+    // Auto-play the song
+    if (song.jamendoUrl) {
+      playLocalUrl(song.jamendoUrl);
+      return;
+    }
+
+    if (song.previewUrl) {
+      try {
+        const audio = audioRef.current || new Audio();
+        audio.src = song.previewUrl;
+        audio.play();
+        setLocalPlaying(true);
+        setSpotifyStatus(`Now playing: ${song.title}`);
+        audioRef.current = audio;
+      } catch (e) {
+        setSpotifyStatus(`Failed to play: ${song.title}`);
+      }
+      return;
+    }
+
+    if (song.spotifyId) {
+      setEmbedTrackId(song.spotifyId);
+      setEmbedVersion((value) => value + 1);
+      setSpotifyStatus(`Loading ${song.title}...`);
+    }
+  };
+
+  const togglePlay = async () => {
+    if (!audioRef.current) return;
+
+    if (activeSong?.jamendoUrl) {
+      if (localPlaying) {
+        audioRef.current?.pause();
+        setLocalPlaying(false);
+      } else {
+        audioRef.current?.play();
+        setLocalPlaying(true);
+      }
+      return;
+    }
+
+    if (activeSong?.previewUrl) {
+      try {
+        if (localPlaying) {
+          audioRef.current.pause();
+          setLocalPlaying(false);
+        } else {
+          audioRef.current.src = activeSong.previewUrl;
+          await audioRef.current.play();
+          setLocalPlaying(true);
+          setSpotifyStatus(`Now playing: ${activeSong.title}`);
+        }
+      } catch (e) {
+        setSpotifyStatus("Failed to play");
+      }
+      return;
+    }
+
+    if (activeSong?.spotifyId) {
+      setEmbedTrackId(activeSong.spotifyId);
+      setEmbedVersion((value) => value + 1);
+      setPlayerMinimized(false);
+      setSpotifyStatus(`Now playing: ${activeSong.title}`);
+    }
+  };
+
+  const nextTrack = async () => {
+    if (!activeSong) return;
+    const index = songs.findIndex((song) => song.id === activeSong.id);
+    const nextSong = songs[(index + 1) % songs.length];
+    if (nextSong) {
+      setActiveSongId(nextSong.id);
+      setEmbedTrackId(nextSong.spotifyId ?? null);
+      setEmbedVersion((value) => value + 1);
+      setPlayerMinimized(false);
+    }
+  };
+
+  const prevTrack = async () => {
+    if (!activeSong) return;
+    const index = songs.findIndex((song) => song.id === activeSong.id);
+    const prevSong = songs[(index - 1 + songs.length) % songs.length];
+    if (prevSong) {
+      setActiveSongId(prevSong.id);
+      setEmbedTrackId(prevSong.spotifyId ?? null);
+      setEmbedVersion((value) => value + 1);
+      setPlayerMinimized(false);
+    }
+  };
+
+  const playLocalUrl = (url: string) => {
+    try {
+      if (!audioRef.current) {
+        audioRef.current = new Audio(url);
+      } else {
+        audioRef.current.src = url;
+      }
+      audioRef.current.play();
+      setLocalPlaying(true);
+      audioRef.current.onended = () => setLocalPlaying(false);
+    } catch (e) {
+      setSpotifyStatus("Failed to play audio");
+    }
+  };
+
+  const fetchSpotifyTracks = async () => {
+    setSpotifyStatus("Loading Spotify tracks...");
+    try {
+      const res = await fetch("/api/spotify/tracks");
+      const data = await res.json();
+      if (data?.tracks?.length) {
+        setSongs(data.tracks);
+        setSpotifyStatus(`Loaded ${data.tracks.length} Spotify tracks`);
+      } else {
+        setSpotifyStatus("No Spotify tracks returned");
+      }
+    } catch (e) {
+      setSpotifyStatus("Unable to load Spotify tracks");
+    }
+  };
+
   const fetchNews = async () => {
     setLoadingNews(true);
     setNewsError(null);
@@ -375,6 +643,20 @@ export default function Home() {
 
   React.useEffect(() => {
     fetchNews();
+    void fetchSpotifyTracks();
+  }, []);
+
+  useEffect(() => {
+    const section = musicSectionRef.current;
+    if (!section || typeof IntersectionObserver === "undefined") return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setPlayerVisible(entry.isIntersecting),
+      { rootMargin: "-20% 0px -70% 0px" }
+    );
+
+    observer.observe(section);
+    return () => observer.disconnect();
   }, []);
 
   const carouselRef = React.useRef<HTMLDivElement | null>(null);
@@ -508,7 +790,7 @@ export default function Home() {
     };
   }, [news.length, pageCount]);
 
-  const sectionIds = ["home", "about", "certifications", "clients", "projects", "experience", "contact"];
+  const sectionIds = ["home", "about", "music", "certifications", "clients", "projects", "experience", "contact"];
 
   React.useEffect(() => {
     const savedTheme = window.localStorage.getItem("theme") as "dark" | "light" | null;
@@ -1408,6 +1690,67 @@ export default function Home() {
             </div>
           </div>
         </section>
+        <section id="music" ref={musicSectionRef} className="py-20 px-4">
+          <div className="mx-auto max-w-6xl">
+            <div className="rounded-[2rem] border border-[var(--surface-border)] bg-[var(--surface)] p-8 shadow-[0_30px_70px_-40px_rgba(15,23,42,0.75)] backdrop-blur-xl">
+              <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                <div className="space-y-3">
+                  <p className="text-xs uppercase tracking-[0.24em] text-[var(--muted)]">My New Songs - Released</p>
+                  <h2 className="text-4xl font-bold text-[var(--foreground)]">Minimal music for your focus</h2>
+                  <p className="text-[var(--muted)] max-w-2xl">
+                    Browse the new song list and keep playback running while you explore the page. Tap a track to start and control playback from the floating player.
+                  </p>
+                </div>
+                <div className="flex items-center gap-3 rounded-3xl border border-[var(--surface-border)] bg-[var(--background)]/70 p-4 text-sm text-[var(--foreground)]">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-500/10 text-[var(--brand-text)]">
+                    ♪
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-semibold text-[var(--foreground)]">Now Playing</p>
+                    <p className="truncate text-[var(--muted)]">{activeSong ? `${activeSong.title} · ${activeSong.artist}` : "Select a song to play"}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+                <button type="button" onClick={() => void fetchSpotifyTracks()} className="inline-flex items-center rounded-2xl bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400">Load Spotify tracks</button>
+                <p className="text-sm text-[var(--muted)]">{spotifyStatus}</p>
+              </div>
+
+              <div className="mt-8 max-h-64 overflow-y-auto space-y-2 border border-[var(--surface-border)] rounded-2xl p-4">
+                {songs.map((song) => {
+                  const isActive = activeSongId === song.id;
+                  const isCurrentlyPlaying = isActive && localPlaying;
+                  return (
+                    <button
+                      key={song.id}
+                      type="button"
+                      onClick={() => handleSelectSong(song.id)}
+                      className={`w-full rounded-xl px-4 py-3 text-left transition flex items-center justify-between gap-3 ${
+                        isCurrentlyPlaying
+                          ? "border-cyan-400/50 bg-cyan-500/15 border"
+                          : isActive
+                          ? "border-cyan-400/30 bg-cyan-500/10 border"
+                          : "border border-[var(--surface-border)] bg-[var(--background)] hover:border-cyan-400/30 hover:bg-[var(--surface)]"
+                      }`}
+                    >
+                      <div className="min-w-0">
+                        <h3 className="text-sm font-semibold text-[var(--foreground)] truncate">{song.title}</h3>
+                        <p className="text-xs text-[var(--muted)] truncate">{song.artist}</p>
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        {isCurrentlyPlaying && (
+                          <span className="text-xs font-semibold text-cyan-400">▶</span>
+                        )}
+                        <span className="text-xs text-[var(--muted)]">{song.duration}</span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
 
       <footer className="border-t border-[var(--surface-border)] mt-12 bg-[var(--surface)]/90">
@@ -1428,6 +1771,64 @@ export default function Home() {
         </div>
       </footer>
 
+      <div className={`fixed inset-x-0 bottom-0 z-40 mx-auto w-full max-w-[440px] px-4 pb-4 sm:bottom-4 sm:left-1/2 sm:-translate-x-1/2 transition-all duration-200 ${playerVisible ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 translate-y-6 pointer-events-none"}`} aria-hidden={!playerVisible}>
+        <div className={`overflow-hidden rounded-[1.75rem] border border-[var(--surface-border)] bg-[var(--surface)]/95 shadow-[0_24px_70px_-30px_rgba(15,23,42,0.85)] backdrop-blur-xl transition-all duration-200 ${playerMinimized ? "h-[72px]" : ""}`}>
+          <div className="flex items-center justify-between gap-3 px-4 py-3">
+            <div className="min-w-0">
+              <p className="text-[0.65rem] uppercase tracking-[0.26em] text-[var(--muted)]">Now playing</p>
+              <p className="truncate text-sm font-semibold text-[var(--foreground)]">{playerTitle}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setPlayerMinimized((value) => !value)}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--surface-border)] bg-[var(--background)] text-[var(--foreground)] transition hover:border-cyan-400"
+                aria-label={playerMinimized ? "Expand player" : "Minimize player"}
+              >
+                {playerMinimized ? "▴" : "▾"}
+              </button>
+            </div>
+          </div>
+
+          {!playerMinimized && (
+            <div className="border-t border-[var(--surface-border)] px-4 py-4">
+              {activeSong ? (
+                <div className="space-y-3">
+                  <div className="rounded-3xl border border-[var(--surface-border)] bg-[var(--surface)] p-4 text-sm text-[var(--muted)]">
+                    <div className="space-y-3">
+                      {activeSong?.spotifyId || embedTrackId ? (
+                        <div className="overflow-hidden rounded-3xl border border-[var(--surface-border)] bg-black/10">
+                          <iframe
+                            key={embedVersion}
+                            src={`https://open.spotify.com/embed/track/${embedTrackId ?? activeSong?.spotifyId ?? ""}?autoplay=1&view=coverart`}
+                            width="100%"
+                            height="80"
+                            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                            loading="lazy"
+                            className="border-0"
+                            title={`Spotify player for ${activeSong?.title ?? "selected track"}`}
+                          />
+                        </div>
+                      ) : (
+                        <p className="text-sm text-[var(--muted)]">Select a track from the list above to start playback.</p>
+                      )}
+                      <div className="flex items-center gap-3">
+                        <button type="button" onClick={prevTrack} className="inline-flex items-center justify-center rounded-full border border-[var(--surface-border)] bg-[var(--background)] p-2 text-[var(--foreground)] transition hover:border-cyan-400">◀◀</button>
+                        <button type="button" onClick={togglePlay} className="inline-flex items-center justify-center rounded-full bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-400">Play track</button>
+                        <button type="button" onClick={nextTrack} className="inline-flex items-center justify-center rounded-full border border-[var(--surface-border)] bg-[var(--background)] p-2 text-[var(--foreground)] transition hover:border-cyan-400">▶▶</button>
+                      </div>
+                      <p className="text-xs text-[var(--muted)]">{spotifyStatus}</p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm text-[var(--muted)]">Tap a track above to load it in the custom mini player.</p>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+      
       <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
         <button
           type="button"

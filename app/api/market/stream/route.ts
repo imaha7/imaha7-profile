@@ -32,12 +32,82 @@ function createSimulatedStock(symbol: string, previous?: StockData): StockData {
   return stockData;
 }
 
+const IDX_API_BASE_URL = process.env.IDX_API_BASE_URL || process.env.IDX_API_URL || "";
+
+function formatDateId(date: Date) {
+  return date.toLocaleDateString("en-CA", { timeZone: "Asia/Jakarta" }).replace(/-/g, "");
+}
+
+function normalizeIdxSymbol(value: string) {
+  return String(value).trim().replace(/\.JK$/gi, "").toUpperCase();
+}
+
+function mapIdxRecordToStockData(record: any): StockData | null {
+  const symbol = normalizeIdxSymbol(record.code ?? record.companyCode ?? record.symbol ?? record.ticker ?? record.stock ?? record.id);
+  if (!symbol) return null;
+
+  const price = Number(record.lastPrice ?? record.close ?? record.price ?? record.currentPrice ?? record.tradePrice ?? record.matchedPrice ?? 0);
+  const volume = Number(record.volume ?? record.totalVolume ?? record.tradeVolume ?? record.total_trade_volume ?? record.value ?? 0);
+  const name = record.name ?? record.companyName ?? record.shortName ?? symbol;
+
+  if (!price || Number.isNaN(price)) return null;
+
+  const stockData: StockData = {
+    symbol: symbol.includes(".JK") ? symbol : `${symbol}.JK`,
+    name,
+    price,
+    volume: Number.isFinite(volume) ? Math.round(volume) : 0,
+    timestamp: Date.now(),
+  };
+  cache.set(stockData.symbol, stockData);
+  return stockData;
+}
+
+async function fetchIdxData(date: string): Promise<any[]> {
+  if (!IDX_API_BASE_URL) return [];
+  const url = new URL(`${IDX_API_BASE_URL.replace(/\/+$/, "")}/trading/stock-summary`);
+  url.searchParams.set("date", date);
+
+  const response = await fetch(url.toString(), { headers: { Accept: "application/json" } });
+  if (!response.ok) {
+    throw new Error(`IDX-API fetch failed: ${response.status}`);
+  }
+
+  const payload = await response.json();
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload.data)) return payload.data;
+  if (Array.isArray(payload.result)) return payload.result;
+  if (Array.isArray(payload.items)) return payload.items;
+  return [];
+}
+
 async function fetchQuotes(): Promise<StockData[]> {
-  const symbols = SAMPLE_SYMBOLS.join(',');
+  const symbols = SAMPLE_SYMBOLS.join(",");
+  const today = formatDateId(new Date());
+
+  if (IDX_API_BASE_URL) {
+    try {
+      const records = await fetchIdxData(today);
+      if (records.length > 0) {
+        const mapped = records
+          .map(mapIdxRecordToStockData)
+          .filter((item): item is StockData => item !== null);
+
+        return SAMPLE_SYMBOLS.map((symbol) => {
+          const item = mapped.find((entry) => normalizeIdxSymbol(entry.symbol) === normalizeIdxSymbol(symbol));
+          if (item) return item;
+          return createSimulatedStock(symbol, cache.get(symbol));
+        });
+      }
+    } catch (error) {
+      console.warn("IDX-API fetch failed, falling back to Yahoo Finance or simulation:", error);
+    }
+  }
+
   const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(symbols)}`;
   const headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-    Accept: 'application/json, text/plain, */*',
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+    Accept: "application/json, text/plain, */*",
   };
 
   try {
@@ -58,11 +128,10 @@ async function fetchQuotes(): Promise<StockData[]> {
         cache.set(symbol, stockData);
         return stockData;
       }
-
       return createSimulatedStock(symbol, cache.get(symbol));
     });
   } catch (error) {
-    console.warn('Yahoo Finance fetch failed, falling back to simulated quotes:', error);
+    console.warn("Yahoo Finance fetch failed, falling back to simulated quotes:", error);
     return SAMPLE_SYMBOLS.map((symbol) => createSimulatedStock(symbol, cache.get(symbol)));
   }
 }

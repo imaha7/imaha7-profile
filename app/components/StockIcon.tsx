@@ -17,11 +17,25 @@ const LOGO_URL_MAP: Record<string, string> = {
   'ADRO.JK': '/logos/adro.png',
   'MEDC.JK': '/logos/medc.png',
   'BBNI.JK': '/logos/bbni.png',
+  'ANTM.JK': '/logos/antm.ico',
+  'INDF.JK': '/logos/indf.jpg',
+  'SMGR.JK': '/logos/smgr.png',
+  'GOTO.JK': '/logos/goto.svg',
+  'KLBF.JK': '/logos/klbf.png',
+  'UNTR.JK': '/logos/untr.png',
+  'ICBP.JK': '/logos/icbp.jpg',
+  'HMSP.JK': '/logos/hmsp.png',
+  'PGAS.JK': '/logos/pgas.svg',
+  'WIKA.JK': '/logos/wika.svg',
+  'PTBA.JK': '/logos/ptba.ico',
 };
 
 export default function StockIcon({ symbol, change, size = 40, smart = false }: Props) {
   const display = symbol.replace(/\.JK$/i, '');
-  const logoUrl = LOGO_URL_MAP[symbol];
+  const normalized = symbol.toUpperCase();
+  const key = normalized.endsWith('.JK') ? normalized : `${normalized}.JK`;
+  const altKey = `${display.toUpperCase()}.JK`;
+  const logoUrl = LOGO_URL_MAP[key] || LOGO_URL_MAP[altKey];
 
   const color = change > 0 ? '#10B981' : change < 0 ? '#FB7185' : '#94A3B8';
   const bg = smart ? '#ecfeff' : '#0f172a';

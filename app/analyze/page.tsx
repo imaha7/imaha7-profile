@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import StockIcon from "../components/StockIcon";
 
 type Tick = { price: number; volume: number; t: number };
 type StockState = {
@@ -14,31 +13,57 @@ type StockState = {
   ticks: Tick[];
 };
 
+type AnalysisRow = {
+  symbol: string;
+  name?: string;
+  price: number;
+  changePct: number;
+  volume: number;
+  ara: boolean;
+  arb: boolean;
+  smartMoney: boolean;
+  recommendation: string;
+  recommendationClass: string;
+  confidence: number;
+  date: string;
+};
+
+const popularSymbols = ["BBCA", "BBRI", "BMRI", "TLKM", "ASII", "ANTM", "GOTO", "UNVR", "KLBF", "INDF", "BUMI", "ADMR"];
+
+const normalizeSymbol = (value: string) => value.trim().replace(/\.JK$/gi, "").toUpperCase();
+
 export default function AnalyzePage() {
   const [stocks, setStocks] = useState<StockState[]>([]);
   const [connected, setConnected] = useState(false);
   const [streamUrl] = useState<string>("/api/market/stream");
   const eventSourceRef = useRef<EventSource | null>(null);
 
+  const [searchInput, setSearchInput] = useState("");
+  const [querySymbols, setQuerySymbols] = useState<string[]>([]);
+  const [lastUpdate, setLastUpdate] = useState<string>("");
   const [araThreshold, setAraThreshold] = useState<number>(7);
   const [arbThreshold, setArbThreshold] = useState<number>(-7);
   const [smartVolumeMultiplier, setSmartVolumeMultiplier] = useState<number>(1.5);
 
-  // Initialize stocks from first data point
-  const initializeStocks = useCallback((data: any[]) => {
-    const initialized = data.map((d: any) => ({
-      symbol: d.symbol,
-      name: d.name || d.symbol,
-      lastClose: d.price, // use current as baseline
-      price: d.price,
-      volume: d.volume || 0,
-      avgVolume: (d.volume || 0) * 0.8, // estimate average
-      ticks: [{ price: d.price, volume: d.volume || 0, t: d.timestamp || Date.now() }],
-    }));
-    return initialized;
+  const parseSymbols = useCallback((value: string) => {
+    return value
+      .split(/[\s,;]+/)
+      .map(normalizeSymbol)
+      .filter(Boolean);
   }, []);
 
-  // Connect to SSE stream
+  const initializeStocks = useCallback((data: any[]) => {
+    return data.map((d: any) => ({
+      symbol: normalizeSymbol(d.symbol),
+      name: d.name ? normalizeSymbol(d.name) : normalizeSymbol(d.symbol),
+      lastClose: d.price,
+      price: d.price,
+      volume: d.volume || 0,
+      avgVolume: (d.volume || 0) * 0.8,
+      ticks: [{ price: d.price, volume: d.volume || 0, t: d.timestamp || Date.now() }],
+    }));
+  }, []);
+
   const connectStream = useCallback(() => {
     if (eventSourceRef.current) {
       eventSourceRef.current.close();
@@ -59,21 +84,18 @@ export default function AnalyzePage() {
           const msg = JSON.parse(event.data);
 
           if (msg.type === "snapshot" && msg.data) {
-            // Initialize stocks on first snapshot
             setStocks(initializeStocks(msg.data));
+            setLastUpdate(new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" }));
           } else if (msg.type === "update" && msg.data) {
-            // Update existing stocks
+            setLastUpdate(new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" }));
             setStocks((prev) => {
               const updated = [...prev];
               for (const newData of msg.data) {
-                const idx = updated.findIndex((s) => s.symbol === newData.symbol);
+                const idx = updated.findIndex((s) => s.symbol === normalizeSymbol(newData.symbol));
                 if (idx >= 0) {
                   const existing = updated[idx];
                   const now = newData.timestamp || Date.now();
-                  const newTicks = [
-                    ...existing.ticks,
-                    { price: newData.price, volume: newData.volume || 0, t: now },
-                  ].slice(-60);
+                  const newTicks = [...existing.ticks, { price: newData.price, volume: newData.volume || 0, t: now }].slice(-60);
 
                   updated[idx] = {
                     ...existing,
@@ -104,7 +126,6 @@ export default function AnalyzePage() {
     }
   }, [streamUrl, initializeStocks]);
 
-  // Auto-connect on mount
   useEffect(() => {
     connectStream();
 
@@ -115,7 +136,6 @@ export default function AnalyzePage() {
     };
   }, [connectStream]);
 
-  // Analysis computation
   const analysis = useMemo(() => {
     return stocks.map((s) => {
       const changePct = ((s.price - s.lastClose) / s.lastClose) * 100;
@@ -129,6 +149,32 @@ export default function AnalyzePage() {
       }
       const recentAvgVol = lastTicks.length ? lastTicks.reduce((a, b) => a + b.volume, 0) / lastTicks.length : 0;
       const smartMoney = upCount >= 2 && recentAvgVol > s.avgVolume * smartVolumeMultiplier;
+      const lastTick = s.ticks[s.ticks.length - 1];
+      const date = new Date(lastTick?.t || Date.now()).toLocaleDateString("id-ID", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      });
+
+      let recommendation = "NEUTRAL - Monitor";
+      let recommendationClass = "bg-[var(--surface)] text-[var(--muted)] border border-[var(--surface-border)]";
+      if (smartMoney && changePct >= 0) {
+        recommendation = "BUY - Enter Small (20-30% allocation)";
+        recommendationClass = "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20";
+      } else if (arb) {
+        recommendation = "AVOID - Do Not Enter";
+        recommendationClass = "bg-rose-500/10 text-rose-500 border border-rose-500/20";
+      } else if (ara) {
+        recommendation = "WATCH - Potential Breakout";
+        recommendationClass = "bg-amber-500/10 text-amber-500 border border-amber-500/20";
+      }
+
+      const confidence = Math.round(
+        Math.min(
+          95,
+          Math.max(25, 40 + Math.abs(changePct) * 1.25 + (smartMoney ? 18 : 0) + (ara ? 6 : 0) - (arb ? 10 : 0))
+        )
+      );
 
       return {
         symbol: s.symbol,
@@ -139,124 +185,181 @@ export default function AnalyzePage() {
         ara,
         arb,
         smartMoney,
+        recommendation,
+        recommendationClass,
+        confidence,
+        date,
       };
     });
   }, [stocks, araThreshold, arbThreshold, smartVolumeMultiplier]);
 
-  const formatNumber = (n: number) => n.toLocaleString();
+  const filteredAnalysis = useMemo(() => {
+    if (querySymbols.length === 0) return analysis;
+    return analysis.filter((item) => querySymbols.includes(item.symbol));
+  }, [analysis, querySymbols]);
 
-  
+  const formatNumber = (n: number) => n.toLocaleString("id-ID");
+
+  const handleSearch = useCallback((value: string) => {
+    setQuerySymbols(parseSymbols(value));
+  }, [parseSymbols]);
+
+  const handleClearSearch = useCallback(() => {
+    setSearchInput("");
+    setQuerySymbols([]);
+  }, []);
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    handleSearch(searchInput);
+  };
 
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] py-12 px-4">
       <div className="mx-auto max-w-7xl">
-        <div className="mb-6 flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Analyze Stocks</h1>
-            <p className="text-sm text-[var(--muted)]">Real-time BEI/IDX analysis — ARA / ARB detection and smart-money accumulation.</p>
+        <div className="mb-8 rounded-3xl border border-[var(--surface-border)] bg-[var(--surface)] p-6 shadow-lg shadow-slate-900/5">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <h1 className="text-3xl font-semibold">Bandarmology Analysis</h1>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--muted)]">
+                Detects broker volume activity, relative strength, consolidation & trigger signals.
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="rounded-full bg-slate-900/80 px-3 py-2 text-xs font-semibold text-slate-300">
+                Last update: {lastUpdate || "--:--:--"}
+              </span>
+              <button
+                type="button"
+                onClick={() => connectStream()}
+                className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                  connected
+                    ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
+                    : "bg-[var(--surface)] text-[var(--foreground)] border border-[var(--surface-border)]"
+                }`}
+              >
+                {connected ? "● Connected" : "Reconnect"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setStocks([])}
+                className="rounded-full border border-[var(--surface-border)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold text-[var(--foreground)]"
+              >
+                Clear
+              </button>
+            </div>
           </div>
-          <div className="flex items-center gap-3">
+
+          <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="flex-1 min-w-0">
+              <label htmlFor="symbol-search" className="sr-only">
+                Stock Code
+              </label>
+              <input
+                id="symbol-search"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                placeholder="BBCA, TLKM, ANTM"
+                className="w-full rounded-2xl border border-[var(--surface-border)] bg-white/5 px-4 py-3 text-sm text-[var(--foreground)] outline-none transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20"
+              />
+            </div>
             <button
-              onClick={() => connectStream()}
-              className={`rounded-md px-4 py-2 border transition ${
-                connected
-                  ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
-                  : "bg-[var(--surface)] border-[var(--surface-border)] text-[var(--foreground)]"
-              }`}
+              type="submit"
+              className="inline-flex shrink-0 items-center justify-center rounded-2xl bg-emerald-500 px-6 py-3 text-sm font-semibold text-slate-900 transition hover:bg-emerald-400"
             >
-              {connected ? "● Connected" : "Reconnect"}
+              Analyze
             </button>
             <button
-              onClick={() => setStocks([])}
-              className="rounded-md bg-[var(--surface)] px-4 py-2 border border-[var(--surface-border)]"
+              type="button"
+              onClick={handleClearSearch}
+              className="inline-flex shrink-0 items-center justify-center rounded-2xl border border-[var(--surface-border)] bg-[var(--surface)] px-6 py-3 text-sm font-semibold text-[var(--foreground)] transition hover:border-cyan-400 hover:text-cyan-400"
             >
-              Clear
+              Reset
             </button>
+          </form>
+
+          <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-[var(--muted)]">
+            {popularSymbols.map((symbol) => (
+              <button
+                key={symbol}
+                type="button"
+                onClick={() => {
+                  setSearchInput(symbol);
+                  handleSearch(symbol);
+                }}
+                className="rounded-full border border-[var(--surface-border)] bg-[var(--background)] px-3 py-2 text-left text-sm font-medium text-[var(--foreground)] transition hover:border-cyan-400 hover:text-cyan-400"
+              >
+                {symbol}
+              </button>
+            ))}
+          </div>
+
+          <div className="mt-4 rounded-2xl bg-slate-950/70 px-4 py-3 text-sm text-slate-300 ring-1 ring-slate-800">
+            Each analysis uses 5 tokens. Balance: 0 tokens. Prices come from IDX-API when `IDX_API_BASE_URL` is configured, otherwise the app falls back to Yahoo Finance / simulation. .JK is added automatically.
           </div>
         </div>
 
-        <div className="mb-4 flex gap-4 items-center flex-wrap">
-          <div className="flex items-center gap-2">
-            <label className="text-xs text-[var(--muted)]">ARA %</label>
-            <input type="number" value={araThreshold} onChange={(e) => setAraThreshold(Number(e.target.value))} className="w-20 rounded-md bg-[var(--surface)] px-2 py-1 border border-[var(--surface-border)] text-sm" />
+        <div className="rounded-3xl border border-[var(--surface-border)] bg-[var(--surface)] p-6 shadow-lg shadow-slate-900/5">
+          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-cyan-400">Bandarmology Analysis History</p>
+            </div>
+            <div className="flex items-center gap-4 text-sm text-[var(--muted)]">
+              <button type="button" onClick={() => connectStream()} className="text-cyan-400 hover:text-cyan-300">
+                Refresh
+              </button>
+              <span className="hidden sm:inline">Click row to re-analyze</span>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <label className="text-xs text-[var(--muted)]">ARB %</label>
-            <input type="number" value={arbThreshold} onChange={(e) => setArbThreshold(Number(e.target.value))} className="w-20 rounded-md bg-[var(--surface)] px-2 py-1 border border-[var(--surface-border)] text-sm" />
-          </div>
-          <div className="flex items-center gap-2">
-            <label className="text-xs text-[var(--muted)]">Smart Vol x</label>
-            <input step="0.1" type="number" value={smartVolumeMultiplier} onChange={(e) => setSmartVolumeMultiplier(Number(e.target.value))} className="w-24 rounded-md bg-[var(--surface)] px-2 py-1 border border-[var(--surface-border)] text-sm" />
-          </div>
-          <div className="text-xs text-[var(--muted)]">
-            {stocks.length} stocks • {analysis.filter((a) => a.ara || a.arb || a.smartMoney).length} signals
-          </div>
-        </div>
 
-        <div className="overflow-x-auto rounded-xl border border-[var(--surface-border)] bg-[var(--surface)]">
-          <table className="w-full table-auto text-sm">
-            <thead className="text-left text-[var(--muted)] bg-[var(--surface)]/50 sticky top-0">
-              <tr>
-                <th className="px-4 py-3">Symbol</th>
-                <th className="px-4 py-3">Name</th>
-                <th className="px-4 py-3">Price</th>
-                <th className="px-4 py-3">Change</th>
-                <th className="px-4 py-3">Volume</th>
-                <th className="px-4 py-3">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {analysis.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-[var(--muted)]">
-                    Loading stocks from BEI/IDX... {stocks.length > 0 ? `(${stocks.length} loaded)` : "(connecting)"}
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="min-w-full border-separate border-spacing-0 text-sm">
+              <thead>
+                <tr className="bg-[var(--surface)] text-left text-xs uppercase tracking-[0.18em] text-[var(--muted)]">
+                  <th className="px-4 py-3">Ticker</th>
+                  <th className="px-4 py-3">Recommendation</th>
+                  <th className="px-4 py-3">Confidence</th>
+                  <th className="px-4 py-3">Price</th>
+                  <th className="px-4 py-3">Date</th>
                 </tr>
-              ) : (
-                analysis
-                  .sort((a, b) => {
-                    // Sort by signals first, then by largest moves
-                    const aSignal = (a.ara || a.arb || a.smartMoney) ? 1 : 0;
-                    const bSignal = (b.ara || b.arb || b.smartMoney) ? 1 : 0;
-                    if (aSignal !== bSignal) return bSignal - aSignal;
-                    return Math.abs(b.changePct) - Math.abs(a.changePct);
-                  })
-                  .map((a) => (
-                    <tr key={a.symbol} className="border-t border-[var(--surface-border)] hover:bg-[var(--surface)]/50">
-                      <td className="px-4 py-3 font-semibold flex items-center gap-3">
-                        <StockIcon symbol={a.symbol} change={a.changePct} size={44} smart={a.smartMoney} />
-                        <span>{a.symbol.replace(/\.JK$/i, '')}</span>
-                      </td>
-                      <td className="px-4 py-3 text-[var(--muted)] text-xs">{a.name?.replace(/\.JK$/i, '')}</td>
-                      <td className="px-4 py-3">Rp {formatNumber(Math.round(a.price))}</td>
-                      <td className="px-4 py-3">
-                        <span className={`font-semibold ${a.changePct >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
-                          {a.changePct.toFixed(2)}%
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-xs">{formatNumber(Math.round(a.volume))}</td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-1 flex-wrap">
-                          {a.ara && <span className="inline-flex items-center rounded-full bg-emerald-400/10 px-2 py-0.5 text-xs font-semibold text-emerald-400">ARA</span>}
-                          {a.arb && <span className="inline-flex items-center rounded-full bg-rose-400/10 px-2 py-0.5 text-xs font-semibold text-rose-400">ARB</span>}
-                          {a.smartMoney && <span className="inline-flex items-center rounded-full bg-cyan-400/10 px-2 py-0.5 text-xs font-semibold text-cyan-400">Accum</span>}
-                          {!a.ara && !a.arb && !a.smartMoney && <span className="text-[var(--muted)] text-xs">—</span>}
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="mt-6 text-xs text-[var(--muted)] space-y-2">
-          <p>
-            <strong>Live Data:</strong> Real-time BEI/IDX stock data from Yahoo Finance with fallback simulation when live quotes are unavailable. Updates every 5 seconds.
-          </p>
-          <p>
-            <strong>Signals:</strong> ARA (gain ≥{araThreshold}%), ARB (loss ≤{arbThreshold}%), Accum (price up + volume spike).
-          </p>
+              </thead>
+              <tbody>
+                {filteredAnalysis.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="px-4 py-10 text-center text-[var(--muted)]">
+                      {analysis.length === 0 ? "Loading analysis data..." : "No results for the current filter."}
+                    </td>
+                  </tr>
+                ) : (
+                  filteredAnalysis
+                    .sort((a, b) => {
+                      const aSignal = a.smartMoney || a.ara || a.arb ? 1 : 0;
+                      const bSignal = b.smartMoney || b.ara || b.arb ? 1 : 0;
+                      if (aSignal !== bSignal) return bSignal - aSignal;
+                      return b.confidence - a.confidence;
+                    })
+                    .slice(0, 12)
+                    .map((item) => (
+                      <tr
+                        key={item.symbol}
+                        onClick={() => handleSearch(item.symbol)}
+                        className="cursor-pointer border-t border-[var(--surface-border)] transition hover:bg-slate-900/5"
+                      >
+                        <td className="px-4 py-4 font-semibold">{item.symbol}</td>
+                        <td className="px-4 py-4">
+                          <span className={`inline-flex max-w-[320px] rounded-full px-3 py-1 text-[0.75rem] font-semibold ${item.recommendationClass}`}>
+                            {item.recommendation}
+                          </span>
+                        </td>
+                        <td className="px-4 py-4 text-[var(--muted)]">{item.confidence}%</td>
+                        <td className="px-4 py-4">{item.price ? `Rp ${formatNumber(Math.round(item.price))}` : "N/A"}</td>
+                        <td className="px-4 py-4 text-[var(--muted)]">{item.date}</td>
+                      </tr>
+                    ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

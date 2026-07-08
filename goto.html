@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="GOTO.ID - Create your own website">
+	<title>Goto.ID</title>
+	<link rel="icon" type="image/png" href="https://goto.id/images/favicon.png">
+	<!-- template by AdminLTE.io -->
+	<!-- Google Font: Source Sans Pro -->
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+	<!-- Font Awesome Icons -->
+	<link rel="stylesheet" href="https://goto.id/plugins/fontawesome-free/css/all.min.css?gotoid_aver=202509301250">
+	<!-- overlayScrollbars -->
+	<link rel="stylesheet" href="https://goto.id/plugins/overlayScrollbars/css/OverlayScrollbars.min.css?gotoid_aver=202509301250">
+	<!-- Theme style -->
+	<link rel="stylesheet" href="https://goto.id/dist/css/adminlte.min.css?gotoid_aver=202509301250">
+	<style type="text/css">
+		@font-face {
+			font-family: 'Gotham';
+			src: url('https://goto.id/fonts/Gotham-Book.otf');
+			font-weight: normal;
+			font-style: normal;
+		}
+		@font-face {
+			font-family: 'GothamBold';
+			src: url('https://goto.id/fonts/Gotham-Bold.otf');
+			font-weight: bolder;
+			font-style: normal;
+		}
+	</style>
+	<link rel="stylesheet" href="https://goto.id/css/gotoid.basic_modal.css?gotoid_aver=202509301250">
+	<link rel="stylesheet" href="https://goto.id/css/landing/main.css?gotoid_aver=202509301250">
+	<link rel="stylesheet" href="https://goto.id/css/landing/header_container.css?gotoid_aver=202509301250">
+	<link rel="stylesheet" href="https://goto.id/css/landing/middle_a_container.css?gotoid_aver=202509301250">
+	<link rel="stylesheet" href="https://goto.id/css/landing/middle_b_container.css?gotoid_aver=202509301250">
+	<link rel="stylesheet" href="https://goto.id/css/landing/middle_c_container.css?gotoid_aver=202509301250">
+	<link rel="stylesheet" href="https://goto.id/css/landing/middle_d_container.css?gotoid_aver=202509301250">
+	<link rel="stylesheet" href="https://goto.id/css/landing/middle_e_container.css?gotoid_aver=202509301250">
+	<link rel="stylesheet" href="https://goto.id/css/landing/footer_container.css?gotoid_aver=202509301250">
+	<link rel="stylesheet" href="https://goto.id/css/landing/left_side.css?gotoid_aver=202509301250">
+	<link rel="stylesheet" href="https://goto.id/css/landing/right_side.css?gotoid_aver=202509301250">
+	<link rel="stylesheet" href="https://goto.id/css/landing/login_form.css?gotoid_aver=202509301250">
+	<script src="https://goto.id/js/gotoid.basic_modal.js?gotoid_aver=202509301250"></script>
+	<script src="https://goto.id/js/landing/extension.base.js?gotoid_aver=202509301250"></script>
+	<script src="https://goto.id/js/landing/extension.form_sign.js?gotoid_aver=202509301250"></script>
+	<script src="https://goto.id/js/landing/extension.warn_modal.js?gotoid_aver=202509301250"></script>
+	<script src="https://goto.id/js/landing/extension.gimmick.js?gotoid_aver=202509301250"></script>
+	<script src="https://goto.id/js/landing/init.js?gotoid_aver=202509301250"></script>
+	<script src="https://goto.id/js/jquery-3.7.1.min.js?gotoid_aver=202509301250"></script>
+</head>
+<body>
+	<input type="hidden" name="_token" value="WBMxixTymj35e78y5GIaec0eBelUPZjeNl6o1PEz" autocomplete="off">	<div id="cms_init_cover" style="background-color: white !important;position: absolute !important;left: 0px !important;right:0px !important;top: 0px !important;bottom:0px !important;z-index: 9999 !important;"></div>
+	<div id="landing-page-modal"></div>
+	<div class='main-container'>
+		<div id='header_container' class='header_container'>
+    <div class='left_side'>
+        <div class='form_interface'>
+	<img src='https://goto.id/images/logo.svg'>
+	<div class="title_sub_1">Shorten, Connect & Personalize</div>
+	<div class="title_sub_2">Create your online presence effortlessly</div>
+	
+	<div class='people-img'>
+		<img src='https://goto.id/images/landing/woman.png'>
+	</div>
+	<div class='box_container'>
+		<div class="tab_grid">
+			<button id='btn-tab-register'>
+				<div>
+					<div>Register</div>
+				</div>
+			</button>
+			<button id='btn-tab-login'>
+				<div>
+					<div>Log in</div>
+				</div>
+			</button>
+		</div>
+
+		<div class="login_form">
+	<div class="top_form_input"><div>
+		<label id='input-bar-username' class="input-bar" for='input-text-username'>
+			<div>
+				<div>
+					<div class='left-area'>
+						<div class='input-desc'>Username</div>
+						<div class='input-container'>
+							<input id='input-text-username' type='text'>
+						</div>
+					</div>
+					<div class='right-area'>
+						<div>
+							<div class='green-check' id='green-check-username'>
+								<img src='https://goto.id/images/landing/green-check.svg'>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<ul id='msg-cnt-username' class='msg-warn'></ul>
+		</label>
+		<label id='input-bar-password' class="input-bar" for='input-text-password'>
+			<div>
+				<div>
+					<div class='left-area'>
+						<div class='input-desc'>Password</div>
+						<div class='input-container'>
+							<input id='input-text-password' type='password'>
+						</div>
+					</div>
+					<div class='right-area'>
+						<div>
+							<div class='green-check' id='green-check-password'>
+								<img src='https://goto.id/images/landing/green-check.svg'>
+							</div>
+							<button id='btn-toggle-password' class='btn-toggle-password'>
+								<img id='password-show-eye' class='show-eye' src='https://goto.id/images/landing/open-eye.svg'>
+								<img id='password-hide-eye' class='hide-eye' src='https://goto.id/images/landing/close-eye.svg'>
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<ul id='msg-cnt-password' class='msg-warn'></ul>
+		</label>
+		<label id='input-bar-email' class="input-bar"  for='input-text-email' style='display:none'>
+			<div>
+				<div>
+					<div class='left-area'>
+						<div class='input-desc'>Email</div>
+						<div class='input-container'>
+							<input id='input-text-email' type='text' placeholder='Youremail@mail'>
+						</div>
+					</div>
+					<div class='right-area'>
+						<div>
+							<div class='green-check' id='green-check-email'>
+								<img src='https://goto.id/images/landing/green-check.svg'>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<ul id='msg-cnt-email' class='msg-warn'></ul>
+		</label>
+		<label id='input-bar-captcha' class="input-bar"  for='input-text-captcha'>
+			<div>
+				<div>
+					<div class='left-area'>
+						<div class='input-desc'>Captcha</div>
+						<div class='input-container'>
+							<input id='input-text-captcha' type='text'>
+						</div>
+					</div>
+					<div class='right-area'></div>
+				</div>
+			</div>
+			<ul id='msg-cnt-captcha' class='msg-warn'></ul>
+		</label>
+	</div></div>
+	<div id='captcha-box' class='captcha-box'>
+		<div class="img-captcha">
+			<span id="span-captcha"><img src="https://goto.id/captcha/default?b2U9LTT6" ></span>
+			<button type="button" class="btn btn-danger" class="reloadCaptcha" id="reloadCaptcha">&#x21bb;</button>
+		</div>
+	</div>
+	<div id='form-loading' class='form-loading'><img src='https://goto.id/images/landing/loading-53px.svg'></div>
+	<button id='btn_sign_in' class="btn_form_input">Sign In</button>
+	<button id='btn_sign_up' class="btn_form_input" style='display:none'>Sign Up</button>
+	<button id='btn_new_password' class="btn_form_input" style='display:none'>Send New Password</button>
+	<button id='btn_google_signin' class="btn_google_signin">
+		<div class='b-gogle-logo'><img src='https://goto.id/images/landing/google-logo.png'></div>
+		<div class='b-gogle-text'>Continue with Google</div>
+	</button>
+</div>
+<div class='forgot-pass-container'><a id='a-forgot-password' href="#" onclick="return false;" >Forgot Password?</a></div>	</div>
+
+	<div class="learn-more-container">
+		<button id='btn-learn-more'>
+			<div>
+				<div class="lm-text">LEARN MORE</div>
+				<div class="lm-right-ct">
+					<img src='https://goto.id/images/landing/learn-more-arrow-down.svg'>
+				</div>
+			</div>
+		</button>
+	</div>
+</div>    </div>
+    <div class='right_side'>
+        <div class='right-box-container'>
+    <img src='https://goto.id/images/landing/woman.png'>
+</div>    </div>
+</div>		<div id='middle_a_container' class='middle_a_container'>
+	<div class='desc_area'>
+		<div class='txt-title'><span style="color: #545BA9">MEET</span><span style="color: #E66060"> </span><span style="color: #FF5959">G</span><span style="color: #FFAC10">O</span><span style="color: #6FC6C1">T</span><span style="color: #49BEB7">O.</span><span style="color: #00D4AA">ID</span></div>
+		<div class='txt-explanation'>Goto.id is your all-in-one solution to build beautiful, smart web pages—no coding required<br>Goto.id helps you launch your online presence in minutes.</div>
+	</div>
+	<div class='side_l'>
+		<img src='https://goto.id/images/landing/ss_1.png'>
+	</div>
+	<div class='side_r'>
+		<div class='list_main_feature'>
+			<div class='lmf-icon'>
+				<img src='https://goto.id/images/landing/lmf_icon_1.png'>
+			</div>
+			<div class='lmf-title' style='color:#319ADB'>Build Fast, No Fuss</div>
+			<div class='lmf-desc'>Create your minisite effortlessly using modular content blocks. No coding, no design skills, no experience needed.</div>
+		</div>
+		<div class='list_main_feature'>
+			<div class='lmf-icon'>
+				<img src='https://goto.id/images/landing/lmf_icon_2.png'>
+			</div>
+			<div class='lmf-title' style='color:#00D4AA'>Looks Great Everywhere</div>
+		</div>
+		<div class='list_main_feature'>
+			<div class='lmf-icon'>
+				<img src='https://goto.id/images/landing/lmf_icon_3.png'>
+			</div>
+			<div class='lmf-title' style='color:#FFAC10'>Know Who's Looking for You</div>
+		</div>
+		<div class='list_main_feature'>
+			<div class='lmf-icon'>
+				<img src='https://goto.id/images/landing/lmf_icon_4.png'>
+			</div>
+			<div class='lmf-title' style='color:#FF5959'>Make It Truly Yours</div>
+		</div>
+	</div>
+</div>		<div class='middle_b_container'>
+	<div class='mbc-title'>Sell Digital Products with Zero Hassle</div>
+	<div class='mbc-desc'>Turn your minisite into a simple, powerful digital storefront. Perfect for creators, freelancers, trainers, or anyone selling digital content</div>
+	<div class='mbc-steps'>
+		<div class='mbc-f-box'>
+			<div class='mfb-top'><img src='https://goto.id/images/landing/mid_b/fea_1.png'></div>
+			<div class='mfb-icon'><img src='https://goto.id/images/landing/mid_b/icon_shop.png'></div>
+			<div class='mfb-desc'>Add eBooks, templates, guides, videos, or any digital file directly to your site.</div>
+		</div>
+		<div class='mbc-f-box'>
+			<div class='mfb-top'><img src='https://goto.id/images/landing/mid_b/fea_2.png'></div>
+			<div class='mfb-icon'><img src='https://goto.id/images/landing/mid_b/tag_price.png'></div>
+			<div class='mfb-desc'>Add eBooks, templates, guides, videos, or any digital file directly to your site.</div>
+		</div>
+		<div class='mbc-f-box'>
+			<div class='mfb-top'><img src='https://goto.id/images/landing/mid_b/fea_3.png'></div>
+			<div class='mfb-icon'><img src='https://goto.id/images/landing/mid_b/note_pen.png'></div>
+			<div class='mfb-desc'>Add eBooks, templates, guides, videos, or any digital file directly to your site.</div>
+		</div>
+		<div class='mbc-f-box'>
+			<div class='mfb-top'><img src='https://goto.id/images/landing/mid_b/fea_4.png'></div>
+			<div class='mfb-icon'><img src='https://goto.id/images/landing/mid_b/purchase_web.png'></div>
+			<div class='mfb-desc'>Add eBooks, templates, guides, videos, or any digital file directly to your site.</div>
+		</div>
+	</div>
+	<div class='mbc-button'>
+		<button id='btn-try_it_now-b'>Try it now</button>
+	</div>
+	<div class='mbc-notes'>*Available on Basic (limited modules) and Pro (full access) plans.</div>
+</div>		<div class='middle_c_container'>
+	<div class='mdc-title'><span style="color: #545BA9; ">What</span><span style="color: #E66060; "> </span><span style="color: #FF5959; ">G</span><span style="color: #FFAC10; ">O</span><span style="color: #6FC6C1; ">T</span><span style="color: #49BEB7; ">O</span><span style="color: #00D4AA; ">.ID</span><span style="color: #49BEB7; "> </span><span style="color: #545BA9; ">User Say</span></div>
+	<div class='mdc-device'>
+		<div><img src='https://goto.id/images/landing/mid_c/device_1.png'></div>
+		<div class='mdc-device-b'><img src='https://goto.id/images/landing/mid_c/device_2.png'></div>
+	</div>
+	<div class='mdc-testimonial'>
+		<div class='box-testimonial'>
+			<div class='b-pp'><img src='https://goto.id/images/landing/mid_c/pp-testi-1.png'></div>
+			<div class='b-name'>Customer 1</div>
+			<div class='b-desc'>Lorem ipsum dolor sit amet, consectetur</div>
+		</div>
+		<div class='box-testimonial'>
+			<div class='b-pp'><img src='https://goto.id/images/landing/mid_c/pp-testi-2.png'></div>
+			<div class='b-name'>Customer 2 - Long Name</div>
+			<div class='b-desc'>Lorem ipsum </div>
+		</div>
+		<div class='box-testimonial'>
+			<div class='b-pp'><img src='https://goto.id/images/landing/mid_c/pp-testi-3.png'></div>
+			<div class='b-name'>Customer 3 - Ultraoverexageratedverylongfullname</div>
+			<div class='b-desc'>Ut enim ad minim veniam, quis nostrud exercitation</div>
+		</div>
+	</div>
+</div>		<div class='middle_d_container'>
+	<div class='pk-title'>Explore Our Package Plan</div>
+	<div class='pk-desc'>
+		<b>Start free, upgrade anytime. No contracts, no hidden fees.</b><br>
+		Choose the plan that works best for you—start simple or unlock more powerful features with Pro.
+		(This is temporary placeholder, These plan can be changed at any time)
+	</div>
+	<div class='pk-list'>
+		<div class='box-pk'>
+			<div class='bp-title'>
+				<b>Basic</b><br>
+				Free forever
+			</div>
+			<div class='bp-desc'>Perfect for starter.</div>
+			<div class='bp-feat-list'>
+				<ul>
+					<li>Access to core modules</li>
+					<li>Create & publish 1 minisite</li>
+					<li>Use Goto.id default domain</li>
+					<li>Link analytics (basic)</li>
+					<li>Free templates</li>
+					<li class='forbide'>No custom domain</li>
+					<li class='forbide'>Limited advanced modules</li>
+				</ul>
+			</div>
+			<div class='bp-bottom-desc'>Best for individuals and first-time users.</div>
+			<div class='bp-button'>
+				<button id='btn-try_it_now-d-a'>Try it now</button>
+			</div>
+		</div>
+
+		<div class='box-pk'>
+			<div class='bp-title'>
+				<b>Pro</b><br>
+				Unlock More
+			</div>
+			<div class='bp-desc'>For creators, pros, and small businesses.</div>
+			<div class='bp-feat-list'>
+				<ul>
+					<li>All Basic features</li>
+					<li>Unlock all content modules</li>
+					<li>Use your own custom domain</li>
+					<li>Multiple minisites</li>
+					<li>Advanced analytics</li>
+					<li class='forbide'>Premium templates & layouts</li>
+				</ul>
+			</div>
+			<div class='bp-bottom-desc'>Best for individuals and first-time users.</div>
+			<div class='bp-button'>
+				<button id='btn-try_it_now-d-b'>Try it now</button>
+			</div>
+		</div>
+	</div>
+</div>		<div class='middle_e_container'>
+	<div class='mde-title'>Frequently asked questions</div>
+	<div class='mde-faq-list'>
+		<div class='mfl-node'>
+			<div class='mfl-title'>Do I need to know how to code to use Goto.id?</div>
+			<button class='mfl-bullet'>
+				<img class='mb-expand' src='https://goto.id/images/landing/mid_e/icon_faq_plus.png'>
+				<img class='mb-close' src='https://goto.id/images/landing/mid_e/icon_faq_x.png'>
+			</button>
+			<div class='mfl-desc'>Whether you’re a keyboard ninja or just someone who knows where the power button is, Goto.id makes website creation effortless. No programming, no puzzling. No need to speak computer. Goto.id gets you from zero to  hero in seconds.</div>
+		</div>
+		<div class='mfl-node'>
+			<div class='mfl-title'>Can I use my own domain??</div>
+			<button class='mfl-bullet'>
+				<img class='mb-expand' src='https://goto.id/images/landing/mid_e/icon_faq_plus.png'>
+				<img class='mb-close' src='https://goto.id/images/landing/mid_e/icon_faq_x.png'>
+			</button>
+			<div class='mfl-desc'>Your turf, your title, your tech. Goto.id turns any domain you own into a digital fortress of awesomeness. </div>
+		</div>
+		<div class='mfl-node'>
+			<div class='mfl-title'>What can I build with Goto.id?</div>
+			<button class='mfl-bullet'>
+				<img class='mb-expand' src='https://goto.id/images/landing/mid_e/icon_faq_plus.png'>
+				<img class='mb-close' src='https://goto.id/images/landing/mid_e/icon_faq_x.png'>
+			</button>
+			<div class='mfl-desc'>Whether it’s a single article or a full-on product gallery, Goto.id flexes to match your vision—text, videos, images, even sales tools, all responsive and radiant. List your links. Embed your YouTube magic. Slide your image gallery. Sell your stuff. Goto.id is your digital Swiss Army knife.</div>
+		</div>
+		<div class='mfl-node'>
+			<div class='mfl-title'>Can I sell digital products on my page?</div>
+			<button class='mfl-bullet'>
+				<img class='mb-expand' src='https://goto.id/images/landing/mid_e/icon_faq_plus.png'>
+				<img class='mb-close' src='https://goto.id/images/landing/mid_e/icon_faq_x.png'>
+			</button>
+			<div class='mfl-desc'>Absolutely! Goto.id supports digital product selling with a seamless, ready-to-use system. Just upload, set your price, and you're good to go.</div>
+		</div>
+		<div class='mfl-node'>
+			<div class='mfl-title'>Can I track how many people visit my page?</div>
+			<button class='mfl-bullet'>
+				<img class='mb-expand' src='https://goto.id/images/landing/mid_e/icon_faq_plus.png'>
+				<img class='mb-close' src='https://goto.id/images/landing/mid_e/icon_faq_x.png'>
+			</button>
+			<div class='mfl-desc'>Whether it’s a trickle or a tidal wave, see your audience grow! Daily stats, monthly snapshots—your page traffic is no longer a mystery. Goto.id makes you the master of your own metrics.</div>
+		</div>
+	</div>
+</div>		<div class='footer_container'>
+    <img src='https://goto.id/images/logo.svg'>
+</div>	</div>
+</body>
+<script>
+	var obj_page = new LandingPage({
+		base_url : "https://goto.id",
+		dashboard_url : "https://goto.id/d/dashboard",
+		images_url : "https://goto.id/images",
+		show_captcha : 0==1?true:false,
+		token : $('[name="_token"]').val(),
+	});
+	
+	window.onload=function() {
+		obj_page.final();
+		document.getElementById('cms_init_cover').style.display='none';
+	}
+</script>
+</html>
