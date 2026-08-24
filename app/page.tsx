@@ -1563,13 +1563,10 @@ export default function Home() {
             <div className="mb-12 flex items-end justify-between gap-8 border-b border-[var(--surface-border)] pb-6">
               <div>
                 <p className="mb-4 text-[0.62rem] uppercase tracking-[0.38em] text-[var(--foreground)]">Product archive</p>
-                <h2 className="max-w-xl text-4xl font-semibold uppercase leading-[0.92] tracking-[-0.04em] sm:text-6xl">
+                <h2 className="text-4xl font-semibold uppercase leading-[0.92] tracking-[-0.04em] sm:text-6xl">
                   My Latest<br />Running Products
                 </h2>
               </div>
-              <p className="hidden max-w-xs pb-1 text-right text-sm leading-6 text-[var(--foreground)] md:block">
-                Independent products, systems, and experiments currently in motion.
-              </p>
             </div>
 
             <div className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-6 overflow-x-auto px-4 pb-5 sm:-mx-8 sm:px-8 lg:mx-0 lg:px-0">
@@ -1578,65 +1575,31 @@ export default function Home() {
                   key={product.name}
                   className="group relative flex min-h-[520px] w-[min(86vw,760px)] shrink-0 snap-start flex-col overflow-hidden border border-[var(--surface-border)] bg-[var(--surface)] text-[var(--foreground)] transition duration-500 hover:border-white/50 sm:min-h-[540px] sm:flex-row"
                 >
-                  <div className="relative min-h-[230px] overflow-hidden bg-[#c8c7c4] sm:min-h-0 sm:w-[42%]">
-                    <div className="absolute inset-0 opacity-70 [background-image:linear-gradient(rgba(16,24,32,0.12)_1px,transparent_1px),linear-gradient(90deg,rgba(16,24,32,0.12)_1px,transparent_1px)] [background-size:28px_28px]" />
-                    <div className="absolute inset-x-8 top-10 bottom-12 border border-[#101820]/35 bg-[#d8d7d3]/70 p-4 shadow-[18px_20px_0_rgba(16,24,32,0.12)] transition duration-500 group-hover:-translate-y-2 group-hover:shadow-[18px_28px_0_rgba(16,24,32,0.16)]">
-                      <div className="flex items-center justify-between border-b border-[#101820]/25 pb-3 text-[0.46rem] font-semibold uppercase tracking-[0.25em] text-[#101820]/60">
-                        <span>{product.name}</span>
-                        <span>LIVE / 2026</span>
-                      </div>
-                      {product.visual === "cashflow" ? (
-                        <div className="mt-7 space-y-4">
-                          <div className="flex items-end gap-1.5">
-                            {[34, 50, 42, 68, 57, 84, 73, 96].map((height, index) => (
-                              <span key={index} className="flex-1 bg-[#101820]/75" style={{ height: `${height}px` }} />
-                            ))}
-                          </div>
-                          <div className="grid grid-cols-2 gap-2">
-                            {['INCOME', 'OUTCOME', 'RUNWAY', 'HEALTH'].map((metric, index) => (
-                              <div key={metric} className="border border-[#101820]/20 p-2">
-                                <div className="text-[0.42rem] uppercase tracking-[0.16em] text-[#101820]/55">{metric}</div>
-                                <div className="mt-2 h-2 w-2/3 bg-[#101820]/65" />
-                                <div className="mt-1 h-1 w-1/2 bg-[#101820]/20" />
-                                <div className="mt-2 text-[0.5rem] text-[#101820]/55">{index % 2 === 0 ? "+ 18.4%" : "- 06.2%"}</div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="mt-7 space-y-5">
-                          <div className="relative h-28 border-b border-l border-[#101820]/30">
-                            <div className="absolute inset-x-0 top-1/2 border-t border-dashed border-[#101820]/20" />
-                            <svg viewBox="0 0 280 100" preserveAspectRatio="none" className="h-full w-full" aria-hidden="true">
-                              <polyline points="0,75 32,68 58,78 88,46 116,57 146,31 174,44 204,18 238,29 280,8" fill="none" stroke="#101820" strokeWidth="3" />
-                            </svg>
-                          </div>
-                          <div className="space-y-2">
-                            {['BBCA  /  BUY', 'BBRI  /  WATCH', 'TLKM  /  BUY'].map((row, index) => (
-                              <div key={row} className="flex items-center justify-between border-b border-[#101820]/15 pb-2 text-[0.52rem] font-semibold tracking-[0.14em]">
-                                <span>{row}</span><span className={index === 1 ? 'text-[#101820]/45' : 'text-[#101820]'}>{index === 1 ? '- 1.8%' : '+ 4.6%'}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                    <span className="absolute bottom-6 left-8 text-[0.62rem] font-semibold uppercase tracking-[0.25em] text-[#101820]/65">Product preview</span>
+                  <div className="relative min-h-[230px] overflow-hidden bg-[var(--product-preview)] sm:min-h-0 sm:w-[42%]">
+                    <iframe
+                      src={product.url}
+                      title={`${product.name} product dashboard preview`}
+                      loading="lazy"
+                      tabIndex={-1}
+                      className="pointer-events-none h-full min-h-[230px] w-full border-0 bg-[var(--product-preview)] sm:min-h-0"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" />
+                    <span className="absolute bottom-6 left-8 text-[0.62rem] font-semibold uppercase tracking-[0.25em] text-white/80">Product preview</span>
                   </div>
 
                   <div className="flex flex-1 flex-col justify-between p-7 sm:p-10">
                     <div>
-                      <div className="mb-10 flex items-center justify-between gap-4 text-[0.6rem] uppercase tracking-[0.3em] text-[#101820]/55">
+                      <div className="mb-10 flex items-center justify-between gap-4 text-[0.6rem] uppercase tracking-[0.3em] text-[var(--product-ink-soft)]">
                         <span>{product.label}</span>
-                        <span className="border border-[#101820]/20 px-2 py-1">Running</span>
+                        <span className="border border-[var(--product-ink)]/20 px-2 py-1">Running</span>
                       </div>
                       <h3 className="max-w-md text-4xl font-semibold uppercase leading-[0.92] tracking-[-0.045em] sm:text-5xl">{product.name}</h3>
-                      <p className="mt-5 max-w-md text-lg font-medium leading-tight text-[#101820]/85">{product.title}</p>
-                      <p className="mt-5 max-w-md text-sm leading-6 text-[#101820]/60">{product.description}</p>
+                      <p className="mt-5 max-w-md text-lg font-medium leading-tight text-[var(--product-ink)]/85">{product.title}</p>
+                      <p className="mt-5 max-w-md text-sm leading-6 text-[var(--product-ink-soft)]">{product.description}</p>
                     </div>
                     <div className="mt-12">
-                      <p className="mb-3 text-[0.6rem] uppercase tracking-[0.3em] text-[#101820]/45">Focus areas</p>
-                      <div className="grid grid-cols-2 border-y border-[#101820]/15 py-4 text-[0.63rem] font-semibold uppercase tracking-[0.12em]">
+                      <p className="mb-3 text-[0.6rem] uppercase tracking-[0.3em] text-[var(--product-ink)]/45">Focus areas</p>
+                      <div className="grid grid-cols-2 border-y border-[var(--product-ink)]/15 py-4 text-[0.63rem] font-semibold uppercase tracking-[0.12em]">
                         {product.highlights.map((highlight, index) => <span key={highlight}>{String(index + 1).padStart(2, "0")} &nbsp; {highlight}</span>)}
                       </div>
                       <a href={product.url} target="_blank" rel="noopener noreferrer" className="mt-6 inline-flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em] transition group-hover:gap-5">
@@ -1644,11 +1607,11 @@ export default function Home() {
                       </a>
                     </div>
                   </div>
-                  <span className="absolute right-5 top-5 text-2xl font-semibold tracking-[-0.05em] text-[#101820]/75">{product.number}</span>
+                  <span className="absolute right-5 top-5 text-2xl font-semibold tracking-[-0.05em] text-[var(--product-ink)]/75">{product.number}</span>
                 </article>
               ))}
             </div>
-            <div className="mt-4 flex items-center justify-between text-[0.6rem] uppercase tracking-[0.3em] text-white/40">
+            <div className="mt-4 flex items-center justify-between text-[0.6rem] uppercase tracking-[0.3em] text-[var(--muted)]">
               <span>02 products / ongoing</span>
               <span>Scroll to explore</span>
             </div>

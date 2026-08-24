@@ -10,6 +10,11 @@
   --muted: #94a3b8;
   --accent: #38bdf8;
   --brand-text: #38bdf8;
+  --product-preview: #172433;
+  --product-panel: #213246;
+  --product-ink: #e2e8f0;
+  --product-ink-soft: rgba(226, 232, 240, 0.62);
+  --product-grid: rgba(226, 232, 240, 0.12);
 }
 
 html[data-theme="light"] {
@@ -22,6 +27,11 @@ html[data-theme="light"] {
   --muted: #6b7280;
   --accent: #2c7fb8;
   --brand-text: #1e3a8a; /* darker blue for better contrast in light mode */
+  --product-preview: #c8c7c4;
+  --product-panel: #d8d7d3;
+  --product-ink: #101820;
+  --product-ink-soft: rgba(16, 24, 32, 0.62);
+  --product-grid: rgba(16, 24, 32, 0.12);
 }
 
 @theme inline {
