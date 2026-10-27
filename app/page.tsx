@@ -353,6 +353,13 @@ export default function Home() {
   const initialSongs: Song[] = [
     {
       id: 1,
+      title: "Pinter Nyangkut",
+      artist: "Imaha Productions",
+      spotifyId: "0qnDeREhVYY8hBVX6P5DEU",
+      duration: "3:17",
+    },
+    {
+      id: 2,
       title: "Blinding Lights",
       artist: "The Weeknd",
       spotifyId: "0VjIjW4GlUZAMYd2vXMi3b",
@@ -360,7 +367,7 @@ export default function Home() {
       duration: "3:20",
     },
     {
-      id: 2,
+      id: 3,
       title: "Watermelon Sugar",
       artist: "Harry Styles",
       spotifyId: "6UelLqGlWMcVH1E5c4H7lY",
@@ -368,7 +375,7 @@ export default function Home() {
       duration: "2:54",
     },
     {
-      id: 3,
+      id: 4,
       title: "Bad Guy",
       artist: "Billie Eilish",
       spotifyId: "2Fxmhks0bxGSBdJ92vM42m",
@@ -376,7 +383,7 @@ export default function Home() {
       duration: "3:14",
     },
     {
-      id: 4,
+      id: 5,
       title: "As It Was",
       artist: "Harry Styles",
       spotifyId: "3jjujdWJ72nww5eGnfs2E7",
@@ -384,7 +391,7 @@ export default function Home() {
       duration: "2:47",
     },
     {
-      id: 5,
+      id: 6,
       title: "Shape of You",
       artist: "Ed Sheeran",
       spotifyId: "7qiZfU4dY1lWllzX7mPBI3",
@@ -392,7 +399,7 @@ export default function Home() {
       duration: "3:53",
     },
     {
-      id: 6,
+      id: 7,
       title: "Levitating",
       artist: "Dua Lipa",
       spotifyId: "39LLxExYz6ewLAcYrzQQyP",
@@ -400,7 +407,7 @@ export default function Home() {
       duration: "3:23",
     },
     {
-      id: 7,
+      id: 8,
       title: "Flowers",
       artist: "Miley Cyrus",
       spotifyId: "0yLdNVWF3Srea0uzk55zFn",
@@ -408,7 +415,7 @@ export default function Home() {
       duration: "3:20",
     },
     {
-      id: 8,
+      id: 9,
       title: "Stay",
       artist: "The Kid LAROI & Justin Bieber",
       spotifyId: "5HCyWlXZPP0y6Gqq8TgA20",
@@ -416,7 +423,7 @@ export default function Home() {
       duration: "2:21",
     },
     {
-      id: 9,
+      id: 10,
       title: "Someone You Loved",
       artist: "Lewis Capaldi",
       spotifyId: "7qEHsqek33rTcFNT9PFqLf",
@@ -424,7 +431,7 @@ export default function Home() {
       duration: "3:02",
     },
     {
-      id: 10,
+      id: 11,
       title: "Señorita",
       artist: "Shawn Mendes & Camila Cabello",
       spotifyId: "6v3KW9xbzN5yKLt9YKDYA2",
@@ -432,7 +439,7 @@ export default function Home() {
       duration: "3:10",
     },
     {
-      id: 11,
+      id: 12,
       title: "Perfect",
       artist: "Ed Sheeran",
       spotifyId: "0tgVpDi06FyKpA1z0VMD4v",
@@ -440,7 +447,7 @@ export default function Home() {
       duration: "4:23",
     },
     {
-      id: 12,
+      id: 13,
       title: "Happier",
       artist: "Marshmello & Bastille",
       spotifyId: "2dpaYNEQHiRxtZbfNsse99",
@@ -486,7 +493,12 @@ export default function Home() {
     setPlayerMinimized(false);
     const song = songs.find((s) => s.id === songId);
     if (!song) return;
-    
+
+    if (!song.jamendoUrl && !song.previewUrl && !song.spotifyId) {
+      setSpotifyStatus(`No playable source for: ${song.title}`);
+      return;
+    }
+
     // Auto-play the song
     if (song.jamendoUrl) {
       playLocalUrl(song.jamendoUrl);
@@ -497,12 +509,18 @@ export default function Home() {
       try {
         const audio = audioRef.current || new Audio();
         audio.src = song.previewUrl;
-        audio.play();
+        audio.load();
+        await audio.play();
         setLocalPlaying(true);
         setSpotifyStatus(`Now playing: ${song.title}`);
         audioRef.current = audio;
       } catch (e) {
-        setSpotifyStatus(`Failed to play: ${song.title}`);
+        setLocalPlaying(false);
+        if (song.spotifyId) {
+          setEmbedTrackId(song.spotifyId);
+          setEmbedVersion((value) => value + 1);
+        }
+        setSpotifyStatus(`Preview unavailable for: ${song.title}`);
       }
       return;
     }
@@ -517,7 +535,14 @@ export default function Home() {
   const togglePlay = async () => {
     if (!audioRef.current) return;
 
-    if (activeSong?.jamendoUrl) {
+    if (!activeSong) return;
+
+    if (!activeSong.jamendoUrl && !activeSong.previewUrl && !activeSong.spotifyId) {
+      setSpotifyStatus(`No playable source for: ${activeSong.title}`);
+      return;
+    }
+
+    if (activeSong.jamendoUrl) {
       if (localPlaying) {
         audioRef.current?.pause();
         setLocalPlaying(false);
@@ -528,24 +553,30 @@ export default function Home() {
       return;
     }
 
-    if (activeSong?.previewUrl) {
+    if (activeSong.previewUrl) {
       try {
         if (localPlaying) {
           audioRef.current.pause();
           setLocalPlaying(false);
         } else {
           audioRef.current.src = activeSong.previewUrl;
+          audioRef.current.load();
           await audioRef.current.play();
           setLocalPlaying(true);
           setSpotifyStatus(`Now playing: ${activeSong.title}`);
         }
       } catch (e) {
-        setSpotifyStatus("Failed to play");
+        setLocalPlaying(false);
+        if (activeSong.spotifyId) {
+          setEmbedTrackId(activeSong.spotifyId);
+          setEmbedVersion((value) => value + 1);
+        }
+        setSpotifyStatus("Preview unavailable");
       }
       return;
     }
 
-    if (activeSong?.spotifyId) {
+    if (activeSong.spotifyId) {
       setEmbedTrackId(activeSong.spotifyId);
       setEmbedVersion((value) => value + 1);
       setPlayerMinimized(false);
@@ -596,10 +627,16 @@ export default function Home() {
     setSpotifyStatus("Loading Spotify tracks...");
     try {
       const res = await fetch("/api/spotify/tracks");
+      if (!res.ok) {
+        throw new Error(`Spotify tracks request failed with status ${res.status}`);
+      }
       const data = await res.json();
       if (data?.tracks?.length) {
-        setSongs(data.tracks);
-        setSpotifyStatus(`Loaded ${data.tracks.length} Spotify tracks`);
+        const spotifyTracks = (data.tracks as Song[])
+          .filter((track) => track.title !== "Pinter Nyangkut" || track.artist !== "Imaha Productions")
+          .map((track, index) => ({ ...track, id: index + 2 }));
+        setSongs([initialSongs[0], ...spotifyTracks]);
+        setSpotifyStatus(`Loaded ${spotifyTracks.length} Spotify tracks`);
       } else {
         setSpotifyStatus("No Spotify tracks returned");
       }
