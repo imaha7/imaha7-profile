@@ -121,6 +121,7 @@ export default function Home() {
 
   const certifications = useMemo(
     () => [
+      { title: "PL-300 certification prep: Microsoft Power BI Data Analyst", issuer: "Udemy", date: "Nov 2026 - Present", url: "https://www.udemy.com/certificate/UC-fb026002-91c4-40e3-aafb-706e55d53db9/" },
       { title: "Angular (Intermediate)", issuer: "HackerRank", date: "May 2026 - Present", url: "https://www.hackerrank.com/certificates/34732e6e6536" },
       { title: "Angular (Basic)", issuer: "HackerRank", date: "May 2026 - Present", url: "https://www.hackerrank.com/certificates/b25c52d459ec" },
       { title: "SQL (Advanced)", issuer: "HackerRank", date: "May 2026 - Present", url: "https://www.hackerrank.com/certificates/f655401e5792" },
