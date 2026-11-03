@@ -1,12 +1,9 @@
 "use client";
 
-import React, { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import React, { type ReactNode, useMemo, useState } from "react";
+import DeferredSections from "./deferred-sections";
 
 function ClientLogoMarquee() {
-  const prefersReducedMotion =
-    typeof window !== "undefined" &&
-    window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-
   const clients = useMemo(
     () =>
       [
@@ -19,48 +16,7 @@ function ClientLogoMarquee() {
     []
   );
 
-  const items = useMemo(() => [...clients, ...clients], [clients]);
-
-  const scrollerRef = useRef<HTMLDivElement | null>(null);
   const [paused, setPaused] = useState(false);
-  const offsetRef = useRef(0);
-  const rafRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    if (prefersReducedMotion) return;
-    const el = scrollerRef.current;
-    if (!el) return;
-
-    const speed = 0.5; // pixels per frame (60fps = smooth)
-
-    const animate = () => {
-      if (!paused) {
-        offsetRef.current += speed;
-        const maxScroll = el.scrollWidth / 2;
-
-        // Seamless loop: reset when reaches halfway
-        if (offsetRef.current >= maxScroll) {
-          offsetRef.current = 0;
-        }
-
-        el.scrollLeft = offsetRef.current;
-      }
-
-      rafRef.current = requestAnimationFrame(animate);
-    };
-
-    rafRef.current = requestAnimationFrame(animate);
-
-    return () => {
-      if (rafRef.current) {
-        cancelAnimationFrame(rafRef.current);
-      }
-    };
-  }, [paused, prefersReducedMotion]);
-
-
-  const onPause = () => setPaused(true);
-  const onResume = () => setPaused(false);
 
   const gradientMask =
     "[mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]";
@@ -68,34 +24,41 @@ function ClientLogoMarquee() {
   return (
     <div
       className="relative rounded-[2rem] border border-[var(--surface-border)] bg-[var(--surface)] p-6 shadow-[0_20px_80px_-45px_rgba(14,165,233,0.35)]"
-      onMouseEnter={onPause}
-      onMouseLeave={onResume}
-      onFocusCapture={onPause}
-      onBlurCapture={onResume}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocusCapture={() => setPaused(true)}
+      onBlurCapture={() => setPaused(false)}
     >
       <div className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-[var(--surface)] to-transparent" />
       <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-[var(--surface)] to-transparent" />
 
-      <div className={`relative ${gradientMask} `}>
+      <div className={`client-marquee-viewport relative overflow-hidden ${gradientMask}`}>
         <div
-          ref={scrollerRef}
-          className="no-scrollbar flex gap-5 overflow-x-auto scroll-smooth px-2 py-3"
-          style={{ scrollSnapType: "none" }}
+          className={`client-marquee-track flex w-max ${paused ? "is-paused" : ""}`}
           aria-label="Client logos auto-scrolling"
         >
-          {items.map((c, idx) => (
+          {[0, 1].map((group) => (
             <div
-              key={`${c.name}-${idx}`}
-              className="shrink-0 w-[240px] rounded-2xl border border-[var(--surface-border)] bg-[var(--background)]/40 px-5 py-4 flex items-center justify-center"
+              key={group}
+              className="flex shrink-0 gap-5 px-2 py-3"
+              aria-hidden={group === 1}
             >
-              {/* image-only: use DuckDuckGo icon from client name */}
-              <img
-                src={`${c.url}`}
-                alt={c.name}
-                className="h-18 w-48 rounded-xl border border-[var(--surface-border)] bg-white/5"
-                onError={(e: any) => (e.currentTarget.style.display = "none")}
-                loading="lazy"
-              />
+              {clients.map((client) => (
+                <div
+                  key={client.name}
+                  className="flex w-[240px] shrink-0 items-center justify-center rounded-2xl border border-[var(--surface-border)] bg-[var(--background)]/40 px-5 py-4"
+                >
+                  <img
+                    src={client.url}
+                    alt={group === 0 ? client.name : ""}
+                    className="h-18 w-48 rounded-xl border border-[var(--surface-border)] bg-white/5"
+                    onError={(event) => {
+                      event.currentTarget.style.display = "none";
+                    }}
+                    loading="lazy"
+                  />
+                </div>
+              ))}
             </div>
           ))}
         </div>
@@ -154,6 +117,9 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
   const certProgrammaticScrollRef = React.useRef(false);
   const certProgrammaticTimerRef = React.useRef<number | null>(null);
   const certAnimationFrameRef = React.useRef<number | null>(null);
+
+  const easeInOutCubic = (t: number) =>
+    t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
   const computeCertPageOffsets = () => {
     const el = certCarouselRef.current;
@@ -336,538 +302,6 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
     setChatMessages((prev) => [...prev, userMessage, botMessage]);
     setChatInput("");
   };
-
-  const [news, setNews] = useState<{ id: number; title: string; url: string; by?: string; time?: number }[]>([]);
-  const [loadingNews, setLoadingNews] = useState(false);
-  const [newsError, setNewsError] = useState<string | null>(null);
-  const newsSectionRef = useRef<HTMLElement | null>(null);
-  const newsLoadStartedRef = useRef(false);
-
-  type Song = {
-    id: number;
-    title: string;
-    artist: string;
-    duration: string;
-    spotifyId?: string;
-    previewUrl?: string;
-    jamendoUrl?: string;
-  };
-
-  const initialSongs: Song[] = [
-    {
-      id: 1,
-      title: "Pinter Nyangkut",
-      artist: "Imaha Productions",
-      spotifyId: "0qnDeREhVYY8hBVX6P5DEU",
-      duration: "3:17",
-    },
-    {
-      id: 2,
-      title: "Blinding Lights",
-      artist: "The Weeknd",
-      spotifyId: "0VjIjW4GlUZAMYd2vXMi3b",
-      previewUrl: "https://p.scdn.co/mp3-preview/7f2da33e18f84ed6b5a02e783e57b3df65f09fbc",
-      duration: "3:20",
-    },
-    {
-      id: 3,
-      title: "Watermelon Sugar",
-      artist: "Harry Styles",
-      spotifyId: "6UelLqGlWMcVH1E5c4H7lY",
-      previewUrl: "https://p.scdn.co/mp3-preview/5e0e3a3e4d8e5a8e8e1c5f2c5e1a5c5e5a8e5c1a",
-      duration: "2:54",
-    },
-    {
-      id: 4,
-      title: "Bad Guy",
-      artist: "Billie Eilish",
-      spotifyId: "2Fxmhks0bxGSBdJ92vM42m",
-      previewUrl: "https://p.scdn.co/mp3-preview/1ad8fcd9f0f0e7d0d5e5c5a5b5e5d5e5c5a5b5e5",
-      duration: "3:14",
-    },
-    {
-      id: 5,
-      title: "As It Was",
-      artist: "Harry Styles",
-      spotifyId: "3jjujdWJ72nww5eGnfs2E7",
-      previewUrl: "https://p.scdn.co/mp3-preview/f1f5b5e5d5c5a5b5e5d5c5a5b5e5d5c5a5b5e5d5",
-      duration: "2:47",
-    },
-    {
-      id: 6,
-      title: "Shape of You",
-      artist: "Ed Sheeran",
-      spotifyId: "7qiZfU4dY1lWllzX7mPBI3",
-      previewUrl: "https://p.scdn.co/mp3-preview/a5e5d5c5a5b5e5d5c5a5b5e5d5c5a5b5e5d5c5a5",
-      duration: "3:53",
-    },
-    {
-      id: 7,
-      title: "Levitating",
-      artist: "Dua Lipa",
-      spotifyId: "39LLxExYz6ewLAcYrzQQyP",
-      previewUrl: "https://p.scdn.co/mp3-preview/c5a5b5e5d5c5a5b5e5d5c5a5b5e5d5c5a5b5e5d5",
-      duration: "3:23",
-    },
-    {
-      id: 8,
-      title: "Flowers",
-      artist: "Miley Cyrus",
-      spotifyId: "0yLdNVWF3Srea0uzk55zFn",
-      previewUrl: "https://p.scdn.co/mp3-preview/5d5c5a5b5e5d5c5a5b5e5d5c5a5b5e5d5c5a5b5e",
-      duration: "3:20",
-    },
-    {
-      id: 9,
-      title: "Stay",
-      artist: "The Kid LAROI & Justin Bieber",
-      spotifyId: "5HCyWlXZPP0y6Gqq8TgA20",
-      previewUrl: "https://p.scdn.co/mp3-preview/d5c5a5b5e5d5c5a5b5e5d5c5a5b5e5d5c5a5b5e5d",
-      duration: "2:21",
-    },
-    {
-      id: 10,
-      title: "Someone You Loved",
-      artist: "Lewis Capaldi",
-      spotifyId: "7qEHsqek33rTcFNT9PFqLf",
-      previewUrl: "https://p.scdn.co/mp3-preview/e5d5c5a5b5e5d5c5a5b5e5d5c5a5b5e5d5c5a5b5e",
-      duration: "3:02",
-    },
-    {
-      id: 11,
-      title: "Señorita",
-      artist: "Shawn Mendes & Camila Cabello",
-      spotifyId: "6v3KW9xbzN5yKLt9YKDYA2",
-      previewUrl: "https://p.scdn.co/mp3-preview/5a5b5e5d5c5a5b5e5d5c5a5b5e5d5c5a5b5e5d5c5",
-      duration: "3:10",
-    },
-    {
-      id: 12,
-      title: "Perfect",
-      artist: "Ed Sheeran",
-      spotifyId: "0tgVpDi06FyKpA1z0VMD4v",
-      previewUrl: "https://p.scdn.co/mp3-preview/b5e5d5c5a5b5e5d5c5a5b5e5d5c5a5b5e5d5c5a5b",
-      duration: "4:23",
-    },
-    {
-      id: 13,
-      title: "Happier",
-      artist: "Marshmello & Bastille",
-      spotifyId: "2dpaYNEQHiRxtZbfNsse99",
-      previewUrl: "https://p.scdn.co/mp3-preview/c5a5b5e5d5c5a5b5e5d5c5a5b5e5d5c5a5b5e5d5c",
-      duration: "3:34",
-    },
-  ];
-
-  const [songs, setSongs] = useState<Song[]>(initialSongs);
-  const [spotifyStatus, setSpotifyStatus] = useState("Loading Spotify tracks...");
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [localPlaying, setLocalPlaying] = useState(false);
-  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
-
-  const [activeSongId, setActiveSongId] = useState<number | null>(null);
-  const [playerMinimized, setPlayerMinimized] = useState(false);
-  const [playerVisible, setPlayerVisible] = useState(false);
-  const [embedTrackId, setEmbedTrackId] = useState<string | null>(null);
-  const [embedVersion, setEmbedVersion] = useState(0);
-  const musicSectionRef = useRef<HTMLElement | null>(null);
-  const spotifyTracksLoadStartedRef = useRef(false);
-  const [spotifyToken, setSpotifyToken] = useState("");
-  const playerRef = useRef<any>(null);
-  const [deviceId, setDeviceId] = useState<string | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
-  const [isPaused, setIsPaused] = useState(true);
-
-  const activeSong = songs.find((song) => song.id === activeSongId) ?? null;
-  const playerTitle = activeSong ? `${activeSong.title} · ${activeSong.artist}` : "Select a song to play";
-
-  // Initialize audio element on mount
-  useEffect(() => {
-    if (!audioElement) {
-      const audio = new Audio();
-      audio.crossOrigin = "anonymous";
-      audio.onended = () => setLocalPlaying(false);
-      setAudioElement(audio);
-      audioRef.current = audio;
-    }
-  }, [audioElement]);
-
-  const handleSelectSong = async (songId: number) => {
-    setActiveSongId(songId);
-    setPlayerMinimized(false);
-    const song = songs.find((s) => s.id === songId);
-    if (!song) return;
-
-    if (!song.jamendoUrl && !song.previewUrl && !song.spotifyId) {
-      setSpotifyStatus(`No playable source for: ${song.title}`);
-      return;
-    }
-
-    // Auto-play the song
-    if (song.jamendoUrl) {
-      playLocalUrl(song.jamendoUrl);
-      return;
-    }
-
-    if (song.previewUrl) {
-      try {
-        const audio = audioRef.current || new Audio();
-        audio.src = song.previewUrl;
-        audio.load();
-        await audio.play();
-        setLocalPlaying(true);
-        setSpotifyStatus(`Now playing: ${song.title}`);
-        audioRef.current = audio;
-      } catch (e) {
-        setLocalPlaying(false);
-        if (song.spotifyId) {
-          setEmbedTrackId(song.spotifyId);
-          setEmbedVersion((value) => value + 1);
-        }
-        setSpotifyStatus(`Preview unavailable for: ${song.title}`);
-      }
-      return;
-    }
-
-    if (song.spotifyId) {
-      setEmbedTrackId(song.spotifyId);
-      setEmbedVersion((value) => value + 1);
-      setSpotifyStatus(`Loading ${song.title}...`);
-    }
-  };
-
-  const togglePlay = async () => {
-    if (!audioRef.current) return;
-
-    if (!activeSong) return;
-
-    if (!activeSong.jamendoUrl && !activeSong.previewUrl && !activeSong.spotifyId) {
-      setSpotifyStatus(`No playable source for: ${activeSong.title}`);
-      return;
-    }
-
-    if (activeSong.jamendoUrl) {
-      if (localPlaying) {
-        audioRef.current?.pause();
-        setLocalPlaying(false);
-      } else {
-        audioRef.current?.play();
-        setLocalPlaying(true);
-      }
-      return;
-    }
-
-    if (activeSong.previewUrl) {
-      try {
-        if (localPlaying) {
-          audioRef.current.pause();
-          setLocalPlaying(false);
-        } else {
-          audioRef.current.src = activeSong.previewUrl;
-          audioRef.current.load();
-          await audioRef.current.play();
-          setLocalPlaying(true);
-          setSpotifyStatus(`Now playing: ${activeSong.title}`);
-        }
-      } catch (e) {
-        setLocalPlaying(false);
-        if (activeSong.spotifyId) {
-          setEmbedTrackId(activeSong.spotifyId);
-          setEmbedVersion((value) => value + 1);
-        }
-        setSpotifyStatus("Preview unavailable");
-      }
-      return;
-    }
-
-    if (activeSong.spotifyId) {
-      setEmbedTrackId(activeSong.spotifyId);
-      setEmbedVersion((value) => value + 1);
-      setPlayerMinimized(false);
-      setSpotifyStatus(`Now playing: ${activeSong.title}`);
-    }
-  };
-
-  const nextTrack = async () => {
-    if (!activeSong) return;
-    const index = songs.findIndex((song) => song.id === activeSong.id);
-    const nextSong = songs[(index + 1) % songs.length];
-    if (nextSong) {
-      setActiveSongId(nextSong.id);
-      setEmbedTrackId(nextSong.spotifyId ?? null);
-      setEmbedVersion((value) => value + 1);
-      setPlayerMinimized(false);
-    }
-  };
-
-  const prevTrack = async () => {
-    if (!activeSong) return;
-    const index = songs.findIndex((song) => song.id === activeSong.id);
-    const prevSong = songs[(index - 1 + songs.length) % songs.length];
-    if (prevSong) {
-      setActiveSongId(prevSong.id);
-      setEmbedTrackId(prevSong.spotifyId ?? null);
-      setEmbedVersion((value) => value + 1);
-      setPlayerMinimized(false);
-    }
-  };
-
-  const playLocalUrl = (url: string) => {
-    try {
-      if (!audioRef.current) {
-        audioRef.current = new Audio(url);
-      } else {
-        audioRef.current.src = url;
-      }
-      audioRef.current.play();
-      setLocalPlaying(true);
-      audioRef.current.onended = () => setLocalPlaying(false);
-    } catch (e) {
-      setSpotifyStatus("Failed to play audio");
-    }
-  };
-
-  const fetchSpotifyTracks = async () => {
-    setSpotifyStatus("Loading Spotify tracks...");
-    try {
-      const res = await fetch("/api/spotify/tracks");
-      if (!res.ok) {
-        throw new Error(`Spotify tracks request failed with status ${res.status}`);
-      }
-      const data = await res.json();
-      if (data?.tracks?.length) {
-        const spotifyTracks = (data.tracks as Song[])
-          .filter((track) => track.title !== "Pinter Nyangkut" || track.artist !== "Imaha Productions")
-          .map((track, index) => ({ ...track, id: index + 2 }));
-        setSongs([initialSongs[0], ...spotifyTracks]);
-        setSpotifyStatus(`Loaded ${spotifyTracks.length} Spotify tracks`);
-      } else {
-        setSpotifyStatus("No Spotify tracks returned");
-      }
-    } catch (e) {
-      setSpotifyStatus("Unable to load Spotify tracks");
-    }
-  };
-
-  const fetchNews = async () => {
-    setLoadingNews(true);
-    setNewsError(null);
-    try {
-      const res = await fetch("https://hacker-news.firebaseio.com/v0/topstories.json");
-      const ids: number[] = await res.json();
-      const top = ids.slice(0, 12);
-      const items = await Promise.all(
-        top.map(async (id) => {
-          const r = await fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`);
-          return await r.json();
-        })
-      );
-      const parsed = items
-        .filter(Boolean)
-        .map((i: any) => ({
-          id: i.id,
-          title: i.title,
-          url: i.url ? i.url : `https://news.ycombinator.com/item?id=${i.id}`,
-          by: i.by,
-          time: i.time,
-        }))
-        // Sort newest -> oldest
-        .sort((a, b) => (b.time ?? 0) - (a.time ?? 0));
-
-      setNews(parsed);
-    } catch (e) {
-      setNewsError("Failed to load news");
-    } finally {
-      setLoadingNews(false);
-    }
-  };
-
-  React.useEffect(() => {
-    const section = newsSectionRef.current;
-    if (!section) return;
-
-    const loadNews = () => {
-      if (newsLoadStartedRef.current) return;
-      newsLoadStartedRef.current = true;
-      void fetchNews();
-    };
-
-    if (typeof IntersectionObserver === "undefined") {
-      loadNews();
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          loadNews();
-          observer.disconnect();
-        }
-      },
-      { rootMargin: "300px 0px" }
-    );
-
-    observer.observe(section);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    const section = musicSectionRef.current;
-    if (!section) return;
-
-    const loadSpotifyTracks = () => {
-      if (spotifyTracksLoadStartedRef.current) return;
-      spotifyTracksLoadStartedRef.current = true;
-      void fetchSpotifyTracks();
-    };
-
-    if (typeof IntersectionObserver === "undefined") {
-      loadSpotifyTracks();
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setPlayerVisible(entry.isIntersecting);
-        if (entry.isIntersecting) loadSpotifyTracks();
-      },
-      { rootMargin: "-20% 0px -70% 0px" }
-    );
-
-    observer.observe(section);
-    return () => observer.disconnect();
-  }, []);
-
-  const carouselRef = React.useRef<HTMLDivElement | null>(null);
-  const [currentPage, setCurrentPage] = useState(0);
-  const [cardsPerPage, setCardsPerPage] = useState(1);
-  const cardWidth = 320; // px
-  const cardGap = 16; // px
-  const programmaticScrollRef = React.useRef(false);
-  const programmaticTimerRef = React.useRef<number | null>(null);
-  const animationFrameRef = React.useRef<number | null>(null);
-
-  const easeInOutCubic = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
-
-  const smoothScrollTo = (el: HTMLElement, targetLeft: number, duration = 500) => {
-    if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
-    const startLeft = el.scrollLeft;
-    const start = performance.now();
-    const step = (now: number) => {
-      const elapsed = now - start;
-      const t = Math.min(1, elapsed / duration);
-      const eased = easeInOutCubic(t);
-      el.scrollLeft = Math.round(startLeft + (targetLeft - startLeft) * eased);
-      if (t < 1) {
-        animationFrameRef.current = requestAnimationFrame(step);
-      } else {
-        animationFrameRef.current = null;
-        // ensure programmatic flag is cleared after animation
-        if (programmaticTimerRef.current) {
-          window.clearTimeout(programmaticTimerRef.current);
-          programmaticTimerRef.current = null;
-        }
-        programmaticScrollRef.current = false;
-      }
-    };
-    animationFrameRef.current = requestAnimationFrame(step);
-  };
-
-  React.useEffect(() => {
-    const update = () => {
-      const el = carouselRef.current;
-      if (!el) return;
-      const per = Math.max(1, Math.floor((el.clientWidth + cardGap) / (cardWidth + cardGap)));
-      setCardsPerPage(per);
-    };
-    update();
-    window.addEventListener('resize', update);
-    return () => window.removeEventListener('resize', update);
-  }, []);
-
-  React.useEffect(() => {
-    if (carouselRef.current) carouselRef.current.scrollTo({ left: 0 });
-    setCurrentPage(0);
-  }, [news]);
-
-  const pageCount = Math.max(1, Math.ceil(news.length / cardsPerPage));
-  const maxDots = 5; // maximum visible pagination dots
-  const dotCount = Math.min(pageCount, maxDots);
-  const pagesPerDot = Math.max(1, Math.ceil(pageCount / dotCount));
-  const activeDot = Math.floor(currentPage / pagesPerDot);
-
-  const computePageOffsets = () => {
-    const el = carouselRef.current;
-    if (!el) return [] as number[];
-    const cards = Array.from(el.querySelectorAll<HTMLElement>("[data-card-index]"));
-    const offsets: number[] = [];
-    for (let p = 0; p < pageCount; p++) {
-      const firstIndex = p * cardsPerPage;
-      const card = cards[firstIndex];
-      if (card) offsets.push(card.offsetLeft);
-      else offsets.push(p * el.clientWidth);
-    }
-    return offsets;
-  };
-
-  const goToPage = (p: number) => {
-    const el = carouselRef.current;
-    if (!el) return;
-    const page = ((p % pageCount) + pageCount) % pageCount; // wrap
-    const offsets = computePageOffsets();
-    const left = offsets[page] ?? page * el.clientWidth;
-    // mark programmatic scroll so onScroll doesn't overwrite our optimistic state
-    programmaticScrollRef.current = true;
-    if (programmaticTimerRef.current) window.clearTimeout(programmaticTimerRef.current);
-    programmaticTimerRef.current = window.setTimeout(() => {
-      programmaticScrollRef.current = false;
-      programmaticTimerRef.current = null;
-    }, 700);
-
-    // update UI immediately so active page (and any UI) responds without waiting for scroll end
-    setCurrentPage(page);
-    smoothScrollTo(el, left, 520);
-  };
-
-  const prevPage = () => goToPage(currentPage - 1);
-  const nextPage = () => goToPage(currentPage + 1);
-
-  React.useEffect(() => {
-    const el = carouselRef.current;
-    if (!el) return;
-    let raf = 0;
-    const onScroll = () => {
-      if (programmaticScrollRef.current) return; // ignore programmatic smooth-scrolling
-      if (raf) cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => {
-        // compute current page by finding closest page offset to viewport center
-        const center = el.scrollLeft + el.clientWidth / 2;
-        const offsets = computePageOffsets();
-        if (offsets.length === 0) return;
-        let closest = 0;
-        let bestDist = Infinity;
-        offsets.forEach((off, idx) => {
-          const pageCenter = off + el.clientWidth / 2;
-          const d = Math.abs(center - pageCenter);
-          if (d < bestDist) {
-            bestDist = d;
-            closest = idx;
-          }
-        });
-        const next = Math.max(0, Math.min(pageCount - 1, closest));
-        setCurrentPage(next);
-      });
-    };
-    el.addEventListener('scroll', onScroll, { passive: true });
-    return () => {
-      el.removeEventListener('scroll', onScroll);
-      if (raf) cancelAnimationFrame(raf);
-      if (programmaticTimerRef.current) {
-        window.clearTimeout(programmaticTimerRef.current);
-        programmaticTimerRef.current = null;
-      }
-    };
-  }, [news.length, pageCount]);
 
   const sectionIds = ["home", "about", "music", "certifications", "clients", "projects", "products", "experience", "contact"];
 
@@ -1753,167 +1187,7 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
             </div>
           </div>
         </section>
-        <section id="news" ref={newsSectionRef} className="py-20 px-4 bg-[var(--surface)]">
-          <div className="mx-auto max-w-4xl">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold mb-6 text-[var(--foreground)]">Latest Tech News</h2>
-              <button
-                type="button"
-                onClick={() => {
-                  newsLoadStartedRef.current = true;
-                  void fetchNews();
-                }}
-                className="rounded-md border border-[var(--surface-border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground)] hover:bg-[var(--surface)]/90 transition"
-              >
-                Refresh
-              </button>
-            </div>
-
-            <div className="rounded-2xl border border-[var(--surface-border)] bg-[var(--surface)] p-4">
-              {loadingNews ? (
-                <div className="text-[var(--muted)]">Loading news...</div>
-              ) : newsError ? (
-                <div className="text-sm text-red-400">{newsError}</div>
-              ) : news.length === 0 ? (
-                <div className="text-[var(--muted)]">No news available.</div>
-              ) : (
-                <div className="relative">
-                  <div className="absolute left-2 top-1/2 z-20 -translate-y-1/2">
-                    <button
-                      type="button"
-                      onClick={() => prevPage()}
-                      className="rounded-full bg-[var(--surface)]/80 p-2 text-[var(--foreground)] shadow-sm hover:bg-[var(--surface)]"
-                      aria-label="Previous"
-                    >
-                      ‹
-                    </button>
-                  </div>
-                  <div className="absolute right-2 top-1/2 z-20 -translate-y-1/2">
-                    <button
-                      type="button"
-                      onClick={() => nextPage()}
-                      className="rounded-full bg-[var(--surface)]/80 p-2 text-[var(--foreground)] shadow-sm hover:bg-[var(--surface)]"
-                      aria-label="Next"
-                    >
-                      ›
-                    </button>
-                  </div>
-
-                  <div
-                    ref={carouselRef}
-                    className="no-scrollbar flex gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory py-2 px-2"
-                    style={{ WebkitOverflowScrolling: 'touch' }}
-                  >
-                    {news.map((item, index) => {
-                      let domain = '';
-                      try {
-                        domain = item.url ? new URL(item.url).hostname.replace('www.', '') : '';
-                      } catch (e) {
-                        domain = '';
-                      }
-                      const iconUrl = domain ? `https://icons.duckduckgo.com/ip3/${domain}.ico` : undefined;
-
-                      return (
-                        <div key={item.id} data-card-index={index} className="shrink-0 w-[320px] snap-start">
-                          <article className="flex h-full flex-col justify-between gap-3 rounded-xl border border-[var(--surface-border)] bg-[var(--background)] p-0 overflow-hidden shadow-sm">
-                            <div className="h-36 bg-gradient-to-br from-blue-500/8 to-cyan-500/6 flex items-end p-3">
-                              {iconUrl ? (
-                                <img
-                                  src={iconUrl}
-                                  alt={domain}
-                                  className="h-10 w-10 rounded-md border border-[var(--surface-border)] bg-white/5"
-                                  onError={(e: any) => (e.currentTarget.style.display = 'none')}
-                                />
-                              ) : null}
-                              <div className="ml-3 text-xs text-[var(--muted)]">{domain}</div>
-                            </div>
-
-                            <div className="p-4">
-                              <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-[var(--brand-text)] font-semibold hover:underline">
-                                {item.title}
-                              </a>
-                              <div className="mt-2 flex items-center gap-3 text-xs text-[var(--muted)]">
-                                <span>by {item.by ?? 'unknown'}</span>
-                                <span className="text-[var(--muted)]">•</span>
-                                <span>{item.time ? new Date(item.time * 1000).toLocaleString() : ''}</span>
-                              </div>
-                            </div>
-                          </article>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  {/* pagination dots removed per user request */}
-                </div>
-              )}
-            </div>
-          </div>
-        </section>
-        <section id="music" ref={musicSectionRef} className="py-20 px-4">
-          <div className="mx-auto max-w-6xl">
-            <div className="rounded-[2rem] border border-[var(--surface-border)] bg-[var(--surface)] p-8 shadow-[0_30px_70px_-40px_rgba(15,23,42,0.75)] backdrop-blur-xl">
-              <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-                <div className="space-y-3">
-                  <p className="text-xs uppercase tracking-[0.24em] text-[var(--muted)]">My New Songs - Released</p>
-                  <h2 className="text-4xl font-bold text-[var(--foreground)]">Minimal music for your focus</h2>
-                  <p className="text-[var(--muted)] max-w-2xl">
-                    Browse the new song list and keep playback running while you explore the page. Tap a track to start and control playback from the floating player.
-                  </p>
-                </div>
-                <div className="flex items-center gap-3 rounded-3xl border border-[var(--surface-border)] bg-[var(--background)]/70 p-4 text-sm text-[var(--foreground)]">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-500/10 text-[var(--brand-text)]">
-                    ♪
-                  </div>
-                  <div className="min-w-0">
-                    <p className="font-semibold text-[var(--foreground)]">Now Playing</p>
-                    <p className="truncate text-[var(--muted)]">{activeSong ? `${activeSong.title} · ${activeSong.artist}` : "Select a song to play"}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-                <button type="button" onClick={() => {
-                  spotifyTracksLoadStartedRef.current = true;
-                  void fetchSpotifyTracks();
-                }} className="inline-flex items-center rounded-2xl bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400">Load Spotify tracks</button>
-                <p className="text-sm text-[var(--muted)]">{spotifyStatus}</p>
-              </div>
-
-              <div className="mt-8 max-h-64 overflow-y-auto space-y-2 border border-[var(--surface-border)] rounded-2xl p-4">
-                {songs.map((song) => {
-                  const isActive = activeSongId === song.id;
-                  const isCurrentlyPlaying = isActive && localPlaying;
-                  return (
-                    <button
-                      key={song.id}
-                      type="button"
-                      onClick={() => handleSelectSong(song.id)}
-                      className={`w-full rounded-xl px-4 py-3 text-left transition flex items-center justify-between gap-3 ${
-                        isCurrentlyPlaying
-                          ? "border-cyan-400/50 bg-cyan-500/15 border"
-                          : isActive
-                          ? "border-cyan-400/30 bg-cyan-500/10 border"
-                          : "border border-[var(--surface-border)] bg-[var(--background)] hover:border-cyan-400/30 hover:bg-[var(--surface)]"
-                      }`}
-                    >
-                      <div className="min-w-0">
-                        <h3 className="text-sm font-semibold text-[var(--foreground)] truncate">{song.title}</h3>
-                        <p className="text-xs text-[var(--muted)] truncate">{song.artist}</p>
-                      </div>
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        {isCurrentlyPlaying && (
-                          <span className="text-xs font-semibold text-cyan-400">▶</span>
-                        )}
-                        <span className="text-xs text-[var(--muted)]">{song.duration}</span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        </section>
+        <DeferredSections />
       </main>
 
       <footer className="border-t border-[var(--surface-border)] mt-12 bg-[var(--surface)]/90">
@@ -1934,64 +1208,6 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
         </div>
       </footer>
 
-      <div className={`fixed inset-x-0 bottom-0 z-40 mx-auto w-full max-w-[440px] px-4 pb-4 sm:bottom-4 sm:left-1/2 sm:-translate-x-1/2 transition-all duration-200 ${playerVisible ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 translate-y-6 pointer-events-none"}`} aria-hidden={!playerVisible}>
-        <div className={`overflow-hidden rounded-[1.75rem] border border-[var(--surface-border)] bg-[var(--surface)]/95 shadow-[0_24px_70px_-30px_rgba(15,23,42,0.85)] backdrop-blur-xl transition-all duration-200 ${playerMinimized ? "h-[72px]" : ""}`}>
-          <div className="flex items-center justify-between gap-3 px-4 py-3">
-            <div className="min-w-0">
-              <p className="text-[0.65rem] uppercase tracking-[0.26em] text-[var(--muted)]">Now playing</p>
-              <p className="truncate text-sm font-semibold text-[var(--foreground)]">{playerTitle}</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setPlayerMinimized((value) => !value)}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--surface-border)] bg-[var(--background)] text-[var(--foreground)] transition hover:border-cyan-400"
-                aria-label={playerMinimized ? "Expand player" : "Minimize player"}
-              >
-                {playerMinimized ? "▴" : "▾"}
-              </button>
-            </div>
-          </div>
-
-          {!playerMinimized && (
-            <div className="border-t border-[var(--surface-border)] px-4 py-4">
-              {activeSong ? (
-                <div className="space-y-3">
-                  <div className="rounded-3xl border border-[var(--surface-border)] bg-[var(--surface)] p-4 text-sm text-[var(--muted)]">
-                    <div className="space-y-3">
-                      {activeSong?.spotifyId || embedTrackId ? (
-                        <div className="overflow-hidden rounded-3xl border border-[var(--surface-border)] bg-black/10">
-                          <iframe
-                            key={embedVersion}
-                            src={`https://open.spotify.com/embed/track/${embedTrackId ?? activeSong?.spotifyId ?? ""}?autoplay=1&view=coverart`}
-                            width="100%"
-                            height="80"
-                            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                            loading="lazy"
-                            className="border-0"
-                            title={`Spotify player for ${activeSong?.title ?? "selected track"}`}
-                          />
-                        </div>
-                      ) : (
-                        <p className="text-sm text-[var(--muted)]">Select a track from the list above to start playback.</p>
-                      )}
-                      <div className="flex items-center gap-3">
-                        <button type="button" onClick={prevTrack} className="inline-flex items-center justify-center rounded-full border border-[var(--surface-border)] bg-[var(--background)] p-2 text-[var(--foreground)] transition hover:border-cyan-400">◀◀</button>
-                        <button type="button" onClick={togglePlay} className="inline-flex items-center justify-center rounded-full bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-400">Play track</button>
-                        <button type="button" onClick={nextTrack} className="inline-flex items-center justify-center rounded-full border border-[var(--surface-border)] bg-[var(--background)] p-2 text-[var(--foreground)] transition hover:border-cyan-400">▶▶</button>
-                      </div>
-                      <p className="text-xs text-[var(--muted)]">{spotifyStatus}</p>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <p className="text-sm text-[var(--muted)]">Tap a track above to load it in the custom mini player.</p>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-      
       <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
         <button
           type="button"

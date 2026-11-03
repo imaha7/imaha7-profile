@@ -72,6 +72,35 @@ html[data-theme="light"] body {
   display: none; /* Safari and Chrome */
 }
 
+.client-marquee-track {
+  animation: client-marquee 43s linear infinite;
+  transform: translateZ(0);
+}
+
+.client-marquee-track.is-paused {
+  animation-play-state: paused;
+}
+
+@keyframes client-marquee {
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .client-marquee-track {
+    animation: none;
+  }
+
+  .client-marquee-viewport {
+    overflow-x: auto;
+  }
+
+  .client-marquee-track > div[aria-hidden="true"] {
+    display: none;
+  }
+}
+
 ::selection {
   background: rgba(56, 189, 248, 0.35);
   color: white;
