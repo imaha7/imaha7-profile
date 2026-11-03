@@ -340,6 +340,8 @@ export default function Home() {
   const [news, setNews] = useState<{ id: number; title: string; url: string; by?: string; time?: number }[]>([]);
   const [loadingNews, setLoadingNews] = useState(false);
   const [newsError, setNewsError] = useState<string | null>(null);
+  const newsSectionRef = useRef<HTMLElement | null>(null);
+  const newsLoadStartedRef = useRef(false);
 
   type Song = {
     id: number;
@@ -469,6 +471,7 @@ export default function Home() {
   const [embedTrackId, setEmbedTrackId] = useState<string | null>(null);
   const [embedVersion, setEmbedVersion] = useState(0);
   const musicSectionRef = useRef<HTMLElement | null>(null);
+  const spotifyTracksLoadStartedRef = useRef(false);
   const [spotifyToken, setSpotifyToken] = useState("");
   const playerRef = useRef<any>(null);
   const [deviceId, setDeviceId] = useState<string | null>(null);
@@ -680,16 +683,54 @@ export default function Home() {
   };
 
   React.useEffect(() => {
-    fetchNews();
-    void fetchSpotifyTracks();
+    const section = newsSectionRef.current;
+    if (!section) return;
+
+    const loadNews = () => {
+      if (newsLoadStartedRef.current) return;
+      newsLoadStartedRef.current = true;
+      void fetchNews();
+    };
+
+    if (typeof IntersectionObserver === "undefined") {
+      loadNews();
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          loadNews();
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "300px 0px" }
+    );
+
+    observer.observe(section);
+    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
     const section = musicSectionRef.current;
-    if (!section || typeof IntersectionObserver === "undefined") return;
+    if (!section) return;
+
+    const loadSpotifyTracks = () => {
+      if (spotifyTracksLoadStartedRef.current) return;
+      spotifyTracksLoadStartedRef.current = true;
+      void fetchSpotifyTracks();
+    };
+
+    if (typeof IntersectionObserver === "undefined") {
+      loadSpotifyTracks();
+      return;
+    }
 
     const observer = new IntersectionObserver(
-      ([entry]) => setPlayerVisible(entry.isIntersecting),
+      ([entry]) => {
+        setPlayerVisible(entry.isIntersecting);
+        if (entry.isIntersecting) loadSpotifyTracks();
+      },
       { rootMargin: "-20% 0px -70% 0px" }
     );
 
@@ -1717,13 +1758,16 @@ export default function Home() {
             </div>
           </div>
         </section>
-        <section id="news" className="py-20 px-4 bg-[var(--surface)]">
+        <section id="news" ref={newsSectionRef} className="py-20 px-4 bg-[var(--surface)]">
           <div className="mx-auto max-w-4xl">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-bold mb-6 text-[var(--foreground)]">Latest Tech News</h2>
               <button
                 type="button"
-                onClick={() => fetchNews()}
+                onClick={() => {
+                  newsLoadStartedRef.current = true;
+                  void fetchNews();
+                }}
                 className="rounded-md border border-[var(--surface-border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground)] hover:bg-[var(--surface)]/90 transition"
               >
                 Refresh
@@ -1834,7 +1878,10 @@ export default function Home() {
               </div>
 
               <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-                <button type="button" onClick={() => void fetchSpotifyTracks()} className="inline-flex items-center rounded-2xl bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400">Load Spotify tracks</button>
+                <button type="button" onClick={() => {
+                  spotifyTracksLoadStartedRef.current = true;
+                  void fetchSpotifyTracks();
+                }} className="inline-flex items-center rounded-2xl bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400">Load Spotify tracks</button>
                 <p className="text-sm text-[var(--muted)]">{spotifyStatus}</p>
               </div>
 
