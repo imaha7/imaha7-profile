@@ -20,6 +20,19 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Visitor counter
+
+The footer shows the number of unique browsers online and the all-time unique visitor count. Counts are refreshed every 30 seconds; a browser is considered online for 90 seconds after its most recent heartbeat. A first-party, HTTP-only cookie remembers an anonymous random visitor ID for one year, so a browser that clears or expires its cookie may be counted again. No IP addresses are stored.
+
+The counter uses an Upstash Redis database. Create a database and add its REST URL and token to `.env.local`:
+
+```env
+UPSTASH_REDIS_REST_URL=https://your-database.upstash.io
+UPSTASH_REDIS_REST_TOKEN=your-rest-token
+```
+
+Set the same environment variables in your deployment provider before deploying. Without them, the visitor counts remain unavailable.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

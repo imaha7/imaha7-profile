@@ -2,6 +2,7 @@
 
 import React, { type ReactNode, useMemo, useState } from "react";
 import DeferredSections from "./deferred-sections";
+import VisitorCounter from "./visitor-counter";
 
 function ClientLogoMarquee() {
   const clients = useMemo(
@@ -1204,7 +1205,8 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
               <p className="mt-4 text-sm text-[var(--muted)]">Jakarta, Indonesia</p>
             </div>
           </div>
-          <div className="mt-10 border-t border-[var(--surface-border)] pt-6 text-center text-sm text-[var(--muted)]">© {currentYear} Ilham Maulana Habibie. All rights reserved.</div>
+          <VisitorCounter />
+          <div className="mt-6 border-t border-[var(--surface-border)] pt-6 text-center text-sm text-[var(--muted)]">© {currentYear} Ilham Maulana Habibie. All rights reserved.</div>
         </div>
       </footer>
 
