@@ -77,7 +77,7 @@ export default function VisitorCounter() {
           <span className="font-semibold text-[var(--foreground)]">
             {counts ? counts.onlineVisitors.toLocaleString() : "—"}
           </span>{" "}
-          visitors are online now
+          {counts ? (counts.onlineVisitors > 1 ? "visitors are" : "visitor") : ""} online now
         </span>
       </p>
       <p className="inline-flex items-center gap-2">
@@ -88,7 +88,7 @@ export default function VisitorCounter() {
         <span className="font-semibold text-[var(--foreground)]">
           {counts ? counts.totalVisitors.toLocaleString() : "—"}
         </span>{" "}
-        all-time visitors
+        all-time {counts ? (counts.totalVisitors > 1 ? "visitors" : "visitor") : ""}
       </p>
       {unavailable && (
         <p className="w-full text-center text-xs">Visitor stats are unavailable.</p>
