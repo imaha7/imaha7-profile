@@ -1060,10 +1060,10 @@ nav button[aria-label="Toggle navigation menu"] {
 
 .service-card__index {
   display: inline-block;
-  margin-bottom: 2rem;
+  margin-bottom: 0rem;
   color: #4a88e9;
-  font-size: 0.7rem;
-  letter-spacing: 0.16em;
+  font-size: 7rem;
+  letter-spacing: 0em;
 }
 
 .service-card h3 {
@@ -2498,4 +2498,31 @@ html[data-theme="light"] .career-step__skills span + span::before {
 
 html[data-theme="light"] .client-wordmark span {
   color: #53647e;
+}
+
+.chat-panel {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(0.75rem) scale(0.98);
+  transform-origin: bottom right;
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease,
+    visibility 0s linear 180ms;
+}
+
+.chat-panel[data-open="true"] {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+  transition-delay: 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-panel {
+    transition-duration: 0.01ms;
+    transition-delay: 0s;
+  }
 }

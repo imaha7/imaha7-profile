@@ -1333,60 +1333,74 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
         </div>
       </footer>
 
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+      <div className="fixed inset-x-4 bottom-4 z-50 flex min-w-0 flex-col items-end gap-3 sm:inset-auto sm:bottom-6 sm:right-6">
         <button
           type="button"
           onClick={() => setChatOpen((open) => !open)}
-          className="inline-flex items-center gap-2 rounded-full bg-cyan-500 px-4 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-500/30 transition hover:bg-cyan-400"
+          aria-expanded={chatOpen}
+          aria-controls="chat-panel"
+          className="inline-flex min-h-11 items-center gap-2 rounded-full bg-cyan-500 px-3 py-2 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-500/30 transition hover:bg-cyan-400 sm:px-4"
         >
           <span>{chatOpen ? "Close" : "Ask"}</span>
           <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-slate-950 text-white">?</span>
         </button>
 
-        <div className={`${chatOpen ? "block" : "hidden"} w-[320px] max-w-full rounded-3xl border border-[var(--surface-border)] bg-[var(--surface)] p-4 shadow-[0_25px_60px_-30px_rgba(0,0,0,0.6)] backdrop-blur-xl`}>
-          <div className="flex items-center justify-between border-b border-[var(--surface-border)] pb-3">
+        <div
+          id="chat-panel"
+          data-open={chatOpen}
+          aria-hidden={!chatOpen}
+          inert={!chatOpen}
+          className="chat-panel absolute bottom-[calc(100%+0.75rem)] right-0 flex h-[min(34rem,calc(100dvh-6rem))] w-full min-w-0 flex-col overflow-hidden rounded-3xl border border-[var(--surface-border)] bg-[var(--surface)] p-4 shadow-[0_25px_60px_-30px_rgba(0,0,0,0.6)] backdrop-blur-xl sm:w-[min(24rem,calc(100vw-3rem))]"
+        >
+          <div className="flex shrink-0 items-center justify-between gap-3 border-b border-[var(--surface-border)] pb-3">
             <div>
-              <p className="text-sm uppercase tracking-[0.24em] text-[var(--brand-text)]">AI Assistant</p>
-              <h3 className="mt-1 text-lg font-semibold text-[var(--foreground)]">Ask about Ilham</h3>
+              <p className="text-xs uppercase tracking-[0.2em] text-[var(--brand-text)] sm:text-sm sm:tracking-[0.24em]">AI Assistant</p>
+              <h3 className="mt-1 text-base font-semibold text-[var(--foreground)] sm:text-lg">Ask about Ilham</h3>
             </div>
             <button
               type="button"
               onClick={() => setChatOpen(false)}
-              className="text-[var(--muted)] hover:text-[var(--foreground)]"
+              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-lg text-[var(--muted)] transition hover:bg-white/10 hover:text-[var(--foreground)]"
               aria-label="Close chat"
             >
               ✕
             </button>
           </div>
 
-          <div className="mt-4 max-h-72 space-y-3 overflow-y-auto pr-2">
+          <div
+            aria-label="Chat messages"
+            aria-live="polite"
+            className="mt-4 min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain pr-2"
+          >
             {chatMessages.map((message, index) => (
               <div
                 key={index}
-                className={`rounded-2xl px-3 py-2 ${message.sender === "bot" ? "bg-slate-900/80 text-slate-100" : "ml-auto bg-cyan-500/15 text-[var(--foreground)]"}`}
+                className={`max-w-[88%] whitespace-pre-wrap break-words rounded-2xl px-3 py-2 text-sm leading-relaxed ${message.sender === "bot" ? "bg-slate-900/80 text-slate-100" : "ml-auto bg-cyan-500/15 text-[var(--foreground)]"}`}
               >
                 {message.text}
               </div>
             ))}
           </div>
 
-          <div className="mt-4 flex gap-2">
+          <form
+            className="mt-4 flex shrink-0 gap-2 border-t border-[var(--surface-border)] pt-3"
+            onSubmit={(event) => {
+              event.preventDefault();
+              sendChatMessage();
+            }}
+          >
             <input
               type="text"
               value={chatInput}
               onChange={(e) => setChatInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && sendChatMessage()}
               placeholder="Type your question..."
-              className="flex-1 rounded-2xl border border-[var(--surface-border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground)] outline-none transition focus:border-cyan-400/80 focus:ring-2 focus:ring-cyan-500/20"
+              aria-label="Type your question"
+              className="min-w-0 flex-1 rounded-2xl border border-[var(--surface-border)] bg-[var(--surface)] px-3 py-2 text-base text-[var(--foreground)] outline-none transition focus:border-cyan-400/80 focus:ring-2 focus:ring-cyan-500/20 sm:text-sm"
             />
-            <button
-              type="button"
-              onClick={sendChatMessage}
-              className="inline-flex items-center rounded-2xl bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400"
-            >
+            <button type="submit" className="inline-flex min-h-11 shrink-0 items-center rounded-2xl bg-cyan-500 px-3 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400 sm:px-4">
               Send
             </button>
-          </div>
+          </form>
         </div>
       </div>
     </div>
