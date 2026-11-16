@@ -4,16 +4,101 @@ import React, { type ReactNode, useMemo, useState } from "react";
 import DeferredSections from "./deferred-sections";
 import VisitorCounter from "./visitor-counter";
 
+function DashboardArtwork({ variant = "overview" }: { variant?: string }) {
+  return (
+    <div className={`dashboard-art dashboard-art--${variant}`} aria-hidden="true">
+      <div className="dashboard-art__chrome">
+        <span className="dashboard-art__mark">I</span>
+        <span>IMAHA / INSIGHTS</span>
+        <span className="dashboard-art__live"><i /> LIVE DATA</span>
+      </div>
+      <div className="dashboard-art__content">
+        <div className="dashboard-art__rail"><i /><i /><i /><i /></div>
+        <div className="dashboard-art__main">
+          <div className="dashboard-art__heading">
+            <span>BUSINESS OVERVIEW</span>
+            <strong>Performance dashboard</strong>
+          </div>
+          <div className="dashboard-art__metrics">
+            <div><span>Total revenue</span><strong>Rp 18.4B</strong><i>+12.8%</i></div>
+            <div><span>Active projects</span><strong>12</strong><i>+3 this year</i></div>
+            <div><span>Data coverage</span><strong>98.6%</strong><i>Healthy</i></div>
+          </div>
+          <div className="dashboard-art__chart">
+            <div className="dashboard-art__chart-title"><span>Revenue insights</span><b>Last 12 months</b></div>
+            <div className="dashboard-art__chart-grid">
+              {[34, 48, 41, 58, 52, 72, 60, 83, 68, 91, 77, 100].map((height, index) => (
+                <i key={index} style={{ height: `${height}%` }} />
+              ))}
+            </div>
+            <div className="dashboard-art__chart-labels"><span>JAN</span><span>APR</span><span>JUL</span><span>OCT</span><span>DEC</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ProjectArtwork({ id, title, client, skill }: { id: number; title: string; client: string; skill: string }) {
+  const chartHeights = [
+    [35, 54, 42, 69, 58, 84, 70, 96],
+    [72, 48, 86, 61, 93, 52, 76, 64],
+    [43, 82, 59, 96, 68, 51, 88, 72],
+    [88, 55, 73, 46, 95, 62, 81, 57],
+  ][id % 4];
+
+  return (
+    <div className={`project-artwork project-artwork--${id} project-artwork--type-${id % 6}`} aria-hidden="true">
+      <div className="project-artwork__browser">
+        <div className="project-artwork__top">
+          <span /><span /><span />
+          <b>{client}</b>
+        </div>
+        <div className="project-artwork__screen">
+          <aside><i /><i /><i /><i /><i /></aside>
+          <div className="project-artwork__canvas">
+            <div className="project-artwork__heading"><i /><i /><i /></div>
+            <span className="project-artwork__label">{skill}</span>
+            <strong>{title}</strong>
+            {id % 6 === 0 || id % 6 === 1 ? (
+              <>
+                <div className="project-artwork__stats"><i /><i /><i /></div>
+                <div className="project-artwork__chart">
+                  {chartHeights.map((height, index) => <i key={index} style={{ height: `${height}%` }} />)}
+                </div>
+              </>
+            ) : id % 6 === 2 ? (
+              <div className="project-artwork__kanban">
+                {[0, 1, 2].map((column) => <div key={column}><i /><i /><i /></div>)}
+              </div>
+            ) : id % 6 === 3 ? (
+              <div className="project-artwork__gift"><span>GIFT</span><strong>THANK<br />YOU</strong><i /></div>
+            ) : id % 6 === 4 ? (
+              <div className="project-artwork__mobile">
+                <i /><b /><span /><span /><span />
+              </div>
+            ) : (
+              <div className="project-artwork__table">
+                {[0, 1, 2, 3].map((row) => <i key={row}><b /><b /><b /><b /></i>)}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+      <span className="project-artwork__index">{String(id).padStart(2, "0")}</span>
+    </div>
+  );
+}
+
 function ClientLogoMarquee() {
   const clients = useMemo(
-    () =>
-      [
-        { name: "PT. Astra Honda Motor", url: "https://ik.imagekit.io/zlt25mb52fx/ahmcdn/assets/images/logo/ahm.svg" },
-        { name: "Ogloba Ltd.", url: "https://i2.wp.com/www.ogloba.com/wp-content/uploads/2013/12/Logo-header.png?fit=188%2C75&ssl=1" },
-        { name: "Sinotif", url: "https://campaign.sinotif.com/wp-content/uploads/2023/09/Logo-Sinotif.png" },
-        { name: "CRM Track", url: "https://crmtrack.id/wp-content/uploads/2021/08/logo.png" },
-        { name: "PT. Medan Jaya Pangan Mutu", url: "https://medanjayafood.com/wp-content/uploads/2024/10/79logo-biru.png" },
-      ],
+    () => [
+      { name: "PT. Astra Honda Motor", url: "https://ik.imagekit.io/zlt25mb52fx/ahmcdn/assets/images/logo/ahm.svg" },
+      { name: "Ogloba Ltd.", url: "https://i2.wp.com/www.ogloba.com/wp-content/uploads/2013/12/Logo-header.png?fit=188%2C75&ssl=1" },
+      { name: "Sinotif", url: "https://campaign.sinotif.com/wp-content/uploads/2023/09/Logo-Sinotif.png" },
+      { name: "CRM Track", url: "https://crmtrack.id/wp-content/uploads/2021/08/logo.png" },
+      { name: "PT. Medan Jaya Pangan Mutu", url: "https://medanjayafood.com/wp-content/uploads/2024/10/79logo-biru.png" },
+    ],
     []
   );
 
@@ -45,19 +130,17 @@ function ClientLogoMarquee() {
               aria-hidden={group === 1}
             >
               {clients.map((client) => (
-                <div
-                  key={client.name}
-                  className="flex w-[240px] shrink-0 items-center justify-center rounded-2xl border border-[var(--surface-border)] bg-[var(--background)]/40 px-5 py-4"
-                >
+                <div key={client.name} className="client-wordmark">
                   <img
                     src={client.url}
                     alt={group === 0 ? client.name : ""}
-                    className="h-18 w-48 rounded-xl border border-[var(--surface-border)] bg-white/5"
-                    onError={(event) => {
-                      event.currentTarget.style.display = "none";
-                    }}
                     loading="lazy"
+                    decoding="async"
+                    onError={(event) => {
+                      event.currentTarget.hidden = true;
+                    }}
                   />
+                  <span>{client.name}</span>
                 </div>
               ))}
             </div>
@@ -73,6 +156,24 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
   const [scrolled, setScrolled] = useState(false);
   const [theme, setTheme] = useState<"dark" | "light">("dark");
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const resumeDialogRef = React.useRef<HTMLDialogElement | null>(null);
+  const resumeCloseTimeoutRef = React.useRef<number | null>(null);
+  const closeResumePreview = () => {
+    const dialog = resumeDialogRef.current;
+    if (!dialog?.open || resumeCloseTimeoutRef.current !== null) return;
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      dialog.close();
+      return;
+    }
+
+    dialog.classList.add("is-closing");
+    resumeCloseTimeoutRef.current = window.setTimeout(() => {
+      dialog.close();
+      dialog.classList.remove("is-closing");
+      resumeCloseTimeoutRef.current = null;
+    }, 220);
+  };
   const [chatOpen, setChatOpen] = useState(false);
   const [chatInput, setChatInput] = useState("");
   const [chatMessages, setChatMessages] = useState<{ sender: "user" | "bot"; text: string }[]>([
@@ -304,19 +405,19 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
     setChatInput("");
   };
 
-  const sectionIds = ["home", "about", "music", "certifications", "clients", "projects", "products", "experience", "contact"];
+  const sectionIds = ["home", "clients", "projects", "products", "skills", "about", "experience", "certifications", "faq", "contact"];
 
   React.useEffect(() => {
     const savedTheme = window.localStorage.getItem("theme") as "dark" | "light" | null;
-    const preferredTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-    const initialTheme = savedTheme || preferredTheme;
+    const initialTheme = savedTheme || "dark";
     setTheme(initialTheme);
     document.documentElement.dataset.theme = initialTheme;
 
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-
-      const scrollPosition = window.scrollY + window.innerHeight * 0.25;
+    let scrollFrame = 0;
+    const updateScrollState = () => {
+      scrollFrame = 0;
+      const nextScrolled = window.scrollY > 50;
+      setScrolled((current) => current === nextScrolled ? current : nextScrolled);
       let active = sectionIds[0];
 
       for (const id of sectionIds) {
@@ -329,13 +430,21 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
         }
       }
 
-      setActiveSection(active);
+      setActiveSection((current) => current === active ? current : active);
     };
 
-    window.addEventListener("scroll", handleScroll);
+    const handleScroll = () => {
+      if (scrollFrame) return;
+      scrollFrame = window.requestAnimationFrame(updateScrollState);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
     handleScroll();
 
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (scrollFrame) window.cancelAnimationFrame(scrollFrame);
+    };
   }, []);
 
   const projects = [
@@ -397,27 +506,27 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
     {
       id: 7,
       title: "CRM Track",
-      client: "Zegen Solusi Mandiri",
+      client: "PT. Zegen Solusi Mandiri",
       period: "Apr 2022–Nov 2022",
-      relation: "Related with Zegen Solusi Mandiri",
+      relation: "Related with PT. Zegen Solusi Mandiri",
       description: "Developing UI Sales Management Apps Web Based using React.js & Next.js.",
       skills: ["REST APIs", "Agile Methodologies"],
     },
     {
       id: 8,
       title: "CRPRO NFT Stacking",
-      client: "Zegen Solusi Mandiri",
+      client: "PT. Zegen Solusi Mandiri",
       period: "Jun 2022–Nov 2022",
-      relation: "Related with Zegen Solusi Mandiri",
+      relation: "Related with PT. Zegen Solusi Mandiri",
       description: "Developed UI Cryptocurrency Investment Apps Web Based using React.js & Next.js.",
       skills: ["REST APIs", "Agile Methodologies"],
     },
     {
       id: 9,
       title: "SINOTIF",
-      client: "Zegen Solusi Mandiri",
+      client: "PT. Zegen Solusi Mandiri",
       period: "Sep 2022–Nov 2022",
-      relation: "Related with Zegen Solusi Mandiri",
+      relation: "Related with PT. Zegen Solusi Mandiri",
       description: "Developing UI Education Apps Web Based using React.js & Next.js.",
       skills: ["TypeScript", "REST APIs"],
     },
@@ -575,7 +684,7 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
     },
     {
       role: "Frontend Developer",
-      company: "Zegen Solusi Mandiri",
+      company: "PT. Zegen Solusi Mandiri",
       period: "Apr 2022 - Nov 2022",
       description: "Built web applications and converted designs into front-end code.",
       details: [
@@ -637,14 +746,29 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
     },
   ];
 
+  const monthOrder: Record<string, number> = {
+    Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5,
+    Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11,
+  };
+  const careerStart = (period: string) => {
+    const match = /^([A-Za-z]{3}) (\d{4})/.exec(period);
+    if (!match || !(match[1] in monthOrder)) {
+      throw new Error(`Invalid experience period: ${period}`);
+    }
+    return Number(match[2]) * 12 + monthOrder[match[1]];
+  };
+  const careerTimeline = [...experience].sort((a, b) => {
+    const aIsFeatured = a.role === "Information Technology Developer";
+    const bIsFeatured = b.role === "Information Technology Developer";
+    if (aIsFeatured !== bIsFeatured) return aIsFeatured ? -1 : 1;
+    return careerStart(b.period) - careerStart(a.period);
+  });
+
   const navItems = [
-    { id: "home", label: "Home" },
-    { id: "about", label: "About" },
-    { id: "certifications", label: "Certifications" },
     { id: "clients", label: "Clients" },
     { id: "projects", label: "Projects" },
-    { id: "products", label: "Products" },
-    { id: "experience", label: "Experience" },
+    { id: "skills", label: "Services" },
+    { id: "about", label: "About" },
     { id: "contact", label: "Contact" },
   ];
 
@@ -657,14 +781,21 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
           <div className="flex items-center gap-4">
             <a href="#home" onClick={() => { setActiveSection('home'); setMobileNavOpen(false); document.getElementById('home')?.scrollIntoView({ behavior: 'smooth' }); }} className="inline-flex items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-full border border-[var(--surface-border)] bg-[var(--surface)] text-sm font-semibold uppercase tracking-[0.24em] text-[var(--foreground)] shadow-sm shadow-white/5">
-                I
+                <img
+                    className = "rounded-full"
+                    src="/profile-photo.jpg"
+                    alt="Ilham Maulana Habibie"
+                    width={48}
+                    height={48}
+                    loading="lazy"
+                    decoding="async"
+                  />
               </div>
               <div className="flex flex-col leading-none">
-                <span className="text-lg font-semibold tracking-tight text-[var(--foreground)]">IMAHA</span>
-                <span className="text-[0.65rem] uppercase tracking-[0.24em] text-[var(--muted)]">Profile</span>
+                <span className="text-lg font-semibold tracking-tight text-[var(--foreground)]">IMAHA7</span>
               </div>
             </a>
-            <div className="hidden lg:flex items-center gap-8 ml-6">
+            <div className="hidden lg:flex items-center gap-7 ml-6">
               {navItems.map((item) => (
                 <button
                   key={item.id}
@@ -686,7 +817,7 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
               href="https://api.whatsapp.com/send?phone=6283194310725&text=Hi%20Ilham%2C%20I%20would%20like%20to%20discuss%20a%20project."
               target="_blank"
               rel="noopener noreferrer"
-              className="border inline-flex items-center rounded-md border border-[var(--surface-border)] bg-[var(--surface)] px-4 py-2 text-sm font-medium text-[var(--foreground)] hover:bg-[var(--surface)]/90 transition-all duration-300"
+              className="hidden sm:inline-flex items-center rounded-3xl border border-[var(--surface-border)] bg-[var(--surface)] px-4 py-2 text-sm font-medium text-[var(--foreground)] hover:bg-[var(--surface)]/90 transition-all duration-300"
             >
               Contact
             </a>
@@ -715,7 +846,7 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
             <button
               type="button"
               onClick={() => setMobileNavOpen((open) => !open)}
-              className="ml-2 inline-flex items-center rounded-md bg-[var(--surface)] p-2 text-[var(--foreground)] hover:bg-[var(--surface)] transition-all duration-300 md:hidden"
+              className="ml-2 inline-flex items-center rounded-md bg-[var(--surface)] p-2 text-[var(--foreground)] hover:bg-[var(--surface)] transition-all duration-300 lg:hidden"
               aria-label="Toggle navigation menu"
               aria-expanded={mobileNavOpen}
             >
@@ -723,7 +854,7 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
             </button>
           </div>
         </div>
-        <div className={`absolute inset-x-0 top-full bg-[var(--surface)] border-t border-[var(--surface-border)] overflow-hidden transition-all duration-300 md:hidden ${mobileNavOpen ? 'max-h-120 py-4 opacity-100' : 'max-h-0 py-0 opacity-0'}`}>
+        <div className={`absolute inset-x-0 top-full bg-[var(--surface)] border-t border-[var(--surface-border)] overflow-hidden transition-all duration-300 lg:hidden ${mobileNavOpen ? 'max-h-120 py-4 opacity-100' : 'max-h-0 py-0 opacity-0'}`}>
           <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 sm:px-6 lg:px-8">
             {navItems.map((item) => (
               <a
@@ -745,7 +876,7 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
         </div>
       </nav>
 
-      <main className="relative pt-32">
+      <main className="relative">
         {/* SEO-only keywords block (kept visually hidden, still crawlable) */}
         <div className="sr-only" aria-hidden="false">
           imaha7 profile. Ilham Maulana Habibie. Ilham Software Engineer. Full Stack Developer.
@@ -756,199 +887,165 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
           GitHub: https://github.com/imaha7. LinkedIn: https://www.linkedin.com/in/imaha7.
         </div>
 
-        <section id="home" className="pb-32 px-4 pt-20">
-          <div className="mx-auto max-w-7xl">
-            <div className="grid gap-16 lg:grid-cols-2 items-center">
-              <div className="space-y-10">
-                <div className="space-y-6">
-                  <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-cyan-500/5 px-4 py-2 text-xs uppercase tracking-[0.24em] text-[var(--brand-text)]">
-                    <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 animate-pulse" />
-                    Full Stack Developer & BI Specialist
-                  </div>
-                  {heroHeading}
-                </div>
-
-                <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                  <a
-                    href="#projects"
-                    className="inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-cyan-500 to-indigo-500 px-8 py-4 text-base font-semibold text-white shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50 transition-all duration-300 hover:scale-105"
-                  >
-                    Explore Projects
-                  </a>
-
-                  <a
-                    href="mailto:ilham.maulana.07.0698@gmail.com"
-                    className="border inline-flex items-center justify-center rounded-lg px-8 py-4 text-base font-semibold text-[var(--foreground)] hover:bg-[var(--surface)]/90 hover:border-cyan-400/50 hover:shadow-[0_0_0_1px_rgba(34,211,238,0.35)] transition-all duration-300"
-                  >
-                    Get In Touch
-                  </a>
-                </div>
-
-
-
-                <div className="grid grid-cols-3 gap-4 pt-6 border-t border-[var(--surface-border)]">
-                  {[
-                    { num: '12+', label: 'Projects' },
-                    { num: '6+', label: 'Years' },
-                    { num: '5+', label: 'Companies' },
-                  ].map((stat) => (
-                    <div key={stat.label}>
-                      <div className="text-3xl font-bold text-[var(--brand-text)]">{stat.num}</div>
-                      <div className="text-sm text-[var(--muted)] mt-1">{stat.label}</div>
-                    </div>
-                  ))}
-                </div>
+        <section id="home" className="px-4">
+          <div className="hero-layout mx-auto max-w-7xl">
+            <div className="hero-copy">
+              <p className="hero-kicker"><span /> FULL STACK DEVELOPER <b>·</b> BI SPECIALIST</p>
+              <div className="space-y-5">{heroHeading}</div>
+              <div className="hero-intro">
+                <span>Jakarta, Indonesia</span>
+                <p>From the first sketch to the final dashboard, I turn complex ideas and data into digital products people love to use.</p>
               </div>
-
-              <div className="relative hidden lg:block">
-                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/20 to-indigo-500/20 rounded-3xl blur-3xl" />
-                <div className="relative rounded-3xl border border-[var(--surface-border)] bg-[var(--surface)] p-8 backdrop-blur-xl">
-                  <div className="space-y-8">
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.2em] text-[var(--muted)] mb-3">Current Focus</p>
-                      <h3 className="text-2xl font-bold text-[var(--foreground)] mb-2">Dashboard Visualization</h3>
-                      <p className="text-[var(--muted)]">Data-driven insights for enterprise clients using MotionBoard and InfluxQL.</p>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      {[
-                        { label: 'Frontend', value: 'React, Next.js, Vue.js' },
-                        { label: 'Backend', value: 'Node.js, Laravel, Express' },
-                        { label: 'Data', value: 'BI, Dashboards, SQL' },
-                        { label: 'Mobile', value: 'React Native, Kotlin' },
-                      ].map((item) => (
-                        <div key={item.label} className="rounded-2xl border border-[var(--surface-border)] bg-[var(--surface)] p-4">
-                          <p className="text-[0.7rem] uppercase tracking-[0.18em] text-[var(--muted)]">{item.label}</p>
-                          <p className="text-sm font-semibold text-[var(--foreground)] mt-2">{item.value}</p>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="pt-4 border-t border-[var(--surface-border)]">
-                      <p className="text-xs text-[var(--muted)] mb-3">Recent Clients</p>
-                      <div className="flex flex-wrap gap-2">
-                        {['PT. Astra Honda Motor', 'Ogloba Ltd.', 'Zegen Solusi Mandiri'].map((client) => (
-                          <span key={client} className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-cyan-500/10 text-[var(--brand-text)] border border-cyan-500/20">
-                            {client}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                <a href="#projects" className="hero-button hero-button--primary">
+                  Explore my work <span aria-hidden="true">↗</span>
+                </a>
+                <a href="mailto:ilham.maulana.07.0698@gmail.com" className="hero-button hero-button--secondary">
+                  Let’s connect
+                </a>
               </div>
             </div>
-            <div className="mt-10 rounded-[2rem] border border-[var(--surface-border)] bg-[var(--surface)] p-6 shadow-[0_30px_70px_-40px_rgba(15,23,42,0.75)] backdrop-blur-xl">
-              <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                <div className="space-y-2">
-                  <p className="text-xs uppercase tracking-[0.24em] text-[var(--muted)]">Resume</p>
-                  <h3 className="text-2xl font-bold text-[var(--foreground)]">Download & Preview</h3>
-                  <p className="text-[var(--muted)] max-w-xl">
-                    Download the latest resume PDF now. Live preview will be enabled after you upload the PDF.
-                  </p>
-                </div>
-
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <a
-                    href="/Ilham_Resume.pdf"
-                    download="Ilham_Resume.pdf"
-                    className="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-cyan-500/30 transition-all duration-300 hover:from-cyan-400 hover:to-indigo-400 hover:shadow-cyan-400/40 hover:scale-105"
-                  >
-                    Download PDF
-                  </a>
-
-                  <button
-                    type="button"
-                    className="inline-flex items-center justify-center rounded-xl border border-[var(--surface-border)] bg-[var(--surface)] px-6 py-3 text-sm font-semibold text-[var(--foreground)] hover:bg-[var(--surface)]/90 transition-all duration-300"
-                    onClick={() => {
-                      const el = document.getElementById('resume-preview');
-                      el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }}
-                  >
-                    Live Preview
-                  </button>
-                </div>
-              </div>
-
-              <div id="resume-preview" className="mt-6 overflow-hidden rounded-2xl border border-[var(--surface-border)] bg-[var(--background)]/30 hidden lg:block">
-                <div className="flex flex-col gap-3 border-b border-[var(--surface-border)] p-4 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold text-[var(--brand-text)]">Live preview</p>
-                    <p className="mt-1 text-xs text-[var(--muted)]">You can scroll the PDF inside this page.</p>
-                  </div>
-
-                  <a
-                    href="/Ilham_Resume.pdf"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center rounded-lg border border-[var(--surface-border)] bg-[var(--surface)] px-3 py-2 text-xs font-semibold text-[var(--foreground)] hover:bg-[var(--surface)]/90 transition-all duration-300"
-                  >
-                    Open in new tab
-                  </a>
-                </div>
-
-                <div className="h-[70vh] min-h-[520px] max-h-[760px]">
-                  <iframe
-                    src="/Ilham_Resume.pdf"
-                    title="Ilham_Resume.pdf live preview"
-                    className="h-full w-full"
-                    loading="lazy"
-                  />
-                </div>
-
-                <div className="p-4">
-                  <p className="text-xs text-[var(--muted)]">
-                    If the preview doesn’t load in your browser, use the download button above.
-                  </p>
-                </div>
-              </div>
+            <div className="hero-visual">
+              <DashboardArtwork />
+              <div className="hero-stat hero-stat--hours"><strong>6+</strong><span>Years of<br />experience</span></div>
+              <div className="hero-stat hero-stat--projects"><strong>12+</strong><span>Featured<br />projects</span></div>
+              <div className="hero-stat hero-stat--clients"><strong>5</strong><span>Trusted<br />clients</span></div>
+              <div className="hero-visual-caption"><span /> Turning data into direction</div>
             </div>
           </div>
         </section>
 
         <section id="about" className="pt-10 pb-20 px-4">
           <div className="mx-auto max-w-6xl rounded-[2rem] border border-[var(--surface-border)] bg-[var(--surface)] p-10 shadow-[0_30px_70px_-40px_rgba(15,23,42,0.75)] backdrop-blur-xl">
-            <div className="grid gap-10 lg:grid-cols-[0.95fr_0.9fr] items-center">
-              <div>
-                <h2 className="text-4xl font-bold mb-8 text-[var(--foreground)]">About Me</h2>
-                <p className="text-[var(--muted)] mb-6 leading-relaxed">
-                  I'm a passionate software engineer with 6+ years of experience building web and mobile applications, enterprise dashboards, and data visualization solutions that solve real business challenges.
-                </p>
-                <p className="text-[var(--muted)] mb-6 leading-relaxed">
-                  I hold a Bachelor of Computer Science from Mikroskil University with Magna Cum Laude honors, and I am certified in MotionBoard, JavaScript, REST API, problem solving, and network security.
-                </p>
-                <p className="text-[var(--muted)] leading-relaxed">
-                  My work combines frontend design, backend architecture, mobile development, and BI visualization to deliver polished products for clients in manufacturing, finance, and enterprise operations.
-                </p>
-              </div>
-              <div className="space-y-4">
-                {[
-                  { label: 'Projects Completed', value: '50+' },
-                  { label: 'Years Experience', value: '6+' },
-                  { label: 'Happy Clients', value: '30+' },
-                  { label: 'Tech Stack', value: '15+' },
-                ].map((stat) => (
-                  <div key={stat.label} className="rounded-3xl border border-[var(--surface-border)] bg-[var(--surface)] p-6">
-                    <div className="text-sm text-[var(--muted)]">{stat.label}</div>
-                    <div className="mt-2 text-3xl font-semibold text-[var(--brand-text)]">{stat.value}</div>
+            <div className="about-heading">
+              <span className="section-eyebrow">A LITTLE ABOUT ME</span>
+              <h2>About me</h2>
+              <p>Building intuitive digital products through thoughtful engineering and collaboration.</p>
+            </div>
+            <div className="about-layout">
+              <aside className="about-profile">
+                <div className="about-profile__portrait">
+                  <img
+                    src="/profile-photo.jpg"
+                    alt="Ilham Maulana Habibie"
+                    width={400}
+                    height={400}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
+                <span className="about-availability text-lg font-medium"><i /> Jakarta, Indonesia</span>
+                <h3>Ilham Maulana Habibie, B.Sc</h3>
+                <p className="text-lg font-medium">Full Stack Developer<br />&amp; BI Specialist</p>
+                <div className="about-socials">
+                  <a href="https://github.com/imaha7" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 .9a11.1 11.1 0 0 0-3.51 21.63c.56.1.76-.24.76-.54v-2.1c-3.1.68-3.76-1.32-3.76-1.32-.5-1.3-1.24-1.65-1.24-1.65-1.01-.7.08-.69.08-.69 1.12.08 1.71 1.15 1.71 1.15 1 1.7 2.61 1.21 3.25.93.1-.72.39-1.21.71-1.49-2.47-.28-5.06-1.24-5.06-5.5 0-1.22.44-2.21 1.15-2.99-.12-.28-.5-1.42.11-2.95 0 0 .94-.3 3.05 1.14a10.6 10.6 0 0 1 5.55 0c2.11-1.44 3.05-1.14 3.05-1.14.61 1.53.23 2.67.11 2.95.72.78 1.15 1.77 1.15 2.99 0 4.27-2.6 5.22-5.08 5.49.4.35.76 1.02.76 2.06v3.07c0 .3.2.65.77.54A11.1 11.1 0 0 0 12 .9Z" />
+                    </svg>
+                  </a>
+                  <a href="https://www.linkedin.com/in/imaha7" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">in</a>
+                  <a href="mailto:ilham.maulana.07.0698@gmail.com" aria-label="Email">✉</a>
+                </div>
+                <a href="mailto:ilham.maulana.07.0698@gmail.com" className="hero-button hero-button--primary">Let’s connect</a>
+              </aside>
+              <div className="about-details">
+                <article className="about-panel">
+                  <h3>Hi, I&apos;m Ilham.</h3>
+                  <p className="text-lg font-medium">I&apos;m a software engineer with 6+ years of experience building web and mobile applications, enterprise dashboards, and data visualizations that solve real business challenges.</p>
+                  <p className="text-lg font-medium">I hold a Bachelor of Computer Science from Mikroskil University with Magna Cum Laude honors. I combine frontend design, backend architecture, mobile development, and BI to deliver useful products for manufacturing, finance, and enterprise teams.</p>
+                </article>
+                <article className="about-panel about-stack">
+                  <h3>My tech stack:</h3>
+                  <div>
+                    {["React", "Next.js", "TypeScript", "Node.js", "MotionBoard", "SQL", "React Native", "Kotlin"].map((item) => (
+                      <span key={item}>{item}</span>
+                    ))}
                   </div>
-                ))}
+                </article>
+                <article className="about-panel about-highlights text-lg font-medium">
+                  <h3>Career highlights</h3>
+                  <div><span>Information Technology Developer</span><b>PT. Sazanka Henig Solusi</b><time>2023 — Now</time></div>
+                  <div><span>Frontend &amp; Mobile Engineer</span><b>Ogloba Ltd.</b><time>2022 — 2023</time></div>
+                  <div><span>Frontend Developer</span><b>PT. Zegen Solusi Mandiri</b><time>2022</time></div>
+                </article>
               </div>
             </div>
+            <div className="resume-card">
+              <div>
+                <span className="section-eyebrow">ABOUT / RESUME</span>
+                <h3>Want the full story?</h3>
+                <p>Download my resume for a closer look at my work and experience.</p>
+              </div>
+              <div className="resume-card__actions">
+                <button
+                  type="button"
+                  className="hero-button hero-button--secondary"
+                  onClick={() => resumeDialogRef.current?.showModal()}
+                >
+                  Preview resume
+                </button>
+                <a href="/Ilham_Resume.pdf" download="Ilham_Resume.pdf" className="hero-button hero-button--primary">
+                  Download resume <span aria-hidden="true">↓</span>
+                </a>
+              </div>
+            </div>
+            <dialog
+              ref={resumeDialogRef}
+              className="resume-preview-dialog"
+              aria-labelledby="resume-preview-title"
+              onCancel={(event) => {
+                event.preventDefault();
+                closeResumePreview();
+              }}
+              onClick={(event) => {
+                if (event.target === event.currentTarget) closeResumePreview();
+              }}
+            >
+              <div className="resume-preview-dialog__header">
+                <h2 id="resume-preview-title">Resume Preview</h2>
+                <button
+                  type="button"
+                  className="resume-preview-dialog__close"
+                  aria-label="Close resume preview"
+                  onClick={closeResumePreview}
+                >
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M6 6l12 12M18 6 6 18"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </button>
+              </div>
+              <iframe src="/Ilham_Resume.pdf" title="Ilham Maulana Habibie resume" />
+            </dialog>
           </div>
         </section>
 
         <section id="skills" className="py-20 px-4">
-          <div className="mx-auto max-w-4xl">
-            <h2 className="text-4xl font-bold mb-12 text-center text-[var(--foreground)]">Skills & Expertise</h2>
+          <div className="mx-auto max-w-6xl">
+            <div className="section-heading">
+              <span className="section-eyebrow">WHAT I DO</span>
+              <h2>Services & expertise</h2>
+              <p>Thoughtful engineering across web, mobile, and business intelligence.</p>
+            </div>
             <div className="grid gap-8 md:grid-cols-3">
-              {skills.map((skillGroup) => (
-                <div key={skillGroup.category} className="rounded-3xl border border-[var(--surface-border)] bg-[var(--surface)] p-6 transition hover:border-cyan-400/50">
-                  <h3 className="mb-4 text-xl font-semibold text-[var(--brand-text)]">{skillGroup.category}</h3>
-                  <div className="space-y-3">
+              {skills.map((skillGroup, index) => (
+                <div key={skillGroup.category} className="service-card rounded-3xl border border-[var(--surface-border)] bg-[var(--surface)] p-6 transition hover:border-cyan-400/50">
+                  <span className="service-card__index">0{index + 1}</span>
+                  <h3 className="mb-4 text-xl font-semibold text-[var(--foreground)]">{skillGroup.category}</h3>
+                  <p className="service-card__description">
+                    {skillGroup.category === "Frontend"
+                      ? "Fast, accessible web experiences built around real user needs."
+                      : skillGroup.category === "Backend & Data"
+                        ? "Reliable systems and clear data products that support better decisions."
+                        : "Connected mobile and cloud solutions that work wherever people do."}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
                     {skillGroup.items.map((item) => (
-                      <div key={item} className="flex items-center gap-3 text-[var(--muted)]">
-                        <span className="inline-flex h-2.5 w-2.5 rounded-full bg-cyan-400" />
-                        {item}
-                      </div>
+                      <span key={item} className="skill-tag">{item}</span>
                     ))}
                   </div>
                 </div>
@@ -959,7 +1056,11 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
 
         <section id="certifications" className="py-20 px-4">
           <div className="mx-auto max-w-6xl">
-            <h2 className="text-4xl font-bold mb-10 text-center text-[var(--foreground)]">Certifications</h2>
+            <div className="section-heading">
+              <span className="section-eyebrow">ALWAYS LEARNING</span>
+              <h2>Selected certifications</h2>
+              <p>Credentials and continued learning across data, software, and product development.</p>
+            </div>
 
             <div className="rounded-[2rem] border border-[var(--surface-border)] bg-[var(--surface)] p-6 shadow-[0_20px_80px_-45px_rgba(14,165,233,0.35)]">
               <div className="relative">
@@ -1024,58 +1125,55 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
 
         <section id="clients" className="py-20 px-4">
           <div className="mx-auto max-w-6xl">
-            <h2 className="text-4xl font-bold mb-10 text-center text-[var(--foreground)]">Clients</h2>
+            <div className="trust-heading">
+              <span className="section-eyebrow">GOOD COMPANY</span>
+              <h2>Trusted by teams at</h2>
+            </div>
             {/* Auto-scrolling client logos */}
             <ClientLogoMarquee />
           </div>
         </section>
 
         <section id="projects" className="py-20 px-4 bg-[var(--surface)]">
-          <div className="mx-auto max-w-5xl">
-            <h2 className="text-4xl font-bold mb-12 text-center text-[var(--foreground)]">Featured Projects</h2>
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          <div className="mx-auto max-w-6xl">
+            <div className="section-heading">
+              <span className="section-eyebrow">SELECTED WORK · 2019—{currentYear}</span>
+              <h2>Recent projects</h2>
+              <p>A selection of products, platforms, and data experiences built with ambitious teams.</p>
+            </div>
+            <div className="grid gap-6 md:grid-cols-2">
               {projects.map((project) => (
-
-                <div
+                <article
                   key={project.id}
-                  className="group overflow-hidden rounded-[1.5rem] border border-[var(--surface-border)] bg-[var(--surface)] shadow-[0_20px_80px_-45px_rgba(14,165,233,0.5)] transition hover:-translate-y-1 hover:border-cyan-400/30"
+                  className="project-card group overflow-hidden rounded-[1.5rem] border border-[var(--surface-border)] bg-[var(--surface)] transition hover:-translate-y-1 hover:border-cyan-400/30"
                 >
-                  <div className="flex h-36 items-center justify-center bg-gradient-to-br from-blue-500/10 to-cyan-500/8 transition group-hover:from-blue-500/20 group-hover:to-cyan-500/16">
-                    <div className="text-center">
-                      <div className="text-sm font-medium text-[var(--muted)]">{project.client}</div>
-                      <div className="mt-2 text-4xl font-semibold text-[var(--muted)] opacity-20 group-hover:opacity-30">→</div>
-                    </div>
-                  </div>
-                  <div className="p-6">
+                  <ProjectArtwork id={project.id} title={project.title} client={project.client} skill={project.skills[0] ?? "PROJECT HIGHLIGHT"} />
+                  <div className="project-card__body p-6">
+                    <div className="project-meta"><span>{project.client}</span><span>{project.period}</span></div>
                     <h3 className="text-xl font-semibold text-[var(--foreground)]">{project.title}</h3>
-                    <div className="mt-2 text-xs text-[var(--muted)]">{project.period}</div>
-                    <div className="text-xs text-[var(--muted)] mb-3">{project.relation}</div>
-                    <p className="text-[var(--muted)] text-sm mb-3">{project.description}</p>
+                    <p className="text-[var(--muted)] text-sm">{project.description}</p>
                     {project.skills && project.skills.length > 0 && (
                       <div className="flex flex-wrap gap-2">
                         {project.skills.map((s) => (
-                          <span key={s} className="rounded-full bg-cyan-500/12 px-3 py-1 text-xs font-medium text-[var(--brand-text)]">
+                          <span key={s} className="skill-tag">
                             {s}
                           </span>
                         ))}
                       </div>
                     )}
                   </div>
-                </div>
+                </article>
               ))}
             </div>
           </div>
         </section>
 
         <section id="products" className="overflow-hidden bg-[var(--surface)] px-4 py-24 text-[var(--foreground)] sm:py-28">
-          <div className="mx-auto max-w-7xl">
-            <div className="mb-12 flex items-end justify-between gap-8 border-b border-[var(--surface-border)] pb-6">
-              <div>
-                <p className="mb-4 text-[0.62rem] uppercase tracking-[0.38em] text-[var(--foreground)]">Product archive</p>
-                <h2 className="text-4xl font-semibold uppercase leading-[0.92] tracking-[-0.04em] sm:text-6xl">
-                  My Latest<br />Running Products
-                </h2>
-              </div>
+          <div className="mx-auto max-w-6xl">
+            <div className="section-heading section-heading--left">
+              <span className="section-eyebrow">PRODUCTS IN THE WILD</span>
+              <h2>Products I’m building</h2>
+              <p>Independent products bringing useful, focused tools to finance and market research.</p>
             </div>
 
             <div className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-6 overflow-x-auto px-4 pb-5 sm:-mx-8 sm:px-8 lg:mx-0 lg:px-0">
@@ -1084,15 +1182,15 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
                   key={product.name}
                   className="group relative flex min-h-[520px] w-[min(86vw,760px)] shrink-0 snap-start flex-col overflow-hidden border border-[var(--surface-border)] bg-[var(--surface)] text-[var(--foreground)] transition duration-500 hover:border-white/50 sm:min-h-[540px] sm:flex-row"
                 >
-                  <div className="relative min-h-[230px] overflow-hidden bg-[var(--product-preview)] sm:min-h-0 sm:w-[42%]">
+                  <div className="product-art relative min-h-[230px] overflow-hidden bg-[var(--product-preview)] sm:min-h-0 sm:w-[42%]">
                     <iframe
                       src={product.url}
-                      title={`${product.name} product dashboard preview`}
+                      title={`${product.name} product preview`}
                       loading="lazy"
                       tabIndex={-1}
-                      className="pointer-events-none h-full min-h-[230px] w-full border-0 bg-[var(--product-preview)] sm:min-h-0"
+                      className="product-preview-frame pointer-events-none h-full min-h-[230px] w-full border-0 sm:min-h-0"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" />
+                    <div className="product-preview-overlay" />
                     <span className="absolute bottom-6 left-8 text-[0.62rem] font-semibold uppercase tracking-[0.25em] text-white/80">Product preview</span>
                   </div>
 
@@ -1128,52 +1226,77 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
         </section>
 
         <section id="experience" className="py-20 px-4">
-          <div className="mx-auto max-w-3xl">
-            <h2 className="text-4xl font-bold mb-12 text-center text-[var(--foreground)]">Experience</h2>
-            <div className="space-y-8">
-              {experience.map((exp) => (
-                <div key={exp.role} className="relative overflow-hidden rounded-[1.5rem] border border-[var(--surface-border)] bg-[var(--surface)] p-6 shadow-[0_20px_80px_-45px_rgba(14,165,233,0.4)]">
-                  <div className="absolute top-6 left-0 h-20 w-1 rounded-tr-full rounded-br-full bg-gradient-to-b from-cyan-400 to-transparent" />
-                  <div className="ml-6">
-                    <h3 className="text-xl font-semibold text-[var(--brand-text)]">{exp.role}</h3>
-                    <p className="text-sm text-[var(--muted)] mt-1">{exp.company}</p>
-                    <p className="text-xs text-[var(--muted)] mt-2">{exp.period}</p>
-                    {exp.details ? (
-                      <ul className="mt-4 list-disc list-inside text-[var(--muted)] space-y-2">
-                        {exp.details.map((d, i) => (
-                          <li key={i} className="text-sm">
-                            {d}
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p className="text-[var(--muted)] mt-4">{exp.description}</p>
-                    )}
+          <div className="mx-auto max-w-5xl">
+            <div className="section-heading">
+              <span className="section-eyebrow">THE JOURNEY SO FAR</span>
+              <h2>Experience</h2>
+              <p>A few milestones that shaped the way I build and collaborate.</p>
+            </div>
+            <div className="career-timeline">
+              {careerTimeline.map((exp, index) => (
+                <article key={`${exp.company}-${exp.role}`} className="career-step">
+                  <div className="career-step__marker"><span>{String(index + 1).padStart(2, "0")}</span></div>
+                  <div className="career-step__card">
+                    <div className="career-step__meta"><span>{exp.period}</span><span>{exp.company}</span></div>
+                    <h3>{exp.role}</h3>
+                    <p>{exp.description}</p>
+                    <div className="career-step__skills">
+                      {(exp.details?.[exp.details.length - 1]?.startsWith("Skills:")
+                        ? exp.details[exp.details.length - 1]?.replace("Skills:", "").split(",").slice(0, 3)
+                        : ["Product development", "Collaboration"]
+                      )?.map((skill) => <span key={skill}>{skill.trim()}</span>)}
+                    </div>
                   </div>
-                </div>
+                </article>
               ))}
             </div>
           </div>
         </section>
 
-        <section id="contact" className="py-20 px-4 bg-[var(--surface)]">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-4xl font-bold mb-6 text-[var(--foreground)]">Get In Touch</h2>
-            <p className="text-xl text-[var(--muted)] mb-12">
-              I'm always open to discussing new projects, creative ideas, or opportunities to be part of your vision.
-            </p>
-            <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
+        <section id="faq" className="px-4">
+          <div className="faq-layout mx-auto max-w-5xl">
+            <div className="section-heading">
+              <span className="section-eyebrow">A FEW QUICK ANSWERS</span>
+              <h2>Frequently asked</h2>
+            </div>
+            <div className="faq-list">
+              <details>
+                <summary>What kind of projects do you work on?<span>+</span></summary>
+                <p>I build web and mobile applications, enterprise dashboards, and business intelligence solutions for teams that need clearer workflows and better data visibility.</p>
+              </details>
+              <details>
+                <summary>Which technologies do you work with?<span>+</span></summary>
+                <p>My toolkit includes React, Next.js, TypeScript, Node.js, Vue.js, Laravel, React Native, Kotlin, SQL, and MotionBoard.</p>
+              </details>
+              <details>
+                <summary>Are you available for new opportunities?<span>+</span></summary>
+                <p>I’m open to discussing web, dashboard, mobile, and BI projects. Send me a short note about what you’re planning.</p>
+              </details>
+              <details>
+                <summary>How can we get started?<span>+</span></summary>
+                <p>Email me with a little context about your goals, timeline, and team. I’ll get back to you to talk through next steps.</p>
+              </details>
+            </div>
+          </div>
+        </section>
+
+        <section id="contact" className="px-4">
+          <div className="contact-banner mx-auto max-w-6xl">
+            <span className="section-eyebrow">HAVE A PROJECT IN MIND?</span>
+            <h2>Your vision, my expertise.<br />Let’s build something <em>meaningful.</em></h2>
+            <p>Let’s talk about the web, data, or product challenge you’re working through.</p>
+            <div className="flex flex-col gap-4 sm:flex-row">
               <a
                 href="mailto:ilham.maulana.07.0698@gmail.com"
-                className="rounded-full bg-cyan-500 px-8 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400 hover:shadow-cyan-400/40"
+                className="hero-button hero-button--primary"
               >
-                Email Me
+                Start a conversation <span aria-hidden="true">↗</span>
               </a>
               <a
                 href="https://www.linkedin.com/in/imaha7"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-full border border-cyan-400/50 px-8 py-3 text-sm font-semibold text-[var(--brand-text)] transition hover:bg-cyan-400/10"
+                className="hero-button hero-button--secondary"
               >
                 LinkedIn
               </a>
@@ -1181,7 +1304,7 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
                 href="https://github.com/imaha7"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-full border border-cyan-400/50 px-8 py-3 text-sm font-semibold text-[var(--brand-text)] transition hover:bg-cyan-400/10"
+                className="hero-button hero-button--secondary"
               >
                 GitHub
               </a>
@@ -1195,8 +1318,8 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
         <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:px-8">
           <div className="grid gap-10 lg:grid-cols-[1.4fr_0.9fr] items-start">
             <div>
-              <p className="text-sm uppercase tracking-[0.32em] text-[var(--brand-text)]">Let's collaborate</p>
-              <h2 className="mt-4 text-3xl font-semibold text-[var(--foreground)]">Powerful solutions with premium delivery.</h2>
+              <p className="text-sm uppercase tracking-[0.32em] text-[var(--brand-text)]">Let&apos;s collaborate</p>
+              <h2 className="mt-4 text-3xl font-semibold text-[var(--foreground)]">ILHAM MAULANA HABIBIE</h2>
               <p className="mt-4 max-w-xl text-[var(--muted)]">Available for BI, dashboard, and web application projects. Send an email to start a clear, fast conversation about your next digital product.</p>
             </div>
             <div className="rounded-3xl border border-[var(--surface-border)] bg-[var(--surface)] p-6">

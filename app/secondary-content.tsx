@@ -291,7 +291,7 @@ export default function SecondaryContent() {
         <div className="mx-auto max-w-4xl">
           <div className="flex items-center justify-between">
             <h2 className="mb-6 text-2xl font-bold text-[var(--foreground)]">Latest Tech News</h2>
-            <button type="button" onClick={() => void fetchNews()} className="rounded-md border border-[var(--surface-border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground)] transition hover:bg-[var(--surface)]/90">
+            <button type="button" onClick={() => void fetchNews()} className="rounded-3xl border border-[var(--surface-border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground)] transition hover:bg-[var(--surface)]/90">
               Refresh
             </button>
           </div>

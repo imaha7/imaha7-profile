@@ -46,7 +46,7 @@ export default function DeferredSections() {
   }, []);
 
   return (
-    <div ref={containerRef}>
+    <div ref={containerRef} className="deferred-content">
       {Content ? (
         <Content />
       ) : (
