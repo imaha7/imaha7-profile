@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -13,21 +13,20 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://imaha7-profile.vercel.app"),
+  metadataBase: new URL("https://imaha7.vercel.app"),
   alternates: {
     canonical: "/",
   },
   title: {
-    default:
-      "Ilham Maulana Habibie (Imaha7) — Full Stack Developer & BI Specialist",
+    default: "Imaha7 — Ilham Maulana Habibie | Software Engineer & BI Specialist",
     template: "%s | Ilham Maulana Habibie",
   },
   description:
-    "Ilham Maulana Habibie aka imaha7 — Jakarta-based Full Stack Developer and BI Specialist building web apps, dashboards, MotionBoard solutions, and enterprise data products.",
+    "Imaha7 is the portfolio of Ilham Maulana Habibie, a Jakarta-based Software Engineer and BI Specialist building web apps and data dashboards.",
   keywords: [
     "Ilham Maulana Habibie",
     "Imaha7",
-    "Full Stack Developer",
+    "Software Engineer",
     "BI Specialist",
     "React",
     "Next.js",
@@ -39,14 +38,10 @@ export const metadata: Metadata = {
     "Portfolio",
   ],
   applicationName: "Imaha7 Portfolio",
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#eff8ff" },
-    { media: "(prefers-color-scheme: dark)", color: "#020617" },
-  ],
   authors: [
     {
       name: "Ilham Maulana Habibie",
-      url: "https://imaha7-profile.vercel.app",
+      url: "https://imaha7.vercel.app",
     },
   ],
   creator: "Ilham Maulana Habibie",
@@ -61,16 +56,16 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: "/",
-    title: "Ilham Maulana Habibie (imaha7) — Full Stack Developer & BI Specialist",
+    title: "Imaha7 — Ilham Maulana Habibie | Software Engineer & BI Specialist",
     description:
-      "Portfolio of Ilham Software Engineer: projects, skills, experience, and contact.",
-    siteName: "imaha7",
+      "Portfolio of Ilham Maulana Habibie (Imaha7), a Jakarta-based Software Engineer and BI Specialist.",
+    siteName: "Imaha7",
     images: [
       {
-        url: "https://imaha7-profile.vercel.app/og-image.svg",
+        url: "https://imaha7.vercel.app/og-image.svg",
         width: 1200,
         height: 630,
-        alt: "Ilham Maulana Habibie — Full Stack Developer and BI Specialist",
+        alt: "Ilham Maulana Habibie — Software Engineer and BI Specialist",
       },
     ],
   },
@@ -87,12 +82,19 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Ilham Maulana Habibie (imaha7) — Full Stack Developer & BI Specialist",
+    title: "Imaha7 — Ilham Maulana Habibie | Software Engineer & BI Specialist",
     description:
-      "Projects, skills, and experience. Connect with Ilham: GitHub & LinkedIn.",
+      "Portfolio of Ilham Maulana Habibie (Imaha7), a Jakarta-based Software Engineer and BI Specialist.",
     creator: "@imaha7",
-    images: ["https://imaha7-profile.vercel.app/og-image.svg"],
+    images: ["https://imaha7.vercel.app/og-image.svg"],
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#eff8ff" },
+    { media: "(prefers-color-scheme: dark)", color: "#020617" },
+  ],
 };
 
 export default function RootLayout({
@@ -104,22 +106,23 @@ export default function RootLayout({
     "@context": "https://schema.org",
     "@type": "Person",
     name: "Ilham Maulana Habibie",
-    url: "https://imaha7-profile.vercel.app/",
-    jobTitle: "Full Stack Developer & BI Specialist",
+    alternateName: "Imaha7",
+    url: "https://imaha7.vercel.app/",
+    jobTitle: "Software Engineer & BI Specialist",
     sameAs: [
       "https://github.com/imaha7",
       "https://www.linkedin.com/in/imaha7",
     ],
     description:
-      "Ilham Maulana Habibie (imaha7) — Ilham Software Engineer. Builds premium web applications, intelligent dashboards, and scalable BI solutions.",
+      "Jakarta-based Software Engineer and BI Specialist building web applications and data dashboards.",
   };
 
   const websiteJsonLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "url": "https://imaha7-profile.vercel.app/",
-    "name": "Ilham Maulana Habibie | Full Stack Developer & BI Specialist",
-    "description": "Portfolio of Ilham Maulana Habibie, Jakarta-based Full Stack Developer and BI Specialist delivering web apps, dashboards, and enterprise BI solutions.",
+    "url": "https://imaha7.vercel.app/",
+    "name": "Imaha7 — Ilham Maulana Habibie",
+    "description": "Portfolio of Ilham Maulana Habibie (Imaha7), a Jakarta-based Software Engineer and BI Specialist.",
     "publisher": {
       "@type": "Organization",
       "name": "Imaha7 Portfolio",

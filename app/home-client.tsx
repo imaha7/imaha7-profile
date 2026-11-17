@@ -877,16 +877,6 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
       </nav>
 
       <main className="relative">
-        {/* SEO-only keywords block (kept visually hidden, still crawlable) */}
-        <div className="sr-only" aria-hidden="false">
-          imaha7 profile. Ilham Maulana Habibie. Ilham Software Engineer. Full Stack Developer.
-          BI Specialist. React Next.js TypeScript Tailwind Node.js MotionBoard dashboards.
-          Laravel Vue.js React Native Kotlin Android REST APIs SQL InfluxQL OracleQL.
-          MotionBoard Expert Certified. JavaScript Intermediate. REST API Intermediate.
-          Network Security. Project Management. English proficiency. Jakarta developer.
-          GitHub: https://github.com/imaha7. LinkedIn: https://www.linkedin.com/in/imaha7.
-        </div>
-
         <section id="home" className="px-4">
           <div className="hero-layout mx-auto max-w-7xl">
             <div className="hero-copy">
@@ -894,7 +884,7 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
               <div className="space-y-5">{heroHeading}</div>
               <div className="hero-intro">
                 <span>Jakarta, Indonesia</span>
-                <p>From the first sketch to the final dashboard, I turn complex ideas and data into digital products people love to use.</p>
+                <p>I’m Ilham Maulana Habibie, known online as Imaha7. I build web apps and BI dashboards that turn complex ideas and data into digital products people love to use.</p>
               </div>
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
                 <a href="#projects" className="hero-button hero-button--primary">
