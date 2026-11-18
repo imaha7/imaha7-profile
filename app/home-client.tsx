@@ -1086,8 +1086,8 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
                         <div>
                           <h3 className="text-sm font-semibold text-[var(--foreground)]">{cert.title}</h3>
                           <div className="mt-2 flex items-center gap-5">
-                            <p className="text-xs text-[var(--muted)]">{cert.issuer}</p>
-                            <div className="rounded-full border border-cyan-500/20 bg-cyan-500/10 px-3 py-1 text-[0.6rem] font-semibold text-[var(--brand-text)]">
+                            <p className="text-sm text-[var(--muted)]">{cert.issuer}</p>
+                            <div className="rounded-full border border-cyan-500/20 bg-cyan-500/10 px-3 py-1 text-sm font-semibold text-[var(--brand-text)]">
                               {cert.date}
                             </div>
                           </div>
@@ -1097,12 +1097,12 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
                             href={cert.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="mt-2 inline-flex items-center text-xs font-semibold text-[var(--brand-text)] hover:underline"
+                            className="mt-2 inline-flex items-center text-sm font-semibold text-[var(--brand-text)] hover:underline"
                           >
                             View certificate →
                           </a>
                         ) : (
-                          <div className="mt-2 text-xs text-[var(--muted)]">Preview Not Available</div>
+                          <div className="mt-2 text-sm text-[var(--muted)]">Preview Not Available</div>
                         )}
                       </article>
                     </div>
@@ -1199,7 +1199,7 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
                       <div className="grid grid-cols-2 border-y border-[var(--product-ink)]/15 py-4 text-[0.63rem] font-semibold uppercase tracking-[0.12em]">
                         {product.highlights.map((highlight, index) => <span key={highlight}>{String(index + 1).padStart(2, "0")} &nbsp; {highlight}</span>)}
                       </div>
-                      <a href={product.url} target="_blank" rel="noopener noreferrer" className="mt-6 inline-flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em] transition group-hover:gap-5">
+                      <a href={product.url} target="_blank" rel="noopener noreferrer" className="mt-6 inline-flex items-center gap-3 text-sm font-semibold uppercase tracking-[0.18em] transition group-hover:gap-5">
                         Visit product <span aria-hidden="true">↗</span>
                       </a>
                     </div>
@@ -1313,7 +1313,7 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
               <p className="mt-4 max-w-xl text-[var(--muted)]">Available for BI, dashboard, and web application projects. Send an email to start a clear, fast conversation about your next digital product.</p>
             </div>
             <div className="rounded-3xl border border-[var(--surface-border)] bg-[var(--surface)] p-6">
-              <p className="text-xs uppercase tracking-[0.24em] text-[var(--muted)]">Email</p>
+              <p className="text-sm uppercase tracking-[0.24em] text-[var(--muted)]">Email</p>
               <a href="mailto:ilham.maulana.07.0698@gmail.com" className="mt-3 block text-lg font-semibold text-[var(--foreground)] hover:text-[var(--brand-text)]">ilham.maulana.07.0698@gmail.com</a>
               <p className="mt-4 text-sm text-[var(--muted)]">Jakarta, Indonesia</p>
             </div>
@@ -1344,7 +1344,7 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
         >
           <div className="flex shrink-0 items-center justify-between gap-3 border-b border-[var(--surface-border)] pb-3">
             <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-[var(--brand-text)] sm:text-sm sm:tracking-[0.24em]">AI Assistant</p>
+              <p className="text-sm uppercase tracking-[0.2em] text-[var(--brand-text)] sm:tracking-[0.24em]">AI Assistant</p>
               <h3 className="mt-1 text-base font-semibold text-[var(--foreground)] sm:text-lg">Ask about Ilham</h3>
             </div>
             <button

@@ -91,7 +91,7 @@ export default function VisitorCounter() {
         all-time {counts ? (counts.totalVisitors > 1 ? "visitors" : "visitor") : ""}
       </p>
       {unavailable && (
-        <p className="w-full text-center text-xs">Visitor stats are unavailable.</p>
+        <p className="w-full text-center text-sm">Visitor stats are unavailable.</p>
       )}
     </div>
   );

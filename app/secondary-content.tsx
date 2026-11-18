@@ -20,6 +20,102 @@ type NewsItem = {
   time?: number;
 };
 
+type NewsCategory = "ai" | "security" | "cloud" | "hardware" | "code" | "data" | "technology";
+
+const newsCategories: Record<NewsCategory, { label: string; glyph: string }> = {
+  ai: { label: "AI & machine learning", glyph: "AI" },
+  security: { label: "Security", glyph: "SEC" },
+  cloud: { label: "Cloud", glyph: "CLOUD" },
+  hardware: { label: "Hardware", glyph: "I/O" },
+  code: { label: "Software", glyph: "</>" },
+  data: { label: "Data", glyph: "01" },
+  technology: { label: "Technology", glyph: "TECH" },
+};
+
+function getNewsDomain(url: string) {
+  try {
+    const parsedUrl = new URL(url);
+    if (parsedUrl.protocol !== "https:" && parsedUrl.protocol !== "http:") return "";
+    return parsedUrl.hostname.replace(/^www\./i, "");
+  } catch {
+    return "";
+  }
+}
+
+function getDirectImageUrl(url: string) {
+  try {
+    const parsedUrl = new URL(url);
+    if (parsedUrl.protocol !== "https:" && parsedUrl.protocol !== "http:") return null;
+    return /\.(?:avif|gif|jpe?g|png|webp)$/i.test(parsedUrl.pathname) ? parsedUrl.href : null;
+  } catch {
+    return null;
+  }
+}
+
+function getNewsArtwork(item: NewsItem) {
+  const searchText = `${item.title} ${item.url}`.toLowerCase();
+  const category: NewsCategory =
+    /\b(ai|artificial intelligence|machine learning|llm|neural)\b/.test(searchText) ? "ai"
+      : /\b(security|cyber|malware|vulnerability|encryption|privacy)\b/.test(searchText) ? "security"
+        : /\b(cloud|aws|azure|kubernetes|serverless)\b/.test(searchText) ? "cloud"
+          : /\b(chip|hardware|phone|device|robot|gpu|processor|nvidia)\b/.test(searchText) ? "hardware"
+            : /\b(data|analytics|database|benchmark|research)\b/.test(searchText) ? "data"
+              : /\b(developer|programming|javascript|typescript|python|github|linux|browser|software|open source)\b/.test(searchText) ? "code"
+                : "technology";
+
+  let hash = item.id >>> 0;
+  for (const character of `${item.title}|${item.url}`) {
+    hash = Math.imul(hash ^ character.charCodeAt(0), 16777619) >>> 0;
+  }
+
+  return { category, variant: hash % 4, ...newsCategories[category] };
+}
+
+function NewsThumbnail({ item, domain }: { item: NewsItem; domain: string }) {
+  const [imageFailed, setImageFailed] = useState(false);
+  const imageUrl = getDirectImageUrl(item.url);
+  const artwork = getNewsArtwork(item);
+  const showImage = imageUrl && !imageFailed;
+
+  return (
+    <div
+      className={`news-thumbnail news-thumbnail--${artwork.category} news-thumbnail--variant-${artwork.variant}`}
+      aria-hidden="true"
+    >
+      {showImage ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={imageUrl}
+          alt=""
+          className="news-thumbnail__image"
+          loading="lazy"
+          decoding="async"
+          onError={() => setImageFailed(true)}
+        />
+      ) : (
+        <div className="news-thumbnail__art">
+          <span>{artwork.glyph}</span>
+        </div>
+      )}
+      <div className="news-thumbnail__source">
+        {domain && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={`https://icons.duckduckgo.com/ip3/${domain}.ico`}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            onError={(event) => {
+              event.currentTarget.hidden = true;
+            }}
+          />
+        )}
+        <span>{domain || artwork.label}</span>
+      </div>
+    </div>
+  );
+}
+
 const initialSongs: Song[] = [
   { id: 1, title: "Pinter Nyangkut", artist: "Imaha Productions", spotifyId: "0qnDeREhVYY8hBVX6P5DEU", duration: "3:17" },
   { id: 2, title: "Blinding Lights", artist: "The Weeknd", spotifyId: "0VjIjW4GlUZAMYd2vXMi3b", previewUrl: "https://p.scdn.co/mp3-preview/7f2da33e18f84ed6b5a02e783e57b3df65f09fbc", duration: "3:20" },
@@ -316,27 +412,15 @@ export default function SecondaryContent() {
                 </div>
                 <div ref={newsCarouselRef} className="no-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth px-2 py-2" style={{ WebkitOverflowScrolling: "touch" }}>
                   {news.map((item) => {
-                    let domain = "";
-                    try {
-                      domain = new URL(item.url).hostname.replace("www.", "");
-                    } catch {
-                      domain = "";
-                    }
+                    const domain = getNewsDomain(item.url);
                     return (
-                      <article key={item.id} className="flex w-[320px] shrink-0 snap-start flex-col justify-between gap-3 overflow-hidden rounded-xl border border-[var(--surface-border)] bg-[var(--background)] shadow-sm">
-                        <div className="flex h-36 items-end bg-gradient-to-br from-blue-500/8 to-cyan-500/6 p-3">
-                          {domain && (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={`https://icons.duckduckgo.com/ip3/${domain}.ico`} alt="" className="h-10 w-10 rounded-md border border-[var(--surface-border)] bg-white/5" loading="lazy" />
-                          )}
-                          <div className="ml-3 text-xs text-[var(--muted)]">{domain}</div>
-                        </div>
-                        <div className="p-4">
-                          <a href={item.url} target="_blank" rel="noopener noreferrer" className="font-semibold text-[var(--brand-text)] hover:underline">{item.title}</a>
-                          <div className="mt-2 flex items-center gap-3 text-xs text-[var(--muted)]">
+                      <article key={item.id} className="news-card flex w-[320px] shrink-0 snap-start flex-col overflow-hidden rounded-xl border border-[var(--surface-border)] bg-[var(--background)] shadow-sm">
+                        <NewsThumbnail item={item} domain={domain} />
+                        <div className="news-card__content">
+                          <a href={item.url} target="_blank" rel="noopener noreferrer" className="news-card__title font-semibold text-[var(--brand-text)] hover:underline">{item.title}</a>
+                          <div className="news-card__meta text-[var(--muted)]">
                             <span>by {item.by ?? "unknown"}</span>
-                            <span>•</span>
-                            <span>{item.time ? new Date(item.time * 1000).toLocaleString() : ""}</span>
+                            {item.time ? <time dateTime={new Date(item.time * 1000).toISOString()}>{new Date(item.time * 1000).toLocaleString()}</time> : null}
                           </div>
                         </div>
                       </article>
@@ -353,7 +437,7 @@ export default function SecondaryContent() {
           <div className="rounded-[2rem] border border-[var(--surface-border)] bg-[var(--surface)] p-8 shadow-[0_30px_70px_-40px_rgba(15,23,42,0.75)] backdrop-blur-xl">
             <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
               <div className="space-y-3">
-                <p className="text-xs uppercase tracking-[0.24em] text-[var(--muted)]">My New Songs - Released</p>
+                <p className="text-sm uppercase tracking-[0.24em] text-[var(--muted)]">My New Songs - Released</p>
                 <h2 className="text-4xl font-bold text-[var(--foreground)]">Minimal music for your focus</h2>
                 <p className="max-w-2xl text-[var(--muted)]">Browse the new song list and keep playback running while you explore the page. Tap a track to start and control playback from the floating player.</p>
               </div>
@@ -380,11 +464,11 @@ export default function SecondaryContent() {
                   <button key={song.id} type="button" onClick={() => void handleSelectSong(song.id)} className={`flex w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-left transition ${isCurrentlyPlaying ? "border border-cyan-400/50 bg-cyan-500/15" : isActive ? "border border-cyan-400/30 bg-cyan-500/10" : "border border-[var(--surface-border)] bg-[var(--background)] hover:border-cyan-400/30 hover:bg-[var(--surface)]"}`}>
                     <div className="min-w-0">
                       <h3 className="truncate text-sm font-semibold text-[var(--foreground)]">{song.title}</h3>
-                      <p className="truncate text-xs text-[var(--muted)]">{song.artist}</p>
+                      <p className="truncate text-sm text-[var(--muted)]">{song.artist}</p>
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
                       {isCurrentlyPlaying && <span className="text-xs font-semibold text-cyan-400">▶</span>}
-                      <span className="text-xs text-[var(--muted)]">{song.duration}</span>
+                      <span className="text-sm text-[var(--muted)]">{song.duration}</span>
                     </div>
                   </button>
                 );
@@ -397,7 +481,7 @@ export default function SecondaryContent() {
         <div className={`overflow-hidden rounded-[1.75rem] border border-[var(--surface-border)] bg-[var(--surface)]/95 shadow-[0_24px_70px_-30px_rgba(15,23,42,0.85)] backdrop-blur-xl transition-all duration-200 ${playerMinimized ? "h-[72px]" : ""}`}>
           <div className="flex items-center justify-between gap-3 px-4 py-3">
             <div className="min-w-0">
-              <p className="text-[0.65rem] uppercase tracking-[0.26em] text-[var(--muted)]">Now playing</p>
+              <p className="text-sm uppercase tracking-[0.26em] text-[var(--muted)]">Now playing</p>
               <p className="truncate text-sm font-semibold text-[var(--foreground)]">{playerTitle}</p>
             </div>
             <button type="button" onClick={() => setPlayerMinimized((value) => !value)} className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--surface-border)] bg-[var(--background)] text-[var(--foreground)] transition hover:border-cyan-400" aria-label={playerMinimized ? "Expand player" : "Minimize player"}>
@@ -422,7 +506,7 @@ export default function SecondaryContent() {
                     <button type="button" onClick={() => void togglePlay()} className="rounded-full bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-400">{localPlaying ? "Pause track" : "Play track"}</button>
                     <button type="button" onClick={() => changeTrack(1)} className="inline-flex items-center justify-center rounded-full border border-[var(--surface-border)] bg-[var(--background)] p-2 text-[var(--foreground)] transition hover:border-cyan-400">▶▶</button>
                   </div>
-                  <p className="text-xs text-[var(--muted)]">{spotifyStatus}</p>
+                  <p className="text-sm text-[var(--muted)]">{spotifyStatus}</p>
                 </div>
               ) : (
                 <p className="text-sm text-[var(--muted)]">Select a song to open the player.</p>
