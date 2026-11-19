@@ -1303,6 +1303,199 @@ nav button[aria-label="Toggle navigation menu"] {
   background: #0e1521;
 }
 
+.cert-carousel {
+  padding-inline: 3rem;
+  scroll-padding-inline: 3rem;
+}
+
+.cert-card {
+  width: 320px;
+  height: 260px;
+}
+
+.cert-card__surface {
+  display: grid;
+  height: 100%;
+  grid-template-rows: 4.75rem minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  border: 1px solid var(--surface-border);
+  border-radius: 0.75rem;
+  background: var(--background);
+  padding: 1rem;
+  box-shadow: 0 8px 24px -18px rgba(58, 117, 230, 0.55);
+}
+
+.cert-thumbnail {
+  position: relative;
+  display: flex;
+  overflow: hidden;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 0.55rem;
+  background:
+    radial-gradient(circle at 88% 18%, rgba(255, 255, 255, 0.2), transparent 28%),
+    linear-gradient(120deg, #123f5c, #087e8b);
+  padding: 0.75rem 1rem;
+  color: #f4fbff;
+}
+
+.cert-thumbnail::before {
+  position: absolute;
+  inset: 0.35rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0.35rem;
+  content: "";
+  pointer-events: none;
+}
+
+.cert-thumbnail__wordmark,
+.cert-thumbnail__caption {
+  position: relative;
+  z-index: 1;
+  width: fit-content;
+  max-width: calc(100% - 3.25rem);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cert-thumbnail__wordmark {
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.cert-thumbnail__caption {
+  color: rgba(244, 251, 255, 0.78);
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+}
+
+.cert-thumbnail__seal {
+  position: absolute;
+  top: 50%;
+  right: 1.2rem;
+  display: grid;
+  width: 2.45rem;
+  height: 2.45rem;
+  transform: translateY(-50%);
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.cert-thumbnail__line {
+  position: absolute;
+  left: 1rem;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.cert-thumbnail__line--one {
+  bottom: 1.15rem;
+  width: 34%;
+}
+
+.cert-thumbnail__line--two {
+  right: 4.5rem;
+  bottom: 0.8rem;
+  width: 22%;
+}
+
+.cert-thumbnail[data-provider*="hackerrank"] {
+  background:
+    radial-gradient(circle at 88% 18%, rgba(255, 255, 255, 0.2), transparent 28%),
+    linear-gradient(120deg, #263044, #175b3a);
+}
+
+.cert-thumbnail[data-provider*="skilljar"],
+.cert-thumbnail[data-provider="Board"] {
+  background:
+    radial-gradient(circle at 88% 18%, rgba(255, 255, 255, 0.2), transparent 28%),
+    linear-gradient(120deg, #3c286e, #6650bd);
+}
+
+.cert-thumbnail[data-provider*="mycourse"],
+.cert-thumbnail[data-provider="MotionBoard"] {
+  background:
+    radial-gradient(circle at 88% 18%, rgba(255, 255, 255, 0.2), transparent 28%),
+    linear-gradient(120deg, #154978, #148caa);
+}
+
+.cert-thumbnail[data-provider*="udemy"] {
+  background:
+    radial-gradient(circle at 88% 18%, rgba(255, 255, 255, 0.2), transparent 28%),
+    linear-gradient(120deg, #4a245b, #9b3679);
+}
+
+.cert-thumbnail[data-provider="Dicoding Indonesia"] {
+  background:
+    radial-gradient(circle at 88% 18%, rgba(255, 255, 255, 0.2), transparent 28%),
+    linear-gradient(120deg, #124d59, #168b87);
+}
+
+.cert-thumbnail[data-provider="LSK-BIG"] {
+  background:
+    radial-gradient(circle at 88% 18%, rgba(255, 255, 255, 0.2), transparent 28%),
+    linear-gradient(120deg, #55451e, #aa8233);
+}
+
+.cert-thumbnail[data-provider="ForeSec"] {
+  background:
+    radial-gradient(circle at 88% 18%, rgba(255, 255, 255, 0.2), transparent 28%),
+    linear-gradient(120deg, #512b2b, #9b4540);
+}
+
+.cert-card__content {
+  display: grid;
+  grid-template-rows: auto auto;
+  align-content: start;
+  gap: 0.75rem;
+}
+
+.cert-card__title {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--foreground);
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.5;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cert-card__meta {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.cert-card__meta p {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.cert-card__date {
+  width: max-content;
+  max-width: 100%;
+  border: 1px solid rgba(34, 211, 238, 0.18);
+  border-radius: 999px;
+  background: rgba(34, 211, 238, 0.1);
+  padding: 0.35rem 0.65rem;
+  color: var(--brand-text);
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
 #faq > .faq-layout {
   max-width: 52rem;
 }
@@ -1478,6 +1671,25 @@ footer > div > div:first-child + div {
 }
 
 @media (max-width: 639px) {
+  .cert-carousel {
+    padding-inline: 1.75rem;
+    scroll-padding-inline: 1.75rem;
+  }
+
+  .cert-card {
+    width: min(280px, calc(100vw - 6.5rem));
+    height: 280px;
+  }
+
+  .cert-card__meta {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .cert-card__date {
+    justify-self: start;
+  }
+
   nav {
     top: 0.5rem;
     padding-inline: 0.65rem;

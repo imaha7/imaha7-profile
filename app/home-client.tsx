@@ -265,7 +265,9 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
     const update = () => {
       const el = certCarouselRef.current;
       if (!el) return;
-      const per = Math.max(1, Math.floor((el.clientWidth + certCardGap) / (certCardWidth + certCardGap)));
+      const firstCard = el.querySelector<HTMLElement>("[data-cert-card-index]");
+      const actualCardWidth = firstCard?.offsetWidth || certCardWidth;
+      const per = Math.max(1, Math.floor((el.clientWidth + certCardGap) / (actualCardWidth + certCardGap)));
       setCertCardsPerPage(per);
     };
     update();
@@ -1077,19 +1079,31 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
 
                 <div
                   ref={certCarouselRef}
-                  className="no-scrollbar flex gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory py-2 px-2"
+                  className="no-scrollbar cert-carousel flex gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory py-2"
                   style={{ WebkitOverflowScrolling: "touch" }}
                 >
                   {certifications.map((cert, index) => (
-                    <div key={`${cert.title}-${index}`} data-cert-card-index={index} className="shrink-0 w-[320px] snap-start">
-                      <article className="flex h-full flex-col justify-between gap-3 rounded-xl border border-[var(--surface-border)] bg-[var(--background)] p-5 shadow-sm">
-                        <div>
-                          <h3 className="text-sm font-semibold text-[var(--foreground)]">{cert.title}</h3>
-                          <div className="mt-2 flex items-center gap-5">
+                    <div key={`${cert.title}-${index}`} data-cert-card-index={index} className="cert-card shrink-0 snap-start">
+                      <article className="cert-card__surface">
+                        <div
+                          className="cert-thumbnail"
+                          data-provider={cert.url ? new URL(cert.url).hostname : cert.issuer}
+                          role="img"
+                          aria-label={`Certificate artwork for ${cert.title}, issued by ${cert.issuer}`}
+                        >
+                          <span className="cert-thumbnail__wordmark">{cert.issuer}</span>
+                          <span className="cert-thumbnail__caption">CERTIFICATE</span>
+                          <span className="cert-thumbnail__seal" aria-hidden="true">✓</span>
+                          <span className="cert-thumbnail__line cert-thumbnail__line--one" aria-hidden="true" />
+                          <span className="cert-thumbnail__line cert-thumbnail__line--two" aria-hidden="true" />
+                        </div>
+                        <div className="cert-card__content">
+                          <h3 className="cert-card__title" title={cert.title}>{cert.title}</h3>
+                          <div className="cert-card__meta">
                             <p className="text-sm text-[var(--muted)]">{cert.issuer}</p>
-                            <div className="rounded-full border border-cyan-500/20 bg-cyan-500/10 px-3 py-1 text-sm font-semibold text-[var(--brand-text)]">
+                            <time className="cert-card__date">
                               {cert.date}
-                            </div>
+                            </time>
                           </div>
                         </div>
                         {cert.url ? (
@@ -1102,7 +1116,7 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
                             View certificate →
                           </a>
                         ) : (
-                          <div className="mt-2 text-sm text-[var(--muted)]">Preview Not Available</div>
+                          <div className="mt-2 text-sm text-[var(--muted)]">Certificate link unavailable</div>
                         )}
                       </article>
                     </div>
