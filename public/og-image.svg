@@ -11,7 +11,7 @@
   <rect width="1200" height="630" fill="url(#bg)" />
   <rect x="60" y="60" width="1080" height="510" rx="40" fill="#ffffff" fill-opacity="0.08" filter="url(#shadow)" />
   <text x="120" y="190" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="72" font-weight="700" fill="#ffffff">Ilham Maulana Habibie</text>
-  <text x="120" y="280" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="36" fill="#e2e8f0">Full Stack Developer • BI Specialist</text>
+  <text x="120" y="280" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="36" fill="#e2e8f0">Software Engineer • BI Specialist</text>
   <text x="120" y="360" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="28" fill="#e2e8f0">React · Next.js · TypeScript · MotionBoard · Dashboards</text>
   <text x="120" y="430" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="24" fill="#38bdf8">GitHub: github.com/imaha7 • LinkedIn: linkedin.com/in/imaha7</text>
   <g transform="translate(120, 470)">

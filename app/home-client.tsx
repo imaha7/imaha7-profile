@@ -339,7 +339,7 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
   const profileResponses = [
     {
       keys: ["name", "who are", "who is"],
-      text: "I am Ilham Maulana Habibie, a Full Stack Developer and BI Specialist based in Jakarta, Indonesia.",
+      text: "I am Ilham Maulana Habibie, a Software Engineer and BI Specialist based in Jakarta, Indonesia.",
     },
     {
       keys: ["degree", "education", "university", "mikroskil", "computer science"],
@@ -697,7 +697,7 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
       ],
     },
     {
-      role: "Full Stack Developer",
+      role: "Software Engineer",
       company: "PT. Tiga Ruang Imaji",
       period: "Jul 2021 - Nov 2021",
       description: "Worked across front-end and back-end to deliver full solutions.",
@@ -880,7 +880,7 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
         <section id="home" className="px-4">
           <div className="hero-layout mx-auto max-w-7xl">
             <div className="hero-copy">
-              <p className="hero-kicker"><span /> FULL STACK DEVELOPER <b>·</b> BI SPECIALIST</p>
+              <p className="hero-kicker"><span /> SOFTWARE ENGINEER <b>·</b> BI SPECIALIST</p>
               <div className="space-y-5">{heroHeading}</div>
               <div className="hero-intro">
                 <span>Jakarta, Indonesia</span>
@@ -926,7 +926,7 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
                 </div>
                 <span className="about-availability text-lg font-medium"><i /> Jakarta, Indonesia</span>
                 <h3>Ilham Maulana Habibie, B.Sc</h3>
-                <p className="text-lg font-medium">Full Stack Developer<br />&amp; BI Specialist</p>
+                <p className="text-lg font-medium">Software Engineer<br />&amp; BI Specialist</p>
                 <div className="about-socials">
                   <a href="https://github.com/imaha7" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
                     <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor">
