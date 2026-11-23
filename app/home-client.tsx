@@ -1,8 +1,33 @@
 "use client";
 
 import React, { type ReactNode, useMemo, useState } from "react";
+import Lenis from "lenis";
+import { MotionConfig, motion, useReducedMotion } from "motion/react";
 import DeferredSections from "./deferred-sections";
 import VisitorCounter from "./visitor-counter";
+
+const faqItems = [
+  {
+    question: "What kind of projects do you work on?",
+    answer:
+      "I build web and mobile applications, enterprise dashboards, and business intelligence solutions for teams that need clearer workflows and better data visibility.",
+  },
+  {
+    question: "Which technologies do you work with?",
+    answer:
+      "My toolkit includes React, Next.js, TypeScript, Node.js, Vue.js, Laravel, React Native, Kotlin, SQL, and MotionBoard.",
+  },
+  {
+    question: "Are you available for new opportunities?",
+    answer:
+      "I’m open to discussing web, dashboard, mobile, and BI projects. Send me a short note about what you’re planning.",
+  },
+  {
+    question: "How can we get started?",
+    answer:
+      "Email me with a little context about your goals, timeline, and team. I’ll get back to you to talk through next steps.",
+  },
+];
 
 function DashboardArtwork({ variant = "overview" }: { variant?: string }) {
   return (
@@ -156,6 +181,9 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
   const [scrolled, setScrolled] = useState(false);
   const [theme, setTheme] = useState<"dark" | "light">("dark");
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
+  const prefersReducedMotion = useReducedMotion();
+  const lenisRef = React.useRef<Lenis | null>(null);
   const resumeDialogRef = React.useRef<HTMLDialogElement | null>(null);
   const resumeCloseTimeoutRef = React.useRef<number | null>(null);
   const closeResumePreview = () => {
@@ -408,6 +436,34 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
   };
 
   const sectionIds = ["home", "clients", "projects", "products", "skills", "about", "experience", "certifications", "faq", "contact"];
+
+  React.useEffect(() => {
+    const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let lenis: Lenis | null = null;
+
+    const syncLenis = () => {
+      lenis?.destroy();
+      lenis = null;
+      lenisRef.current = null;
+
+      if (motionPreference.matches) return;
+
+      lenis = new Lenis({
+        autoRaf: true,
+        anchors: { offset: -88 },
+      });
+      lenisRef.current = lenis;
+    };
+
+    syncLenis();
+    motionPreference.addEventListener("change", syncLenis);
+
+    return () => {
+      motionPreference.removeEventListener("change", syncLenis);
+      lenis?.destroy();
+      lenisRef.current = null;
+    };
+  }, []);
 
   React.useEffect(() => {
     const savedTheme = window.localStorage.getItem("theme") as "dark" | "light" | null;
@@ -774,14 +830,30 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
     { id: "contact", label: "Contact" },
   ];
 
+  const scrollToSection = (id: string) => {
+    const section = document.getElementById(id);
+    if (!section) return;
+
+    if (lenisRef.current) {
+      lenisRef.current.scrollTo(section, { offset: -88 });
+      return;
+    }
+
+    section.scrollIntoView({
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
+      block: "start",
+    });
+  };
+
   return (
+    <MotionConfig reducedMotion="user">
     <div className="relative min-h-screen overflow-hidden bg-[var(--background)] text-[var(--foreground)]">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-80 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.16),transparent_30%),radial-gradient(circle_at_80%_10%,_rgba(14,165,233,0.14),transparent_22%)] blur-3xl" />
 
       <nav className={`fixed inset-x-0 top-0 z-50 bg-transparent transition-all duration-300 ${scrolled ? 'backdrop-blur-xl border-b border-[var(--surface-border)] shadow-lg shadow-cyan-500/5' : ''}`}>
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-4">
-            <a href="#home" onClick={() => { setActiveSection('home'); setMobileNavOpen(false); document.getElementById('home')?.scrollIntoView({ behavior: 'smooth' }); }} className="inline-flex items-center gap-3">
+            <a href="#home" onClick={() => { setActiveSection('home'); setMobileNavOpen(false); }} className="inline-flex items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-full border border-[var(--surface-border)] bg-[var(--surface)] text-sm font-semibold uppercase tracking-[0.24em] text-[var(--foreground)] shadow-sm shadow-white/5">
                 <img
                     className = "rounded-full"
@@ -803,7 +875,7 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
                   key={item.id}
                   onClick={() => {
                     setActiveSection(item.id);
-                    document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    scrollToSection(item.id);
                   }}
                   className={`relative text-sm font-medium transition-all duration-300 py-1 ${activeSection === item.id ? 'text-[var(--brand-text)]' : 'text-[var(--muted)] hover:text-[var(--foreground)]'}`}
                 >
@@ -866,7 +938,7 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
                   e.preventDefault();
                   setActiveSection(item.id);
                   setMobileNavOpen(false);
-                  document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  scrollToSection(item.id);
                 }}
                 className={`w-full rounded-xl px-4 py-3 text-left text-sm font-medium transition ${activeSection === item.id ? 'bg-cyan-500/10 text-[var(--brand-text)]' : 'text-[var(--foreground)] hover:bg-[var(--surface)]'
                   }`}
@@ -881,7 +953,12 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
       <main className="relative">
         <section id="home" className="px-4">
           <div className="hero-layout mx-auto max-w-7xl">
-            <div className="hero-copy">
+            <motion.div
+              className="hero-copy"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.55, ease: "easeOut" }}
+            >
               <p className="hero-kicker"><span /> SOFTWARE ENGINEER <b>·</b> BI SPECIALIST</p>
               <div className="space-y-5">{heroHeading}</div>
               <div className="hero-intro">
@@ -896,14 +973,19 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
                   Let’s connect
                 </a>
               </div>
-            </div>
-            <div className="hero-visual">
+            </motion.div>
+            <motion.div
+              className="hero-visual"
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.65, delay: 0.1, ease: "easeOut" }}
+            >
               <DashboardArtwork />
               <div className="hero-stat hero-stat--hours"><strong>6+</strong><span>Years of<br />experience</span></div>
               <div className="hero-stat hero-stat--projects"><strong>12+</strong><span>Featured<br />projects</span></div>
               <div className="hero-stat hero-stat--clients"><strong>5</strong><span>Trusted<br />clients</span></div>
               <div className="hero-visual-caption"><span /> Turning data into direction</div>
-            </div>
+            </motion.div>
           </div>
         </section>
 
@@ -941,25 +1023,43 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
                 <a href="mailto:ilham.maulana.07.0698@gmail.com" className="hero-button hero-button--primary">Let’s connect</a>
               </aside>
               <div className="about-details">
-                <article className="about-panel">
+                <motion.article
+                  className="about-panel"
+                  initial={{ opacity: 0, y: 14 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  transition={{ duration: 0.42, ease: "easeOut" }}
+                >
                   <h3>Hi, I&apos;m Ilham.</h3>
                   <p className="text-lg font-medium">I&apos;m a software engineer with 6+ years of experience building web and mobile applications, enterprise dashboards, and data visualizations that solve real business challenges.</p>
                   <p className="text-lg font-medium">I hold a Bachelor of Computer Science from Mikroskil University with Magna Cum Laude honors. I combine frontend design, backend architecture, mobile development, and BI to deliver useful products for manufacturing, finance, and enterprise teams.</p>
-                </article>
-                <article className="about-panel about-stack">
+                </motion.article>
+                <motion.article
+                  className="about-panel about-stack"
+                  initial={{ opacity: 0, y: 14 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  transition={{ duration: 0.42, delay: 0.07, ease: "easeOut" }}
+                >
                   <h3>My tech stack:</h3>
                   <div>
                     {["React", "Next.js", "TypeScript", "Node.js", "MotionBoard", "SQL", "React Native", "Kotlin"].map((item) => (
                       <span key={item}>{item}</span>
                     ))}
                   </div>
-                </article>
-                <article className="about-panel about-highlights text-lg font-medium">
+                </motion.article>
+                <motion.article
+                  className="about-panel about-highlights text-lg font-medium"
+                  initial={{ opacity: 0, y: 14 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  transition={{ duration: 0.42, delay: 0.14, ease: "easeOut" }}
+                >
                   <h3>Career highlights</h3>
                   <div><span>Information Technology Developer</span><b>PT. Sazanka Henig Solusi</b><time>2023 — Now</time></div>
                   <div><span>Frontend &amp; Mobile Engineer</span><b>Ogloba Ltd.</b><time>2022 — 2023</time></div>
                   <div><span>Frontend Developer</span><b>PT. Zegen Solusi Mandiri</b><time>2022</time></div>
-                </article>
+                </motion.article>
               </div>
             </div>
             <div className="resume-card">
@@ -1025,7 +1125,23 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
             </div>
             <div className="grid gap-8 md:grid-cols-3">
               {skills.map((skillGroup, index) => (
-                <div key={skillGroup.category} className="service-card rounded-3xl border border-[var(--surface-border)] bg-[var(--surface)] p-6 transition hover:border-cyan-400/50">
+                <motion.div
+                  key={skillGroup.category}
+                  className="service-card rounded-3xl border border-[var(--surface-border)] bg-[var(--surface)] p-6 transition-colors hover:border-cyan-400/50"
+                  initial={{ opacity: 0, y: 18 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  whileHover={{
+                    y: -5,
+                    scale: 1.015,
+                    transition: { type: "spring", stiffness: 320, damping: 24 },
+                  }}
+                  whileTap={{
+                    scale: 0.985,
+                    transition: { type: "spring", stiffness: 420, damping: 28 },
+                  }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  transition={{ duration: 0.45, delay: index * 0.08, ease: "easeOut" }}
+                >
                   <span className="service-card__index">0{index + 1}</span>
                   <h3 className="mb-4 text-xl font-semibold text-[var(--foreground)]">{skillGroup.category}</h3>
                   <p className="service-card__description">
@@ -1040,7 +1156,7 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
                       <span key={item} className="skill-tag">{item}</span>
                     ))}
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           </div>
@@ -1083,7 +1199,15 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
                   style={{ WebkitOverflowScrolling: "touch" }}
                 >
                   {certifications.map((cert, index) => (
-                    <div key={`${cert.title}-${index}`} data-cert-card-index={index} className="cert-card shrink-0 snap-start">
+                    <motion.div
+                      key={`${cert.title}-${index}`}
+                      data-cert-card-index={index}
+                      className="cert-card shrink-0 snap-start"
+                      initial={{ opacity: 0, y: 12 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true, amount: 0.25 }}
+                      transition={{ duration: 0.38, delay: (index % 3) * 0.06, ease: "easeOut" }}
+                    >
                       <article className="cert-card__surface">
                         <div
                           className="cert-thumbnail"
@@ -1119,7 +1243,7 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
                           <div className="mt-2 text-sm text-[var(--muted)]">Certificate link unavailable</div>
                         )}
                       </article>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
               </div>
@@ -1147,9 +1271,22 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
             </div>
             <div className="grid gap-6 md:grid-cols-2">
               {projects.map((project) => (
-                <article
+                <motion.article
                   key={project.id}
-                  className="project-card group overflow-hidden rounded-[1.5rem] border border-[var(--surface-border)] bg-[var(--surface)] transition hover:-translate-y-1 hover:border-cyan-400/30"
+                  className="project-card group overflow-hidden rounded-[1.5rem] border border-[var(--surface-border)] bg-[var(--surface)] transition-colors hover:border-cyan-400/30"
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  whileHover={{
+                    y: -5,
+                    scale: 1.01,
+                    transition: { type: "spring", stiffness: 320, damping: 24 },
+                  }}
+                  whileTap={{
+                    scale: 0.99,
+                    transition: { type: "spring", stiffness: 420, damping: 28 },
+                  }}
+                  viewport={{ once: true, amount: 0.15 }}
+                  transition={{ duration: 0.45, delay: (project.id % 2) * 0.08, ease: "easeOut" }}
                 >
                   <ProjectArtwork id={project.id} title={project.title} client={project.client} skill={project.skills[0] ?? "PROJECT HIGHLIGHT"} />
                   <div className="project-card__body p-6">
@@ -1166,7 +1303,7 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
                       </div>
                     )}
                   </div>
-                </article>
+                </motion.article>
               ))}
             </div>
           </div>
@@ -1182,9 +1319,13 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
 
             <div className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-6 overflow-x-auto px-4 pb-5 sm:-mx-8 sm:px-8 lg:mx-0 lg:px-0">
               {products.map((product) => (
-                <article
+                <motion.article
                   key={product.name}
                   className="group relative flex min-h-[520px] w-[min(86vw,760px)] shrink-0 snap-start flex-col overflow-hidden border border-[var(--surface-border)] bg-[var(--surface)] text-[var(--foreground)] transition duration-500 hover:border-white/50 sm:min-h-[540px] sm:flex-row"
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  transition={{ duration: 0.48, ease: "easeOut" }}
                 >
                   <div className="product-art relative min-h-[230px] overflow-hidden bg-[var(--product-preview)] sm:min-h-0 sm:w-[42%]">
                     <iframe
@@ -1219,7 +1360,7 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
                     </div>
                   </div>
                   <span className="absolute right-5 top-5 text-2xl font-semibold tracking-[-0.05em] text-[var(--product-ink)]/75">{product.number}</span>
-                </article>
+                </motion.article>
               ))}
             </div>
             <div className="mt-4 flex items-center justify-between text-[0.6rem] uppercase tracking-[0.3em] text-[var(--muted)]">
@@ -1238,7 +1379,14 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
             </div>
             <div className="career-timeline">
               {careerTimeline.map((exp, index) => (
-                <article key={`${exp.company}-${exp.role}`} className="career-step">
+                <motion.article
+                  key={`${exp.company}-${exp.role}`}
+                  className="career-step"
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  transition={{ duration: 0.42, delay: Math.min(index, 3) * 0.06, ease: "easeOut" }}
+                >
                   <div className="career-step__marker"><span>{String(index + 1).padStart(2, "0")}</span></div>
                   <div className="career-step__card">
                     <div className="career-step__meta"><span>{exp.period}</span><span>{exp.company}</span></div>
@@ -1251,7 +1399,7 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
                       )?.map((skill) => <span key={skill}>{skill.trim()}</span>)}
                     </div>
                   </div>
-                </article>
+                </motion.article>
               ))}
             </div>
           </div>
@@ -1264,28 +1412,75 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
               <h2>Frequently asked</h2>
             </div>
             <div className="faq-list">
-              <details>
-                <summary>What kind of projects do you work on?<span>+</span></summary>
-                <p>I build web and mobile applications, enterprise dashboards, and business intelligence solutions for teams that need clearer workflows and better data visibility.</p>
-              </details>
-              <details>
-                <summary>Which technologies do you work with?<span>+</span></summary>
-                <p>My toolkit includes React, Next.js, TypeScript, Node.js, Vue.js, Laravel, React Native, Kotlin, SQL, and MotionBoard.</p>
-              </details>
-              <details>
-                <summary>Are you available for new opportunities?<span>+</span></summary>
-                <p>I’m open to discussing web, dashboard, mobile, and BI projects. Send me a short note about what you’re planning.</p>
-              </details>
-              <details>
-                <summary>How can we get started?<span>+</span></summary>
-                <p>Email me with a little context about your goals, timeline, and team. I’ll get back to you to talk through next steps.</p>
-              </details>
+              {faqItems.map((item, index) => {
+                const isOpen = openFaqIndex === index;
+                const answerId = `faq-answer-${index}`;
+
+                return (
+                  <motion.div
+                    key={item.question}
+                    className="faq-item"
+                    data-open={isOpen}
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.35 }}
+                    transition={{ duration: 0.35, delay: index * 0.05 }}
+                  >
+                    <h3>
+                      <button
+                        type="button"
+                        className="faq-trigger"
+                        aria-expanded={isOpen}
+                        aria-controls={answerId}
+                        onClick={() => setOpenFaqIndex(isOpen ? null : index)}
+                      >
+                        <span>{item.question}</span>
+                        <motion.span
+                          className="faq-icon"
+                          aria-hidden="true"
+                          animate={{ rotate: isOpen ? 45 : 0 }}
+                          transition={{ duration: 0.24, ease: "easeOut" }}
+                        >
+                          +
+                        </motion.span>
+                      </button>
+                    </h3>
+                    <motion.div
+                      id={answerId}
+                      className="faq-answer"
+                      aria-hidden={!isOpen}
+                      inert={!isOpen}
+                      initial={false}
+                      animate={{
+                        height: isOpen ? "auto" : 0,
+                        opacity: isOpen ? 1 : 0,
+                      }}
+                      transition={
+                        prefersReducedMotion
+                          ? { duration: 0 }
+                          : {
+                              height: { duration: 0.34, ease: "easeInOut" },
+                              opacity: { duration: 0.2, ease: "easeOut" },
+                            }
+                      }
+                    >
+                      <p>{item.answer}</p>
+                    </motion.div>
+                  </motion.div>
+                );
+              })}
             </div>
           </div>
         </section>
 
         <section id="contact" className="px-4">
-          <div className="contact-banner mx-auto max-w-6xl">
+          <motion.div
+            className="contact-banner mx-auto max-w-6xl"
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.25 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+          >
             <span className="section-eyebrow">HAVE A PROJECT IN MIND?</span>
             <h2>Your vision, my expertise.<br />Let’s build something <em>meaningful.</em></h2>
             <p>Let’s talk about the web, data, or product challenge you’re working through.</p>
@@ -1313,7 +1508,7 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
                 GitHub
               </a>
             </div>
-          </div>
+          </motion.div>
         </section>
         <DeferredSections />
       </main>
@@ -1326,11 +1521,17 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
               <h2 className="mt-4 text-3xl font-semibold text-[var(--foreground)]">ILHAM MAULANA HABIBIE</h2>
               <p className="mt-4 max-w-xl text-[var(--muted)]">Available for BI, dashboard, and web application projects. Send an email to start a clear, fast conversation about your next digital product.</p>
             </div>
-            <div className="rounded-3xl border border-[var(--surface-border)] bg-[var(--surface)] p-6">
+            <motion.div
+              className="rounded-3xl border border-[var(--surface-border)] bg-[var(--surface)] p-6"
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.25 }}
+              transition={{ duration: 0.4 }}
+            >
               <p className="text-sm uppercase tracking-[0.24em] text-[var(--muted)]">Email</p>
               <a href="mailto:ilham.maulana.07.0698@gmail.com" className="mt-3 block text-lg font-semibold text-[var(--foreground)] hover:text-[var(--brand-text)]">ilham.maulana.07.0698@gmail.com</a>
               <p className="mt-4 text-sm text-[var(--muted)]">Jakarta, Indonesia</p>
-            </div>
+            </motion.div>
           </div>
           <VisitorCounter />
           <div className="mt-6 border-t border-[var(--surface-border)] pt-6 text-center text-sm text-[var(--muted)]">© {currentYear} Ilham Maulana Habibie. All rights reserved.</div>
@@ -1374,6 +1575,7 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
           <div
             aria-label="Chat messages"
             aria-live="polite"
+            data-lenis-prevent
             className="mt-4 min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain pr-2"
           >
             {chatMessages.map((message, index) => (
@@ -1408,5 +1610,6 @@ export default function Home({ heroHeading }: { heroHeading: ReactNode }) {
         </div>
       </div>
     </div>
+    </MotionConfig>
   );
 }

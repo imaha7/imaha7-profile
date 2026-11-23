@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { motion } from "motion/react";
 
 type Song = {
   id: number;
@@ -414,7 +415,14 @@ export default function SecondaryContent() {
                   {news.map((item) => {
                     const domain = getNewsDomain(item.url);
                     return (
-                      <article key={item.id} className="news-card flex w-[320px] shrink-0 snap-start flex-col overflow-hidden rounded-xl border border-[var(--surface-border)] bg-[var(--background)] shadow-sm">
+                      <motion.article
+                        key={item.id}
+                        className="news-card flex w-[320px] shrink-0 snap-start flex-col overflow-hidden rounded-xl border border-[var(--surface-border)] bg-[var(--background)] shadow-sm"
+                        initial={{ opacity: 0, y: 12 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, amount: 0.3 }}
+                        transition={{ duration: 0.38, ease: "easeOut" }}
+                      >
                         <NewsThumbnail item={item} domain={domain} />
                         <div className="news-card__content">
                           <a href={item.url} target="_blank" rel="noopener noreferrer" className="news-card__title font-semibold text-[var(--brand-text)] hover:underline">{item.title}</a>
@@ -423,7 +431,7 @@ export default function SecondaryContent() {
                             {item.time ? <time dateTime={new Date(item.time * 1000).toISOString()}>{new Date(item.time * 1000).toLocaleString()}</time> : null}
                           </div>
                         </div>
-                      </article>
+                      </motion.article>
                     );
                   })}
                 </div>
@@ -456,7 +464,7 @@ export default function SecondaryContent() {
               }} className="inline-flex items-center rounded-2xl bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400">Load Spotify tracks</button>
               <p className="text-sm text-[var(--muted)]">{spotifyStatus}</p>
             </div>
-            <div className="mt-8 max-h-64 space-y-2 overflow-y-auto rounded-2xl border border-[var(--surface-border)] p-4">
+            <div data-lenis-prevent className="mt-8 max-h-64 space-y-2 overflow-y-auto rounded-2xl border border-[var(--surface-border)] p-4">
               {songs.map((song) => {
                 const isActive = activeSongId === song.id;
                 const isCurrentlyPlaying = isActive && localPlaying;

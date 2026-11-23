@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "lenis/dist/lenis.css";
 
 :root {
   color-scheme: dark;
@@ -48,7 +49,7 @@ html[data-theme="light"] {
 }
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
   scroll-padding-top: 6rem;
 }
 
@@ -184,7 +185,6 @@ footer .rounded-3xl {
 #projects article {
   transition:
     border-color 180ms ease,
-    transform 180ms ease,
     box-shadow 180ms ease;
 }
 
@@ -1505,31 +1505,38 @@ nav button[aria-label="Toggle navigation menu"] {
   gap: 0.55rem;
 }
 
-.faq-list details {
+.faq-item {
   border: 1px solid rgba(142, 166, 207, 0.16);
   border-radius: 0.72rem;
   background: linear-gradient(115deg, rgba(14, 33, 62, 0.88), rgba(12, 23, 40, 0.82));
 }
 
-.faq-list summary {
+.faq-item[data-open="true"] {
+  border-color: rgba(67, 139, 255, 0.36);
+}
+
+.faq-item h3 {
+  margin: 0;
+}
+
+.faq-trigger {
   display: flex;
+  width: 100%;
   min-height: 3.2rem;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
   padding: 0.8rem 1rem;
+  border: 0;
+  background: transparent;
   color: #e6ecf6;
   cursor: pointer;
   font-size: 0.95rem;
   font-weight: 530;
-  list-style: none;
+  text-align: left;
 }
 
-.faq-list summary::-webkit-details-marker {
-  display: none;
-}
-
-.faq-list summary span {
+.faq-icon {
   display: grid;
   width: 1.55rem;
   height: 1.55rem;
@@ -1541,11 +1548,11 @@ nav button[aria-label="Toggle navigation menu"] {
   font-size: 1rem;
 }
 
-.faq-list details[open] summary span {
-  transform: rotate(45deg);
+.faq-answer {
+  overflow: hidden;
 }
 
-.faq-list details p {
+.faq-answer p {
   margin: 0;
   padding: 0 1rem 1rem;
   color: #a1afc5;
@@ -1859,18 +1866,18 @@ html[data-theme="light"] #about > div,
 html[data-theme="light"] #certifications > div > div,
 html[data-theme="light"] #certifications article,
 html[data-theme="light"] .resume-card,
-html[data-theme="light"] .faq-list details {
+html[data-theme="light"] .faq-item {
   border-color: rgba(31, 57, 97, 0.14);
   background: rgba(255, 255, 255, 0.92);
   box-shadow: 0 16px 48px rgba(34, 63, 107, 0.08);
 }
 
 html[data-theme="light"] .project-meta,
-html[data-theme="light"] .faq-list details p {
+html[data-theme="light"] .faq-answer p {
   color: #65738a;
 }
 
-html[data-theme="light"] .faq-list summary {
+html[data-theme="light"] .faq-trigger {
   color: #17233c;
 }
 
